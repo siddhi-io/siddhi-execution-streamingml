@@ -1,21 +1,24 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c)  2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
-package org.wso2.carbon.ml.siddhi.extension;
+package org.wso2.extension.siddhi.execution.ml;
 
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,8 +34,9 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.Properties;
 
-public class PredictStreamProcessorTestCase {
 
+public class PredictStreamProcessorTestCase {
+    static final Logger log = Logger.getLogger(PredictStreamProcessorTestCase.class);
     private volatile boolean eventArrived;
     private String modelStorageLocation = System.getProperty("user.dir") + File.separator + "src" + File.separator
             + "test" + File.separator + "resources" + File.separator + "test-model";
@@ -71,7 +75,7 @@ public class PredictStreamProcessorTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[] { 2, 84, 0, 0, 0, 0.0, 0.304, 21 });
+        inputHandler.send(new Object[]{2, 84, 0, 0, 0, 0.0, 0.304, 21});
         sleepTillArrive(5001);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -106,7 +110,7 @@ public class PredictStreamProcessorTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[] { 2, 84, 0, 0, 0, 0.0, 0.304, 21 });
+        inputHandler.send(new Object[]{2, 84, 0, 0, 0, 0.0, 0.304, 21});
         sleepTillArrive(5001);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
@@ -140,7 +144,7 @@ public class PredictStreamProcessorTestCase {
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[] { 2, 84, 0, 0, 0, 0.0, 0.304, 21 });
+        inputHandler.send(new Object[]{2, 84, 0, 0, 0, 0.0, 0.304, 21});
         sleepTillArrive(5001);
         Assert.assertTrue(eventArrived);
         executionPlanRuntime.shutdown();
