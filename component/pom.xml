@@ -47,10 +47,6 @@
             <artifactId>org.wso2.carbon.ml.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.ml</groupId>
-            <artifactId>org.wso2.carbon.ml.commons</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -97,7 +93,6 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.wso2.extension.siddhi.execution.ml,
-                            org.wso2.extension.siddhi.execution.ml.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional

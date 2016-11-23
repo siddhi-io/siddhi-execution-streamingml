@@ -111,11 +111,12 @@
                 <groupId>org.wso2.carbon.ml</groupId>
                 <artifactId>org.wso2.carbon.ml.core</artifactId>
                 <version>${ml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.ml</groupId>
-                <artifactId>org.wso2.carbon.ml.commons</artifactId>
-                <version>${ml.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.testng</groupId>
+                        <artifactId>testng</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
