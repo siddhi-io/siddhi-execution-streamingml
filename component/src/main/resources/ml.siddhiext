@@ -16,7 +16,7 @@
 # under the License.
 #
 
-predict=org.wso2.extension.siddhi.execution.ml.PredictStreamProcessor
 streamingClusteringSamoa=org.wso2.extension.siddhi.execution.ml.StreamingClusteringExtension
 streamingClassificationSamoa=org.wso2.extension.siddhi.execution.ml.StreamingClassificationExtension
 streamingRegressionSamoa=org.wso2.extension.siddhi.execution.ml.StreamingRegressionExtension
+predict=org.wso2.extension.siddhi.execution.ml.PredictStreamProcessor
