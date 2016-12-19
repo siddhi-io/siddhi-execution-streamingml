@@ -82,6 +82,4 @@ public class StreamingClusteringStream extends DataStream {
                 attributes, 0));
         streamHeader.setClassIndex(streamHeader.numAttributes() - 1);
     }
-
-
 }

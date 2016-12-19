@@ -137,7 +137,6 @@ public class StreamingClassificationPerformanceEvaluator extends AbstractMOAObje
 
     }
 
-
     public Measurement[] getPerformanceMeasurements() {
         Measurement[] statistics = new Measurement[]{new Measurement("classified instances",
                 this.getTotalWeightObserved()), new Measurement("classifications correct (percent)",

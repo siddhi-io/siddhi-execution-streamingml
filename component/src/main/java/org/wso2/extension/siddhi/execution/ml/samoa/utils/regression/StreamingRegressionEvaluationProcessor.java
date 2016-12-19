@@ -149,8 +149,6 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
         return newProcessor;
     }
 
-
-
     private void addMeasurement() {
         Vector measurements = new Vector<>();
         measurements.add(new Measurement(ORDERING_MEASUREMENT_NAME, totalCount));
@@ -192,7 +190,6 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
             immediateResultStream.println("# COMPLETED");
             immediateResultStream.flush();
         }
-
     }
 
     public void setSamoaPredictions(Queue<Vector> samoaPrediction) {

@@ -23,8 +23,7 @@ import org.apache.samoa.topology.impl.SimpleEngine;
 import java.util.Queue;
 
 public abstract class TaskBuilder {
-    // It seems that the 3 extra options are not used directly, But It used when convert string to
-    // Task object.
+    // These 3 extra options are not used directly, But It used when convert string to Task object.
     protected static final String SUPPRESS_STATUS_OUT_MSG =
             "Suppress the task status output. Normally it is sent to stderr.";
     protected static final String SUPPRESS_RESULT_OUT_MSG =

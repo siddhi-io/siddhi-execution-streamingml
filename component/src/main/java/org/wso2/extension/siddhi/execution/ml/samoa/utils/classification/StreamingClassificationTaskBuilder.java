@@ -68,8 +68,8 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
                     "StreamingClassificationTask -f " + batchSize + " -i " + maxInstances +
                     " -s (org.wso2.extension.siddhi.execution.ml.samoa.utils." +
                     "classification.StreamingClassificationStream -K " + numberOfClasses + " -A " +
-                    numberOfAttributes + " -N " + numberOfNominalAttributes + " -Z " + nominalValues +
-                    " ) -l (org.apache.samoa.learners.classifiers.trees.VerticalHoeffdingTree -p "
+                    numberOfAttributes + " -N " + numberOfNominalAttributes + " -Z " + nominalValues
+                    + " ) -l (org.apache.samoa.learners.classifiers.trees.VerticalHoeffdingTree -p "
                     + parallelism + ")";
         } else {
             //---------Bagging--------------
@@ -128,7 +128,6 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
         logger.info("Successfully initiated the streamingClassification task");
         topology = task.getTopology();
     }
-
 }
 
 

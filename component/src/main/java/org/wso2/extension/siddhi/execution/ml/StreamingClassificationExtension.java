@@ -47,7 +47,7 @@ public class StreamingClassificationExtension extends StreamProcessor
     private int numberOfNominals;
     private String nominalAttributesValues;
     private int maxInstance;
-    private int batchSize;
+    private int batchSize;                         // DisplayInterval
     private int parallelism;
     private int numberModelsBagging;
     private int parameterPosition;
@@ -233,6 +233,7 @@ public class StreamingClassificationExtension extends StreamProcessor
                     Object evt;
 
                     // Set cep event values
+
                     String classValue =
                             (String) attributeExpressionExecutors[attributeExpressionLength - 1].
                                     execute(complexEvent).toString();
@@ -276,14 +277,13 @@ public class StreamingClassificationExtension extends StreamProcessor
                     }
                     streamingClassification.addEvents(cepEvent);
 
-                    Object[] outputData = null;
-                    outputData = streamingClassification.getOutput();
+                    Object[] outputData = streamingClassification.getOutput();
 
                     if (outputData == null) {
                         streamEventChunk.remove();
                     } else {       // If output have values, then add those values to output stream
-                        int index_predic = (int) outputData[outputData.length - 1];
-                        outputData[outputData.length - 1] = classes.get(index_predic);
+                        int index_predict = (int) outputData[outputData.length - 1];
+                        outputData[outputData.length - 1] = classes.get(index_predict);
                         if (numberOfNominals != 0) {
                             for (int k = numberOfNumerics; k < numberOfAttributes - 1; k++) {
                                 int nominal_index =((Double)outputData[k]).intValue();
@@ -306,8 +306,8 @@ public class StreamingClassificationExtension extends StreamProcessor
                     if (outputData == null) {
                         streamEventChunk.remove();
                     } else {
-                        int index_predic = (int) outputData[outputData.length - 1];
-                        outputData[outputData.length - 1] = classes.get(index_predic);
+                        int index_predict = (int) outputData[outputData.length - 1];
+                        outputData[outputData.length - 1] = classes.get(index_predict);
                         if (numberOfNominals != 0) {
                             for (int k = numberOfNumerics; k < numberOfAttributes - 1; k++) {
                                 int nominal_index =((Double)outputData[k]).intValue();

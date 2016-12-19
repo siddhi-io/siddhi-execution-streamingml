@@ -75,7 +75,6 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
         return newProcessor;
     }
 
-
     private class DelayTimeoutHandler implements Runnable {
         private StreamingClassificationEntranceProcessor processor;
 

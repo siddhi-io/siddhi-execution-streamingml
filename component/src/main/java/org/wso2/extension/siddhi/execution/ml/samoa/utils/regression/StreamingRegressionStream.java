@@ -77,7 +77,4 @@ public class StreamingRegressionStream extends DataStream {
         inst.setClassValue(values[values.length - 1]);//Set the relevant class value to the data set
         return new InstanceExample(inst);
     }
-
-
-
 }

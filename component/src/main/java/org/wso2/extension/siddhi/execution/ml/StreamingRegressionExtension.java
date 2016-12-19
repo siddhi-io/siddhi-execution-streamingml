@@ -42,7 +42,7 @@ public class StreamingRegressionExtension extends StreamProcessor implements
         SchedulingProcessor {
 
     private int maxInstance;
-    private int batchSize;
+    private int batchSize;                  //Output interval
     private int numberOfAttributes;
     private int parameterPosition;
     private int parallelism;
@@ -79,7 +79,6 @@ public class StreamingRegressionExtension extends StreamProcessor implements
 
         int parameterWidth = attributeExpressionLength - numberOfAttributes;
 
-
         if (parameterWidth > 1) {
             if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
@@ -112,7 +111,6 @@ public class StreamingRegressionExtension extends StreamProcessor implements
                         " must be a constant");
             }
         }
-
 
         if (parameterWidth > 3) {
             if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
@@ -154,22 +152,14 @@ public class StreamingRegressionExtension extends StreamProcessor implements
                 ComplexEvent complexEvent = streamEventChunk.next();
                 if (complexEvent.getType() != ComplexEvent.Type.TIMER) {
                     double[] cepEvent = new double[attributeExpressionLength - parameterPosition];
-                    Object evt;
-
-                    Object classVal = attributeExpressionExecutors[attributeExpressionLength - 1].
-                            execute(complexEvent);
-                    double classValue = (double) classVal;
-
-                    cepEvent[numberOfAttributes - 1] = classValue;
                     for (int i = 0; i < numberOfAttributes; i++) {
-                        evt = attributeExpressionExecutors[i + parameterPosition].
+                        Object evt = attributeExpressionExecutors[i + parameterPosition].
                                 execute(complexEvent);
                         cepEvent[i] = (double) evt;
                     }
 
                     streamingRegression.addEvents(cepEvent);
-                    Object[] outputData;
-                    outputData = streamingRegression.getOutput();
+                    Object[] outputData = streamingRegression.getOutput();
                     if (outputData == null) {
                         streamEventChunk.remove();
                     } else {
@@ -183,8 +173,7 @@ public class StreamingRegressionExtension extends StreamProcessor implements
                     lastScheduledTimestamp = lastScheduledTimestamp + TIMER_DURATION;
                     scheduler.notifyAt(lastScheduledTimestamp);
 
-                    Object[] outputData;
-                    outputData = streamingRegression.getOutput();
+                    Object[] outputData = streamingRegression.getOutput();
                     if (outputData == null) {
                         streamEventChunk.remove();
                     } else {

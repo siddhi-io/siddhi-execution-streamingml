@@ -43,8 +43,8 @@ public class StreamingClassificationStream extends DataStream {
             "The number of classes in the model.", 2, 1, Integer.MAX_VALUE);
     public IntOption numberOfNominalsOption = new IntOption("numberOfNominals", 'N',
             "The number of nominal attributes to generate.", 0, 0, 2147483647);
-    public StringOption numberOfValuesPerNominalOption = new StringOption("numberOfValuesPerNominal" +
-            "Option", 'Z', "The number of values per nominal attributes", "null");
+    public StringOption numberOfValuesPerNominalOption = new StringOption("numberOfValuesPerNominal"
+            + "Option", 'Z', "The number of values per nominal attributes", "null");
 
     private int numberOfNominals;
     private int numberOfClasses;

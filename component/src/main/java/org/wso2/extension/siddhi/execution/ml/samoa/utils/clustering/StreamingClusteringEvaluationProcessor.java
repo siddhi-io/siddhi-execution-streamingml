@@ -82,5 +82,4 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
     public void setNumberOfClusters(int numberOfClusters) {
         this.numberOfClusters = numberOfClusters;
     }
-
 }

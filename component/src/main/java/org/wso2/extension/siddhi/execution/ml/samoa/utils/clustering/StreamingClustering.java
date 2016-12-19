@@ -26,23 +26,21 @@ import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-
 public class StreamingClustering extends Thread {
     private int numberOfAttributes;
     private int numberOfClusters;
     public int maxInstance;
-    public int numEventsReceived = 0;
+    public int numEventsReceived;
 
     public Queue<double[]> cepEvents;
     public Queue<Clustering> samoaClusters;
-
     public StreamingClusteringTaskBuilder clusteringTask;
 
     public StreamingClustering(int maxInstant, int paramCount, int numberOfClusters) {
         this.maxInstance = maxInstant;
         this.numberOfAttributes = paramCount;
         this.numberOfClusters = numberOfClusters;
-
+        this.numEventsReceived = 0;
         this.cepEvents = new ConcurrentLinkedQueue<double[]>();
         this.samoaClusters = new ConcurrentLinkedQueue<Clustering>();
 
@@ -87,5 +85,4 @@ public class StreamingClustering extends Thread {
         }
         return output;
     }
-
 }

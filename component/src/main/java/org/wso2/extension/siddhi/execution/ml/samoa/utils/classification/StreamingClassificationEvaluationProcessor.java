@@ -178,7 +178,6 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
                     (this.learningCurve.numEntries() - 1));
             this.immediateResultStream.flush();
         }
-
     }
 
     private void concludeMeasurement() {

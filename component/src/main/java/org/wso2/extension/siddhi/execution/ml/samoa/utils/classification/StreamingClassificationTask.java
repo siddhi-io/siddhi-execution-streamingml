@@ -97,7 +97,6 @@ public class StreamingClassificationTask extends ProcessTask {
         logger.info("Successfully built the topology");
     }
 
-
     public void setSamoaClassifiers(Queue<Vector> classifiers) {
         this.classifiers = classifiers;
     }
@@ -105,5 +104,4 @@ public class StreamingClassificationTask extends ProcessTask {
     public void setNumClasses(int numClasses) {
         this.numClasses = numClasses;
     }
-
 }

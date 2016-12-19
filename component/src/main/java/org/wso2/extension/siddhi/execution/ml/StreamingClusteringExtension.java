@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -123,8 +122,7 @@ public class StreamingClusteringExtension extends StreamProcessor implements Sch
                     }
                     streamingClusteringWithSamoa.addEvents(cepEvent);
 
-                    Object[] outputData=null;
-                    outputData = streamingClusteringWithSamoa.getOutput();
+                    Object[] outputData = streamingClusteringWithSamoa.getOutput();
                     // Skip processing if user has specified calculation interval
                     if (outputData == null) {
                         streamEventChunk.remove();
@@ -137,8 +135,7 @@ public class StreamingClusteringExtension extends StreamProcessor implements Sch
                 } else {
                     lastScheduledTimestamp = lastScheduledTimestamp + TIMER_DURATION;
                     scheduler.notifyAt(lastScheduledTimestamp);
-                    Object[] outputData=null;
-                    outputData = streamingClusteringWithSamoa.getOutput();
+                    Object[] outputData = streamingClusteringWithSamoa.getOutput();
 
                     // Skip processing if user has specified calculation interval
                     if (outputData == null) {
