@@ -32,7 +32,7 @@ public abstract class TaskBuilder {
             "Wait time in milliseconds between status updates.";
 
     public Queue<double[]> cepEvents;
-    protected int maxInstances;
+    protected int maxEvents;
     protected int numberOfAttributes;
     protected Topology topology;
 

@@ -43,11 +43,11 @@ public class StreamingClusteringEntranceProcessor extends SourceProcessor {
     }
 
     @Override
-    public Processor newProcessor(Processor p) {
+    public Processor newProcessor(Processor processor) {
         StreamingClusteringEntranceProcessor newProcessor =
                 new StreamingClusteringEntranceProcessor();
         StreamingClusteringEntranceProcessor originProcessor =
-                (StreamingClusteringEntranceProcessor) p;
+                (StreamingClusteringEntranceProcessor) processor;
         if (originProcessor.getStreamSource() != null) {
             newProcessor.setStreamSource(originProcessor.getStreamSource().getStream());
         }

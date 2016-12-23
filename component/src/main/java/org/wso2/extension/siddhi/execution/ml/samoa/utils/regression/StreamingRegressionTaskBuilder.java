@@ -44,7 +44,7 @@ public class StreamingRegressionTaskBuilder extends TaskBuilder {
                                           Queue<double[]> cepEvents, Queue<Vector> data,
                                           int parallel) {
         this.cepEvents = cepEvents;
-        this.maxInstances = maxInstance;
+        this.maxEvents = maxInstance;
         this.batchSize = batchSize;
         this.numberOfAttributes = numAtts;
         this.samoaPredictions = data;
@@ -53,7 +53,7 @@ public class StreamingRegressionTaskBuilder extends TaskBuilder {
 
     public void initTask() {
         String query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.regression." +
-                "StreamingRegressionTask -f " + batchSize + " -i " + maxInstances +
+                "StreamingRegressionTask -f " + batchSize + " -i " + maxEvents +
                 " -s (org.wso2.extension.siddhi.execution.ml.samoa.utils." +
                 "regression.StreamingRegressionStream -A " + numberOfAttributes + " ) " +
                 "-l  (org.apache.samoa.learners.classifiers.rules.HorizontalAMRulesRegressor " +

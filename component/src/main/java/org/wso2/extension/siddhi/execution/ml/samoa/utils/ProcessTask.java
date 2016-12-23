@@ -61,32 +61,31 @@ public abstract class ProcessTask implements Task, Configurable {
     private static final long serialVersionUID = -8246537378371580550L;
     private static Logger logger = LoggerFactory.getLogger(ProcessTask.class);
 
-    public ClassOption learnerOption = new ClassOption("learner", 'l', "Classifier to train.",
-            Learner.class, VerticalHoeffdingTree.class.getName());
+    public ClassOption learnerOption = new ClassOption("learner", 'l', "Classifier to train.", Learner.class,
+            VerticalHoeffdingTree.class.getName());
 
-    public ClassOption streamTrainOption = new ClassOption("trainStream", 's', "DataStream to learn"
-            + " from.", InstanceStream.class, StreamingClassificationStream.class.getName());
+    public ClassOption streamTrainOption = new ClassOption("trainStream", 's', "DataStream to learn  from.",
+            InstanceStream.class, StreamingClassificationStream.class.getName());
 
-    public ClassOption evaluatorOption = new ClassOption("evaluator", 'e',
-            "StreamingClassification performance valuation method.", PerformanceEvaluator.class,
+    public ClassOption evaluatorOption = new ClassOption("evaluator", 'e', "StreamingClassification performance " +
+            "valuation method.", PerformanceEvaluator.class,
             StreamingClassificationPerformanceEvaluator.class.getName());
 
-    public IntOption sampleFrequencyOption = new IntOption("sampleFrequency", 'f', "How many" +
-            " instances between samples of the learning performance.", 1000, 0, Integer.MAX_VALUE);
+    public IntOption sampleFrequencyOption = new IntOption("sampleFrequency", 'f', "How many instances between " +
+            "samples of the learning performance.", 1000, 0, Integer.MAX_VALUE);
 
-    public StringOption evaluationNameOption = new StringOption("evaluationName", 'n',
-            "Identifier of the evaluation", "Prequential_" +
-            new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+    public StringOption evaluationNameOption = new StringOption("evaluationName", 'n', "Identifier of the " +
+            "evaluation", "Prequential_" + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
 
-    public FileOption dumpFileOption = new FileOption("dumpFile", 'd',
-            "File to append intermediate csv results to", null, "csv", true);
+    public FileOption dumpFileOption = new FileOption("dumpFile", 'd', "File to append intermediate csv results to",
+            null, "csv", true);
 
-    public IntOption instanceLimitOption = new IntOption("instanceLimit", 'i', "Maximum number" +
-            " of instances to test/train on  (-1 = no limit).", 1000000, -1, Integer.MAX_VALUE);
+    public IntOption instanceLimitOption = new IntOption("instanceLimit", 'i', "Maximum number of instances to " +
+            "test/train on  (-1 = no limit).", 1000000, -1, Integer.MAX_VALUE);
 
     // Default=0: no delay/waiting
-    public IntOption sourceDelayOption = new IntOption("sourceDelay", 'w', "How many microseconds"
-            + " between injections of two instances.", 0, 0, Integer.MAX_VALUE);
+    public IntOption sourceDelayOption = new IntOption("sourceDelay", 'w', "How many microseconds between injections " +
+            "of two instances.", 0, 0, Integer.MAX_VALUE);
 
     // Batch size to delay the incoming stream: delay of x milliseconds after each batch
     public IntOption batchDelayOption = new IntOption("delayBatchSize", 'b', "The delay batch" +

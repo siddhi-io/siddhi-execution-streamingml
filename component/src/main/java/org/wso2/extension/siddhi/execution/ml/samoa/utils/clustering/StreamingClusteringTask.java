@@ -67,7 +67,7 @@ public class StreamingClusteringTask extends ProcessTask {
         // set stream to entranceProcessor
         source.setStreamSource(inputStream);
         builder.addEntranceProcessor(source);
-        source.setMaxInstances(instanceLimitOption.getValue());
+        source.setMaxEvents(instanceLimitOption.getValue());
 
         // distribution of instances and sampling for evaluation
         distributor = new ClusteringDistributorProcessor();

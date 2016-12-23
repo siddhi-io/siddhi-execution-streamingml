@@ -28,133 +28,133 @@ import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
-public class StreamingClusteringExtension extends StreamProcessor implements SchedulingProcessor {
+public class StreamingClusteringExtension extends StreamProcessor {
 
-    private int numberOfAttributes;
-    private int paramPosition;
-    private int maxInstance;
-    private int numberOfClusters;
-    private StreamingClustering streamingClusteringWithSamoa;
-    private Scheduler scheduler;
-    private long lastScheduledTimestamp = -1;
-    private long TIMER_DURATION = 100;
+    private int parameterPosition;
+    private StreamingClustering streamingClustering;
+    private ExecutorService executorService;
 
+    /**
+     * Initialize the StreamingClusteringExtension
+     *
+     * @param inputDefinition              Input Definition
+     * @param attributeExpressionExecutors Array of AttributeExpressionExecutor
+     * @param executionPlanContext         ExecutionPlanContext of Siddhi
+     * @return clusterCenters, list of cluster centers injected by StreamingClusteringExtension
+     */
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
             attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        int parameterWidth;        // Number of configuring parameters
-        maxInstance = Integer.MAX_VALUE;
-
-        if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
-            if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
-                numberOfClusters = ((Integer) attributeExpressionExecutors[0].execute(null));
-                if (numberOfClusters < 2) {
-                    throw new ExecutionPlanValidationException("Number of clusters must be" +
-                            " greater than 1");
+        int maxEvents = -1;
+        this.executorService = executionPlanContext.getExecutorService();
+        int numberOfClusters;
+        if (attributeExpressionExecutors.length >= 3) {
+            if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
+                if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
+                    Object constantObject = ((ConstantExpressionExecutor)
+                            attributeExpressionExecutors[0]).getValue();
+                    numberOfClusters = (Integer) constantObject;
+                    if (numberOfClusters < 2) {
+                        throw new ExecutionPlanValidationException("Number of clusters must be" +
+                                " greater than 1, but found " + numberOfClusters);
+                    }
+                } else {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the"
+                            + " first argument, required " + Attribute.Type.INT + " but found " +
+                            attributeExpressionExecutors[0].getReturnType().toString());
                 }
             } else {
-                throw new ExecutionPlanValidationException("Invalid parameter type found for the" +
-                        " first argument, required " + Attribute.Type.INT + " but found " +
-                        attributeExpressionExecutors[0].getReturnType().toString());
+                throw new ExecutionPlanValidationException("Number of clusters must be" +
+                        " a constant but found variable value.");
             }
-        } else {
-            throw new ExecutionPlanValidationException("Number of clusters must be" +
-                    " a constant");
-        }
 
-        if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
-            if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
-                maxInstance = ((Integer) attributeExpressionExecutors[1].execute(null));
-                if (maxInstance == -1) {
-                    maxInstance = Integer.MAX_VALUE;
+            if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
+                if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
+                    maxEvents = (Integer) ((ConstantExpressionExecutor)
+                            attributeExpressionExecutors[1]).getValue();
+                    if (maxEvents < -1 ) {
+                        throw new ExecutionPlanValidationException("Maximum number of events must be greater than" +
+                                " or equal -1. (-1 = No limit), but found " + maxEvents);
+                    }
+
+                } else {
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the" +
+                            " second argument,required " + Attribute.Type.INT + " but found " +
+                            attributeExpressionExecutors[1].getReturnType().toString());
+                }
+                parameterPosition = 2;
+                if (attributeExpressionExecutors.length == 3) {
+                    throw new ExecutionPlanValidationException("At least 2 attributes required to" +
+                            " clustering process, but found only 1 attribute");
                 }
             } else {
-                throw new ExecutionPlanValidationException("Invalid parameter type found for the" +
-                        " second argument,required " + Attribute.Type.INT + " but found " +
-                        attributeExpressionExecutors[1].getReturnType().toString());
+                parameterPosition = 1;
             }
-            parameterWidth = 2;
         } else {
-            parameterWidth = 1;
-
+            throw new ExecutionPlanValidationException("Invalid parameter count. At least required"
+                    + " number of clusters and two attributes,but found " +
+                    attributeExpressionExecutors.length + " parameters.");
         }
-        numberOfAttributes = attributeExpressionLength - parameterWidth;
-        paramPosition = parameterWidth;
-        lastScheduledTimestamp = executionPlanContext.getTimestampGenerator().currentTime();
-        streamingClusteringWithSamoa = new StreamingClustering(maxInstance, numberOfAttributes,
+        int numberOfAttributes = attributeExpressionLength - parameterPosition;
+        streamingClustering = new StreamingClustering(maxEvents, numberOfAttributes,
                 numberOfClusters);
-
-        new Thread(streamingClusteringWithSamoa).start();
 
         // Add attributes
         List<Attribute> attributes = new ArrayList<Attribute>(numberOfClusters);
-        for (int itr = 0; itr < numberOfClusters; itr++) {
-            attributes.add(new Attribute(("center" + itr), Attribute.Type.STRING));
+        for (int i = 0; i < numberOfClusters; i++) {
+            attributes.add(new Attribute(("center" + i), Attribute.Type.STRING));
         }
         return attributes;
     }
 
+    /**
+     * Process events received by StreamingClusteringExtension
+     *
+     * @param streamEventChunk      the event chunk that need to be processed
+     * @param nextProcessor         the next processor to which the success events need to be passed
+     * @param streamEventCloner     helps to clone the incoming event for local storage or modification
+     * @param complexEventPopulater helps to populate the events with the resultant attributes
+     */
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner,
                            ComplexEventPopulater complexEventPopulater) {
-        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>(false);
-
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 ComplexEvent complexEvent = streamEventChunk.next();
                 if (complexEvent.getType() != ComplexEvent.Type.TIMER) {
-                    double[] cepEvent = new double[attributeExpressionLength - paramPosition];
+                    double[] cepEvent = new double[attributeExpressionLength - parameterPosition];
 
-                    for (int i = paramPosition; i < attributeExpressionLength; i++) {
-                        cepEvent[i - paramPosition] = (double) attributeExpressionExecutors[i].
-                                execute(complexEvent);
+                    for (int i = parameterPosition; i < attributeExpressionLength; i++) {
+                        cepEvent[i - parameterPosition] = ((Number) attributeExpressionExecutors[i].
+                                execute(complexEvent)).doubleValue();
                     }
-                    streamingClusteringWithSamoa.addEvents(cepEvent);
+                    streamingClustering.addEvents(cepEvent);
 
-                    Object[] outputData = streamingClusteringWithSamoa.getOutput();
-                    // Skip processing if user has specified calculation interval
+                    Object[] outputData = streamingClustering.getOutput();
                     if (outputData == null) {
                         streamEventChunk.remove();
                     } else {
-                        StreamEvent streamEvent1 = new StreamEvent(0, 0, outputData.length);
-                        streamEvent1.setOutputData(outputData);
-                        complexEventChunk.add(streamEvent1);
-                        complexEventPopulater.populateComplexEvent(complexEvent, outputData);
-                    }
-                } else {
-                    lastScheduledTimestamp = lastScheduledTimestamp + TIMER_DURATION;
-                    scheduler.notifyAt(lastScheduledTimestamp);
-                    Object[] outputData = streamingClusteringWithSamoa.getOutput();
-
-                    // Skip processing if user has specified calculation interval
-                    if (outputData == null) {
-                        streamEventChunk.remove();
-                    } else {
-                        StreamEvent streamEvent1 = new StreamEvent(0, 0, outputData.length);
-                        streamEvent1.setOutputData(outputData);
-                        complexEventChunk.add(streamEvent1);
                         complexEventPopulater.populateComplexEvent(complexEvent, outputData);
                     }
                 }
             }
         }
-        nextProcessor.process(complexEventChunk);
+        nextProcessor.process(streamEventChunk);
     }
 
     @Override
     public void start() {
-        //Do nothing
+        executorService.execute(streamingClustering);
     }
 
     @Override
@@ -164,31 +164,12 @@ public class StreamingClusteringExtension extends StreamProcessor implements Sch
 
     @Override
     public Object[] currentState() {
-        return new Object[]{numberOfAttributes, paramPosition, maxInstance, numberOfClusters,
-                streamingClusteringWithSamoa};
+        return new Object[]{streamingClustering};
+        // TODO: 12/20/16 check how to store this samoa app
     }
 
     @Override
     public void restoreState(Object[] state) {
-        numberOfAttributes = (int) state[0];
-        paramPosition = (int) state[1];
-        maxInstance = (int) state[2];
-        numberOfClusters = (int) state[3];
-        streamingClusteringWithSamoa = (StreamingClustering) state[4];
-    }
-
-    @Override
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
-        if (lastScheduledTimestamp > 0) {
-            lastScheduledTimestamp = executionPlanContext.getTimestampGenerator().currentTime() +
-                    TIMER_DURATION;
-            scheduler.notifyAt(lastScheduledTimestamp);
-        }
-    }
-
-    @Override
-    public Scheduler getScheduler() {
-        return this.scheduler;
+        streamingClustering = (StreamingClustering) state[0];
     }
 }

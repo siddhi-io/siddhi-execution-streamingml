@@ -21,31 +21,28 @@ package org.wso2.extension.siddhi.execution.ml.samoa.utils.clustering;
 import org.apache.samoa.moa.cluster.Cluster;
 import org.apache.samoa.moa.cluster.Clustering;
 
+import org.wso2.extension.siddhi.execution.ml.samoa.utils.StreamingProcess;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class StreamingClustering extends Thread {
+public class StreamingClustering extends StreamingProcess {
     private int numberOfAttributes;
     private int numberOfClusters;
-    public int maxInstance;
-    public int numEventsReceived;
+    public int maxEvents;
 
-    public Queue<double[]> cepEvents;
-    public Queue<Clustering> samoaClusters;
-    public StreamingClusteringTaskBuilder clusteringTask;
+    private Queue<Clustering> samoaClusters;
 
-    public StreamingClustering(int maxInstant, int paramCount, int numberOfClusters) {
-        this.maxInstance = maxInstant;
+    public StreamingClustering(int maxEvent, int paramCount, int numberOfClusters) {
+        this.maxEvents = maxEvent;
         this.numberOfAttributes = paramCount;
         this.numberOfClusters = numberOfClusters;
-        this.numEventsReceived = 0;
         this.cepEvents = new ConcurrentLinkedQueue<double[]>();
-        this.samoaClusters = new ConcurrentLinkedQueue<Clustering>();
+        this.samoaClusters = new ConcurrentLinkedQueue<Clustering>();      //contain cluster centers
 
         try {
-            this.clusteringTask = new StreamingClusteringTaskBuilder(this.maxInstance,
+            this.processTaskBuilder = new StreamingClusteringTaskBuilder(this.maxEvents,
                     this.numberOfAttributes, this.numberOfClusters,
                     this.cepEvents, this.samoaClusters);
         } catch (Exception e) {
@@ -54,13 +51,7 @@ public class StreamingClustering extends Thread {
         }
     }
 
-    public void run() {
-        this.clusteringTask.initTask();
-        this.clusteringTask.submit();
-    }
-
     public void addEvents(double[] eventData) {
-        numEventsReceived++;
         cepEvents.add(eventData);
     }
 
@@ -75,7 +66,7 @@ public class StreamingClustering extends Thread {
                 double[] center = cluster.getCenter();
                 centerStr.append(center[0]);
                 for (int j = 1; j < numberOfAttributes; j++) {
-                    centerStr.append("," + center[j]);
+                    centerStr.append(",").append(center[j]);
                 }
                 centerStr.append("]");
                 output[i] = centerStr.toString();

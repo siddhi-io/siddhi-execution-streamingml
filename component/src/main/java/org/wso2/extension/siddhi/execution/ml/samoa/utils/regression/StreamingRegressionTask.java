@@ -59,7 +59,7 @@ public class StreamingRegressionTask extends ProcessTask {
 
         source.setStreamSource(inputStream);
         builder.addEntranceProcessor(source);
-        source.setMaxInstances(instanceLimitOption.getValue());
+        source.setMaxEvents(instanceLimitOption.getValue());
         source.setSourceDelay(sourceDelayOption.getValue());
         source.setDelayBatchSize(batchDelayOption.getValue());
 

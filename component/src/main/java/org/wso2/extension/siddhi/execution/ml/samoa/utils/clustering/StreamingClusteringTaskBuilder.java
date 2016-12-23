@@ -43,7 +43,7 @@ public class StreamingClusteringTaskBuilder extends TaskBuilder {
     public StreamingClusteringTaskBuilder(int maxInstance, int numberofAttributes,
                                           int numberOfClusters, Queue<double[]> cepEvents,
                                           Queue<Clustering> samoaClusters) {
-        this.maxInstances = maxInstance;
+        this.maxEvents = maxInstance;
         this.numberOfAttributes = numberofAttributes;
         this.numberOfClusters = numberOfClusters;
         this.cepEvents = cepEvents;
@@ -52,7 +52,7 @@ public class StreamingClusteringTaskBuilder extends TaskBuilder {
 
     public void initTask() {
         String query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.clustering." +
-                "StreamingClusteringTask -i " + maxInstances + " -s  (org.wso2.extension." +
+                "StreamingClusteringTask -i " + maxEvents + " -s  (org.wso2.extension." +
                 "siddhi.execution.ml.samoa.utils.clustering.StreamingClusteringStream -K "
                 + numberOfClusters + " -a " + numberOfAttributes + ") -l (org.apache.samoa." +
                 "learners.clusterers.simple.DistributedClusterer -l (org.apache.samoa.learners." +

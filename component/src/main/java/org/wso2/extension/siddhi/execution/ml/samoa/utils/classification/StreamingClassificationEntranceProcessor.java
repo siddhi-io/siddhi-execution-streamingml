@@ -41,12 +41,13 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
             contentEvent = new InstanceContentEvent(-1, firstInstance, false, true);
             contentEvent.setLast(true);
             // set finished status _after_ tagging last event
-            logger.info("Finished !");
+//            logger.info("Finished !");
             finished = true;
 
         } else if (hasNext()) {
             numberOfInstancesSent++;
             Instance next = nextInstance();
+            // TODO: 12/23/16  
             if (next.classValue() == -1.0) {     // If this event is a prediction event
                      // This instance uses for testing
                 contentEvent = new InstanceContentEvent(numberOfInstancesSent, next, false, true);

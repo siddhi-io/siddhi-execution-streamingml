@@ -19,7 +19,7 @@
 
 package org.wso2.extension.siddhi.execution.ml;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,8 +54,8 @@ public class RegressionTestCase {
         String inStreamDefinition = " define stream inputStream (attribute_0 double, " +
                 "attribute_1 double,attribute_2 double, attribute_3 double, attribute_4 double );";
 
-        String query = ("@info(name = 'query2') from inputStream#ml:" +
-                "streamingRegressionSamoa(5,100,300,5,attribute_0, attribute_1 , attribute_2 ," +
+        String query = ("@info(name = 'query1') from inputStream#ml:" +
+                "regressionAMRules(5,100,300,5,attribute_0, attribute_1 , attribute_2 ," +
                 " attribute_3 , attribute_4) select att_0 as arrtibute_0,att_1 as arrtibute_1," +
                 "att_2 as arrtibute_2,att_3 as arrtibute_3, prediction as prediction" +
                 " insert into outputStream;");
@@ -63,7 +63,7 @@ public class RegressionTestCase {
         ExecutionPlanRuntime executionPlanRuntime =
                 siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        executionPlanRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 count++;
@@ -79,40 +79,31 @@ public class RegressionTestCase {
             }
         });
 
-        Scanner scn = null;
+        Scanner scanner = null;
         try {
-            File f = new File("src/test/resources/ccpp.csv");
-            FileReader fr = new FileReader(f);
-            BufferedReader br = new BufferedReader(fr);
-            scn = new Scanner(br);
+            File file = new File("src/test/resources/ccpp.csv");
+            FileReader fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            scanner = new Scanner(bufferedReader);
 
             InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
             executionPlanRuntime.start();
-            while (true) {
-                if (scn.hasNext()) {
-                    String eventStr = scn.nextLine();
+            while  (scanner.hasNext()) {
+                    String eventStr = scanner.nextLine();
                     String[] event = eventStr.split(",");
                     inputHandler.send(new Object[]{Double.valueOf(event[0]),
                             Double.valueOf(event[1]), Double.valueOf(event[2]),
                             Double.valueOf(event[3]), Double.valueOf(event[4])});
-                } else {
-                    break;
-                }
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
 
-            Thread.sleep(100);
+            Thread.sleep(4000);
             Assert.assertEquals(1, count);
             Assert.assertTrue(eventArrived);
-            executionPlanRuntime.shutdown();
         } catch (Exception e) {
-            logger.info(e.toString());
+            logger.error(e.getMessage());
         } finally {
-            scn.close();
+            scanner.close();
+            executionPlanRuntime.shutdown();
         }
     }
 }

@@ -66,6 +66,7 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
         statistics = new ConcurrentLinkedQueue<>();
     }
 
+    @Override
     public boolean process(ContentEvent event) {
         boolean predicting = false;
         ResultContentEvent result = (ResultContentEvent) event;

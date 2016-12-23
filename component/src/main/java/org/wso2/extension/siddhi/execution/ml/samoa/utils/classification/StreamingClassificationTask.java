@@ -37,8 +37,7 @@ public class StreamingClassificationTask extends ProcessTask {
 
     private static Logger logger = LoggerFactory.getLogger(StreamingClassificationTask.class);
 
-    public Queue<Vector> classifiers;
-    public int numClasses = 2;
+    private Queue<Vector> classifiers;
 
     @Override
     public void init() {
@@ -62,7 +61,7 @@ public class StreamingClassificationTask extends ProcessTask {
 
         // Set stream to Entrance processor
         source.setStreamSource(inputStream);
-        source.setMaxInstances(instanceLimitOption.getValue());
+        source.setMaxEvents(instanceLimitOption.getValue());
         source.setSourceDelay(sourceDelayOption.getValue());
         source.setDelayBatchSize(batchDelayOption.getValue());
         builder.addEntranceProcessor(source);
@@ -102,6 +101,6 @@ public class StreamingClassificationTask extends ProcessTask {
     }
 
     public void setNumClasses(int numClasses) {
-        this.numClasses = numClasses;
+        int numClasses1 = numClasses;
     }
 }

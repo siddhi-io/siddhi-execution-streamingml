@@ -18,72 +18,41 @@
 
 package org.wso2.extension.siddhi.execution.ml.samoa.utils.classification;
 
+import org.wso2.extension.siddhi.execution.ml.samoa.utils.StreamingProcess;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 
 import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class StreamingClassification extends Thread {
+public class StreamingClassification extends StreamingProcess {
 
-    private int maxInstance;
-    private int batchSize;                       //Output display interval
-    private int numberOfClasses;
     private int numberOfAttributes;
-    private int numberOfNominals;
-    private int parallelism;
-    private int bagging;
-    private String nominalAttributesValues;
-    public int numEventsReceived;
-    public Queue<double[]> cepEvents;                            //Cep events
-    public Queue<Vector> samoaClassifiers;                       // Output prediction data
-    public StreamingClassificationTaskBuilder classificationTask;
 
-    public StreamingClassification(int maxInstance, int batchSize, int classes, int paraCount,
-                                   int nominals, String str, int par, int bagging) {
+    private Queue<Vector> samoaClassifiers;                       // Output prediction data
 
-        this.maxInstance = maxInstance;
-        this.numberOfClasses = classes;
-        this.numberOfAttributes = paraCount;
-        this.numberOfNominals = nominals;
-        this.batchSize = batchSize;
-        this.nominalAttributesValues = str;
-        this.parallelism = par;
-        this.bagging = bagging;
-        this.numEventsReceived = 0;
+    public StreamingClassification(int maxEvents, int interval, int classes, int parameterCount,
+                                   int nominals, String nominalAttributesValues, int parallelism, int bagging) {
 
+        this.numberOfAttributes = parameterCount;
         this.cepEvents = new ConcurrentLinkedQueue<double[]>();
         this.samoaClassifiers = new ConcurrentLinkedQueue<Vector>();
 
         try {
-            this.classificationTask = new StreamingClassificationTaskBuilder(this.maxInstance,
-                    this.batchSize, this.numberOfClasses, this.numberOfAttributes,
-                    this.numberOfNominals,this.nominalAttributesValues, this.cepEvents,
-                    this.samoaClassifiers, this.parallelism, this.bagging);
+            this.processTaskBuilder = new StreamingClassificationTaskBuilder(maxEvents, interval, classes,
+                    this.numberOfAttributes, nominals, nominalAttributesValues, this.cepEvents,
+                    this.samoaClassifiers, parallelism, bagging);
+            // TODO: 12/23/16 need a specific exception
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Fail to Initiate the Streaming " +
-                    "Classification : ", e);
+            throw new ExecutionPlanRuntimeException("Fail to initialize the Streaming Classification : ", e);
         }
-    }
-
-    public void run() {
-        classificationTask.initTask();
-        classificationTask.submit();
-    }
-
-    public void addEvents(double[] eventData) {
-        numEventsReceived++;
-        cepEvents.add(eventData);
     }
 
     public Object[] getOutput() {
         Object[] output;
         if (!samoaClassifiers.isEmpty()) {
-            output = new Object[numberOfAttributes];
             Vector prediction = samoaClassifiers.poll();
-            for (int i = 0; i < prediction.size(); i++) {
-                output[i] = prediction.get(i);
-            }
+            output=prediction.toArray();
         } else {
             output = null;
         }

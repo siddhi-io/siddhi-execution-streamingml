@@ -17,6 +17,7 @@
  */
 
 package org.wso2.extension.siddhi.execution.ml.samoa.utils;
+
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.core.EntranceProcessor;
 import org.apache.samoa.core.Processor;
@@ -43,15 +44,15 @@ public abstract class SourceProcessor implements EntranceProcessor {
     private static final Logger logger = LoggerFactory.getLogger(SourceProcessor.class);
     protected transient ScheduledExecutorService timer;
     protected transient ScheduledFuture<?> schedule = null;
-    protected int readyEventIndex = 1; // No waiting for the first event
+    private int readyEventIndex = 1; // No waiting for the first event
     protected int delay;
-    protected StreamSource streamSource;
+    private StreamSource streamSource;
     protected Instance firstInstance;
-    protected int maxInstances;
-    protected int batchSize;
+    protected int maxEvents;
+    private int interval;
     protected int numberOfInstancesSent = 0;
     protected boolean finished = false;
-    protected boolean isInitialized = false;
+    private boolean isInitialized = false;
 
     @Override
     public abstract ContentEvent nextEvent();
@@ -81,8 +82,8 @@ public abstract class SourceProcessor implements EntranceProcessor {
     }
 
     protected boolean hasReachedEndOfStream() {
-        if (!streamSource.hasMoreInstances() || (maxInstances >= 0 &&
-                numberOfInstancesSent >= maxInstances)) {
+        if (!streamSource.hasMoreInstances() || (maxEvents >= 0 &&
+                numberOfInstancesSent >= maxEvents)) {
             finished = true;
             return true;
         }
@@ -108,7 +109,7 @@ public abstract class SourceProcessor implements EntranceProcessor {
     }
 
     protected void increaseReadyEventIndex() {
-        readyEventIndex += batchSize;
+        readyEventIndex += interval;
         // if we exceed the max, cancel the timer
         if (schedule != null && isFinished()) {
             schedule.cancel(false);
@@ -119,8 +120,8 @@ public abstract class SourceProcessor implements EntranceProcessor {
         return firstInstance.dataset();
     }
 
-    public void setMaxInstances(int value) {
-        this.maxInstances = value;
+    public void setMaxEvents(int value) {
+        this.maxEvents = value;
     }
 
     public void setSourceDelay(int delay) {
@@ -128,7 +129,7 @@ public abstract class SourceProcessor implements EntranceProcessor {
     }
 
     public void setDelayBatchSize(int batch) {
-        this.batchSize = batch;
+        this.interval = batch;
     }
 
     public StreamSource getStreamSource() {

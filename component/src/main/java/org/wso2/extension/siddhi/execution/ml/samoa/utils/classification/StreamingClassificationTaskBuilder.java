@@ -48,7 +48,7 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
                                               int numAtts, int numNominals, String nominalVals,
                                               Queue<double[]> cepEvents, Queue<Vector> classifiers,
                                               int parallelism, int bagging) {
-        this.maxInstances = maxInstance;
+        this.maxEvents = maxInstance;
         this.numberOfClasses = numClasses;
         this.batchSize = batchSize;
         this.numberOfAttributes = numAtts;
@@ -65,7 +65,7 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
 
         if (bagging == 0) {
             query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.classification." +
-                    "StreamingClassificationTask -f " + batchSize + " -i " + maxInstances +
+                    "StreamingClassificationTask -f " + batchSize + " -i " + maxEvents +
                     " -s (org.wso2.extension.siddhi.execution.ml.samoa.utils." +
                     "classification.StreamingClassificationStream -K " + numberOfClasses + " -A " +
                     numberOfAttributes + " -N " + numberOfNominalAttributes + " -Z " + nominalValues
@@ -74,7 +74,7 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
         } else {
             //---------Bagging--------------
             query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.classification." +
-                    "StreamingClassificationTask -f " + batchSize + " -i " + maxInstances +
+                    "StreamingClassificationTask -f " + batchSize + " -i " + maxEvents +
                     " -s (org.wso2.extension.siddhi.execution.ml.samoa.utils." +
                     "classification.StreamingClassificationStream -K " + numberOfClasses + " -A " +
                     numberOfAttributes + " -N " + numberOfNominalAttributes + " -Z " +
@@ -107,6 +107,7 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
         try {
             // Convert that query to a Object of a Task
             task = ClassOption.cliStringToObject(cliString.toString(), Task.class, extraOptions);
+            // TODO: 12/23/16 need to find actual exception
         } catch (Exception e) {
             throw new ExecutionPlanRuntimeException("Fail to initialize the task.", e);
 
