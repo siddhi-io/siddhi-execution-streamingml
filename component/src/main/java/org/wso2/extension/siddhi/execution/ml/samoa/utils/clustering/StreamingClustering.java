@@ -31,19 +31,22 @@ public class StreamingClustering extends StreamingProcess {
     private int numberOfAttributes;
     private int numberOfClusters;
     public int maxEvents;
+    private int parallelism;
+
 
     private Queue<Clustering> samoaClusters;
 
-    public StreamingClustering(int maxEvent, int paramCount, int numberOfClusters) {
+    public StreamingClustering(int maxEvent, int paramCount, int numberOfClusters,int parallel) {
         this.maxEvents = maxEvent;
         this.numberOfAttributes = paramCount;
         this.numberOfClusters = numberOfClusters;
+        this.parallelism=parallel;
         this.cepEvents = new ConcurrentLinkedQueue<double[]>();
         this.samoaClusters = new ConcurrentLinkedQueue<Clustering>();      //contain cluster centers
 
         try {
             this.processTaskBuilder = new StreamingClusteringTaskBuilder(this.maxEvents,
-                    this.numberOfAttributes, this.numberOfClusters,
+                    this.numberOfAttributes, this.numberOfClusters,this.parallelism,
                     this.cepEvents, this.samoaClusters);
         } catch (Exception e) {
             throw new ExecutionPlanRuntimeException("Fail to Initiate the Streaming clustering" +

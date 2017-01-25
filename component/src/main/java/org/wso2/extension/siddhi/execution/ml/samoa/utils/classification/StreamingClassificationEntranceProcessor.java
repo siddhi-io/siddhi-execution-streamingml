@@ -47,7 +47,6 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
         } else if (hasNext()) {
             numberOfInstancesSent++;
             Instance next = nextInstance();
-            // TODO: 12/23/16  
             if (next.classValue() == -1.0) {     // If this event is a prediction event
                      // This instance uses for testing
                 contentEvent = new InstanceContentEvent(numberOfInstancesSent, next, false, true);

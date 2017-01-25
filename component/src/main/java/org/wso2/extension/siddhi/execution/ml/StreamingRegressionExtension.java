@@ -29,9 +29,7 @@ import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -40,15 +38,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-public class StreamingRegressionExtension extends StreamProcessor implements
-        SchedulingProcessor {
+public class StreamingRegressionExtension extends StreamProcessor {
 
     private int numberOfAttributes;
     private int parameterPosition;
     private StreamingRegression streamingRegression;
-    private long lastScheduledTimestamp = -1;
-    private long TIMER_DURATION = 100;
-    private Scheduler scheduler;
     private ExecutorService executorService;
 
     /**
@@ -85,9 +79,8 @@ public class StreamingRegressionExtension extends StreamProcessor implements
                     for (int i = attributeExpressionExecutors.length - numberOfAttributes; i <
                             attributeExpressionExecutors.length; i++) {
                         if (!(attributeExpressionExecutors[i] instanceof VariableExpressionExecutor)) {
-                            // TODO: 12/23/16  can hardcode variable ececutor
                             throw new ExecutionPlanValidationException("Parameter number " + (i + 1) + " is not an " +
-                                    "attribute (" + VariableExpressionExecutor.class.getCanonicalName() + "). Check " +
+                                    "attribute (VariableExpressionExecutor). Check " +
                                     "the number of attribute entered as an attribute set with number of attribute " +
                                     "configuration parameter");
                         }
@@ -98,9 +91,8 @@ public class StreamingRegressionExtension extends StreamProcessor implements
                             attributeExpressionExecutors[0].getReturnType().toString());
                 }
             } else {
-                // TODO: 12/23/16 change constanececutor class name
                 throw new ExecutionPlanValidationException("Parameter count must be a constant " +
-                        "(" + ConstantExpressionExecutor.class.getCanonicalName() + ")and at" +
+                        "( ConstantExpressionExecutor)and at" +
                         " least one configuration parameter required. streamingRegressionSamoa(parCount," +
                         "attribute_set) but found 0 configuration parameters.");
             }
@@ -116,7 +108,7 @@ public class StreamingRegressionExtension extends StreamProcessor implements
                     }
                 } else {
                     throw new ExecutionPlanValidationException("Display interval  values must be a constant " +
-                            "(" + ConstantExpressionExecutor.class.getCanonicalName() + ") but found " +
+                            "(ConstantExpressionExecutor) but found " +
                             "(" + attributeExpressionExecutors[1].getClass().getCanonicalName() + ") value.");
                 }
             }
@@ -136,7 +128,7 @@ public class StreamingRegressionExtension extends StreamProcessor implements
                     }
                 } else {
                     throw new ExecutionPlanValidationException("The maximum number of events must be a constant " +
-                            "(" + ConstantExpressionExecutor.class.getCanonicalName() + ")but found " +
+                            "(ConstantExpressionExecutor)but found " +
                             "(" + attributeExpressionExecutors[2].getClass().getCanonicalName() + ") value.");
                 }
             }
@@ -152,8 +144,8 @@ public class StreamingRegressionExtension extends StreamProcessor implements
                                 attributeExpressionExecutors[3].getReturnType().toString());
                     }
                 } else {
-                    throw new ExecutionPlanValidationException("Parallelism value must be a constant ("
-                            + ConstantExpressionExecutor.class.getCanonicalName() + ") but found " +
+                    throw new ExecutionPlanValidationException("Parallelism value must be a constant " +
+                            "(ConstantExpressionExecutor) but found " +
                             "(" + attributeExpressionExecutors[3].getClass().getCanonicalName() + ") value.");
                 }
             }
@@ -162,7 +154,6 @@ public class StreamingRegressionExtension extends StreamProcessor implements
                     "but found " + attributeExpressionExecutors.length);
         }
 
-        lastScheduledTimestamp = executionPlanContext.getTimestampGenerator().currentTime();
         streamingRegression = new StreamingRegression(maxEvents, interval, numberOfAttributes,
                 parallelism);
 
@@ -186,49 +177,26 @@ public class StreamingRegressionExtension extends StreamProcessor implements
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
 
-        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>(false);
-
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 ComplexEvent complexEvent = streamEventChunk.next();
-                // TODO: 12/23/16 after removeing timer no need to check this
-                if (complexEvent.getType() != ComplexEvent.Type.TIMER) {
-                    double[] cepEvent = new double[attributeExpressionLength - parameterPosition];
-                    for (int i = 0; i < numberOfAttributes; i++) {
-                        cepEvent[i] = ((Number) attributeExpressionExecutors[i + parameterPosition].
-                                execute(complexEvent)).doubleValue();
-                    }
+                double[] cepEvent = new double[attributeExpressionLength - parameterPosition];
+                for (int i = 0; i < numberOfAttributes; i++) {
+                    cepEvent[i] = ((Number) attributeExpressionExecutors[i + parameterPosition].
+                            execute(complexEvent)).doubleValue();
+                }
 
-                    streamingRegression.addEvents(cepEvent);
-                    Object[] outputData = streamingRegression.getOutput();
-                    if (outputData == null) {
-                        streamEventChunk.remove();
-                    } else {
-                        StreamEvent streamEvent1 = new StreamEvent(0, 0, outputData.length);
-                        streamEvent1.setOutputData(outputData);
-                        complexEventChunk.add(streamEvent1);
-                        complexEventPopulater.populateComplexEvent(complexEvent, outputData);
-                    }
-
+                streamingRegression.addEvents(cepEvent);
+                Object[] outputData = streamingRegression.getOutput();
+                if (outputData == null) {
+                    streamEventChunk.remove();
                 } else {
-                    lastScheduledTimestamp = lastScheduledTimestamp + TIMER_DURATION;
-                    scheduler.notifyAt(lastScheduledTimestamp);
-
-                    Object[] outputData = streamingRegression.getOutput();
-                    if (outputData == null) {
-                        streamEventChunk.remove();
-                    } else {
-                        StreamEvent streamEvent1 = new StreamEvent(0, 0, outputData.length);
-                        streamEvent1.setOutputData(outputData);
-                        complexEventChunk.add(streamEvent1);
-                        complexEventPopulater.populateComplexEvent(complexEvent, outputData);
-                    }
+                    complexEventPopulater.populateComplexEvent(complexEvent, outputData);
                 }
             }
         }
-        nextProcessor.process(complexEventChunk);
+        nextProcessor.process(streamEventChunk);
     }
-
 
     @Override
     public void start() {
@@ -242,28 +210,12 @@ public class StreamingRegressionExtension extends StreamProcessor implements
 
     @Override
     public Object[] currentState() {
-        return new Object[]{streamingRegression, lastScheduledTimestamp, TIMER_DURATION, scheduler};
+        return new Object[]{streamingRegression};
     }
 
     @Override
     public void restoreState(Object[] state) {
         streamingRegression = (StreamingRegression) state[0];
-        lastScheduledTimestamp = (long) state[1];
-        TIMER_DURATION = (long) state[2];
-        scheduler = (Scheduler) state[3];
-    }
-
-    @Override
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
-        if (lastScheduledTimestamp > 0) {
-            lastScheduledTimestamp = executionPlanContext.getTimestampGenerator().currentTime() + TIMER_DURATION;
-            scheduler.notifyAt(lastScheduledTimestamp);
-        }
-    }
-
-    @Override
-    public Scheduler getScheduler() {
-        return scheduler;
     }
 }
+

@@ -89,11 +89,16 @@ public class RegressionTestCase {
             InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
             executionPlanRuntime.start();
             while  (scanner.hasNext()) {
-                    String eventStr = scanner.nextLine();
-                    String[] event = eventStr.split(",");
-                    inputHandler.send(new Object[]{Double.valueOf(event[0]),
-                            Double.valueOf(event[1]), Double.valueOf(event[2]),
-                            Double.valueOf(event[3]), Double.valueOf(event[4])});
+                String eventStr = scanner.nextLine();
+                String[] event = eventStr.split(",");
+                inputHandler.send(new Object[]{Double.valueOf(event[0]),
+                        Double.valueOf(event[1]), Double.valueOf(event[2]),
+                        Double.valueOf(event[3]), Double.valueOf(event[4])});
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             Thread.sleep(4000);

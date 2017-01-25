@@ -51,7 +51,7 @@ public class ClassificationTestCase {
 
         String inStreamDefinition = " define stream inputStream (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double,attribute_3 double, attribute_4 string );";
-        String query = ("@info(name = 'query1') from inputStream#ml:classificationHoeffdingtree(5,3,'',30000," +
+        String query = ("@info(name = 'query1') from inputStream#ml:classificationHoeffdingtree(5,3,'',1000," +
                 "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select att_0 as attribute_0, " +
                 "att_1 as attribute_1,att_2 as attribute_2,att_3 as attribute_3, prediction as prediction insert into" +
                 " outputStream;");
@@ -89,6 +89,12 @@ public class ClassificationTestCase {
                 String[] event = eventStr.split(",");
                 inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]), Double.valueOf
                         (event[2]), Double.valueOf(event[3]), event[4]});
+
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             Thread.sleep(1100);
@@ -109,7 +115,7 @@ public class ClassificationTestCase {
 
         String inStreamDefinition = " define stream inputStream (attribute_0 double, attribute_1 double, attribute_2 " +
                 "string );";
-        String query = ("@info(name = 'query2') from inputStream#ml:classificationHoeffdingtree(3,2,'2,2',3000," +
+        String query = ("@info(name = 'query2') from inputStream#ml:classificationHoeffdingtree(3,2,'2,2',1000," +
                 "attribute_0, attribute_1 , attribute_2) select att_0 as attribute_0, att_1 as attribute_1, " +
                 "prediction as prediction insert into outputStream;");
 
@@ -145,6 +151,11 @@ public class ClassificationTestCase {
                 String eventStr = scanner.nextLine();
                 String[] event = eventStr.split(",");
                 inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]), event[2]});
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             Thread.sleep(1100);

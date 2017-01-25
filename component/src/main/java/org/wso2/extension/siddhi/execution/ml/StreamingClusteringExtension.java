@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
+import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -55,17 +56,31 @@ public class StreamingClusteringExtension extends StreamProcessor {
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
             attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         int maxEvents = -1;
+        int parallelism = 2;
         this.executorService = executionPlanContext.getExecutorService();
         int numberOfClusters;
-        if (attributeExpressionExecutors.length >= 3) {
+        int numberOfAttributes;
+        if (attributeExpressionExecutors.length >= 4) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
-                    Object constantObject = ((ConstantExpressionExecutor)
+                    numberOfAttributes = (Integer) ((ConstantExpressionExecutor)
                             attributeExpressionExecutors[0]).getValue();
-                    numberOfClusters = (Integer) constantObject;
-                    if (numberOfClusters < 2) {
-                        throw new ExecutionPlanValidationException("Number of clusters must be" +
-                                " greater than 1, but found " + numberOfClusters);
+                    if (numberOfAttributes < 2) {
+                        throw new ExecutionPlanValidationException("Number of attributes must be greater than 1 but" +
+                                " found " + numberOfAttributes);
+                    }
+                    if (numberOfAttributes >= attributeExpressionExecutors.length - 1) {
+                        throw new ExecutionPlanValidationException("There is a inconsistency with number of " +
+                                "attributes and entered parameters. Number of attributes should be less than " +
+                                numberOfAttributes + " or entered attributes should be change.");
+                    }
+                    for (int i = attributeExpressionExecutors.length - numberOfAttributes; i <
+                            attributeExpressionExecutors.length; i++) {
+                        if (!(attributeExpressionExecutors[i] instanceof VariableExpressionExecutor)) {
+                            throw new ExecutionPlanValidationException((i + 1) + "th parameter is not an " +
+                                    "attribute (VariableExpressionExecutor). Check the number of attribute entered as a attribute set with number " +
+                                    "of attribute configuration parameter");
+                        }
                     }
                 } else {
                     throw new ExecutionPlanValidationException("Invalid parameter type found for the"
@@ -73,40 +88,80 @@ public class StreamingClusteringExtension extends StreamProcessor {
                             attributeExpressionExecutors[0].getReturnType().toString());
                 }
             } else {
-                throw new ExecutionPlanValidationException("Number of clusters must be" +
-                        " a constant but found variable value.");
+                throw new ExecutionPlanValidationException("Number of attributes must be" +
+                        " a constant(ConstantExpressionExecutor) but found variable " +
+                        attributeExpressionExecutors[0].getClass().getCanonicalName() + " value.");
             }
 
             if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
-                    maxEvents = (Integer) ((ConstantExpressionExecutor)
+                    numberOfClusters = (Integer) ((ConstantExpressionExecutor)
                             attributeExpressionExecutors[1]).getValue();
-                    if (maxEvents < -1 ) {
-                        throw new ExecutionPlanValidationException("Maximum number of events must be greater than" +
-                                " or equal -1. (-1 = No limit), but found " + maxEvents);
+                    if (numberOfClusters < 2) {
+                        throw new ExecutionPlanValidationException("Number of clusters must be greater than 1 but" +
+                                " found " + numberOfClusters);
                     }
-
                 } else {
-                    throw new ExecutionPlanValidationException("Invalid parameter type found for the" +
-                            " second argument,required " + Attribute.Type.INT + " but found " +
+                    throw new ExecutionPlanValidationException("Invalid parameter type found for the"
+                            + " second argument, required " + Attribute.Type.INT + " but found " +
                             attributeExpressionExecutors[1].getReturnType().toString());
                 }
-                parameterPosition = 2;
-                if (attributeExpressionExecutors.length == 3) {
-                    throw new ExecutionPlanValidationException("At least 2 attributes required to" +
-                            " clustering process, but found only 1 attribute");
-                }
             } else {
-                parameterPosition = 1;
+                throw new ExecutionPlanValidationException("Number of clusters must be" +
+                        " a constant(ConstantExpressionExecutor) but found variable " +
+                        attributeExpressionExecutors[1].getClass().getCanonicalName() + " value.");
+            }
+            parameterPosition = attributeExpressionExecutors.length - numberOfAttributes;
+
+            if (parameterPosition > 2) {
+                if (attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor) {
+                    if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
+                        parallelism = (Integer) ((ConstantExpressionExecutor)
+                                attributeExpressionExecutors[2]).getValue();
+                        if (parallelism <= 0) {
+                            throw new ExecutionPlanValidationException("Parallelism must be greater than ," +
+                                    " but found " + parallelism);
+                        }
+                    } else {
+                        throw new ExecutionPlanValidationException("Invalid parameter type found for the" +
+                                " third argument,required " + Attribute.Type.INT + " but found " +
+                                attributeExpressionExecutors[2].getReturnType().toString());
+                    }
+                } else {
+                    throw new ExecutionPlanValidationException("Parallelism must be" +
+                            " a constant(ConstantExpressionExecutor) but found variable " +
+                            attributeExpressionExecutors[2].getClass().getCanonicalName() + " value.");
+                }
+            }
+            if (parameterPosition > 3) {
+                if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
+                    if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
+                        maxEvents = (Integer) ((ConstantExpressionExecutor)
+                                attributeExpressionExecutors[3]).getValue();
+                        if (maxEvents < -1) {
+                            throw new ExecutionPlanValidationException("Maximum number of events must be" +
+                                    " greater than or equal -1. (-1 = No limit), but found " + maxEvents);
+                        }
+                    } else {
+                        throw new ExecutionPlanValidationException("Invalid parameter type found for the" +
+                                " fourth argument,required " + Attribute.Type.INT + " but found " +
+                                attributeExpressionExecutors[3].getReturnType().toString());
+                    }
+                } else {
+                    throw new ExecutionPlanValidationException("Number of maximum events must be" +
+                            " a constant(ConstantExpressionExecutor) but found variable " +
+                            attributeExpressionExecutors[3].getClass().getCanonicalName() + " value.");
+                }
             }
         } else {
             throw new ExecutionPlanValidationException("Invalid parameter count. At least required"
-                    + " number of clusters and two attributes,but found " +
+                    + " number of attributes, number of clusters and two attributes, but found " +
                     attributeExpressionExecutors.length + " parameters.");
         }
-        int numberOfAttributes = attributeExpressionLength - parameterPosition;
+
+
         streamingClustering = new StreamingClustering(maxEvents, numberOfAttributes,
-                numberOfClusters);
+                numberOfClusters,parallelism);
 
         // Add attributes
         List<Attribute> attributes = new ArrayList<Attribute>(numberOfClusters);
@@ -131,21 +186,19 @@ public class StreamingClusteringExtension extends StreamProcessor {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 ComplexEvent complexEvent = streamEventChunk.next();
-                if (complexEvent.getType() != ComplexEvent.Type.TIMER) {
-                    double[] cepEvent = new double[attributeExpressionLength - parameterPosition];
+                double[] cepEvent = new double[attributeExpressionLength - parameterPosition];
 
-                    for (int i = parameterPosition; i < attributeExpressionLength; i++) {
-                        cepEvent[i - parameterPosition] = ((Number) attributeExpressionExecutors[i].
-                                execute(complexEvent)).doubleValue();
-                    }
-                    streamingClustering.addEvents(cepEvent);
+                for (int i = parameterPosition; i < attributeExpressionLength; i++) {
+                    cepEvent[i - parameterPosition] = ((Number) attributeExpressionExecutors[i].
+                            execute(complexEvent)).doubleValue();
+                }
+                streamingClustering.addEvents(cepEvent);
 
-                    Object[] outputData = streamingClustering.getOutput();
-                    if (outputData == null) {
-                        streamEventChunk.remove();
-                    } else {
-                        complexEventPopulater.populateComplexEvent(complexEvent, outputData);
-                    }
+                Object[] outputData = streamingClustering.getOutput();
+                if (outputData == null) {
+                    streamEventChunk.remove();
+                } else {
+                    complexEventPopulater.populateComplexEvent(complexEvent, outputData);
                 }
             }
         }
@@ -173,3 +226,4 @@ public class StreamingClusteringExtension extends StreamProcessor {
         streamingClustering = (StreamingClustering) state[0];
     }
 }
+

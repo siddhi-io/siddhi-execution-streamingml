@@ -18,8 +18,7 @@
 
 package org.wso2.extension.siddhi.execution.ml;
 
-import org.wso2.extension.siddhi.execution.ml.samoa.utils.classification.
-        StreamingClassification;
+import org.wso2.extension.siddhi.execution.ml.samoa.utils.classification.StreamingClassification;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -31,31 +30,23 @@ import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-public class StreamingClassificationExtension extends StreamProcessor
-        implements SchedulingProcessor {
+public class StreamingClassificationExtension extends StreamProcessor {
 
     private int numberOfAttributes;
     private int numberOfClasses;
     private int numberOfNominals;
     private int parameterPosition;
     private int numberOfNumerics;
-    private Scheduler scheduler;
-    private long lastScheduledTimestamp = -1;
-    private long TIMER_DURATION = 100;
     private ExecutorService executorService;
-
     private StreamingClassification streamingClassification;
 
     private List<String> classes = new ArrayList<String>();            //values of class attribute
@@ -80,16 +71,16 @@ public class StreamingClassificationExtension extends StreamProcessor
                         throw new ExecutionPlanValidationException("Number of attributes must be greater than 1 but" +
                                 " found " + numberOfAttributes);
                     }
-                    if (numberOfAttributes + 1 > attributeExpressionExecutors.length) {
-                        throw new ExecutionPlanValidationException("There is a inconsistency with numbxer of " +
-                                "attributes and entered attributes. Number of attributes should be greater than " +
-                                numberOfAttributes + " or entered attributes should be remove.");
+                    if (numberOfAttributes >= attributeExpressionExecutors.length -2 ) {
+                        throw new ExecutionPlanValidationException("There is a inconsistency with number of " +
+                                "attributes and entered parameters. Number of attributes should be less than " +
+                                numberOfAttributes + " or entered attributes should be change.");
                     }
                     for (int i = attributeExpressionExecutors.length - numberOfAttributes; i <
                             attributeExpressionExecutors.length; i++) {
                         if (!(attributeExpressionExecutors[i] instanceof VariableExpressionExecutor)) {
-                            throw new ExecutionPlanValidationException("Parameter number " + (i + 1) + " is not an " +
-                                    "attribute. Check the number of attribute entered as a attribute set with number " +
+                            throw new ExecutionPlanValidationException((i + 1) +"th parameter is not an " +
+                                    "attribute (VariableExpressionExecutor). Check the number of attribute entered as a attribute set with number " +
                                     "of attribute configuration parameter");
                         }
                     }
@@ -99,8 +90,8 @@ public class StreamingClassificationExtension extends StreamProcessor
                             attributeExpressionExecutors[0].getReturnType().toString());
                 }
             } else {
-                throw new ExecutionPlanValidationException("Parameter count must be a constant (" +
-                        ConstantExpressionExecutor.class.getCanonicalName() + ") but found " +
+                throw new ExecutionPlanValidationException("Parameter count must be a constant" +
+                        " (ConstantExpressionExecutor) but found " +
                         attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
 
@@ -118,7 +109,7 @@ public class StreamingClassificationExtension extends StreamProcessor
                     }
                 } else {
                     throw new ExecutionPlanValidationException("Number of classes count must be" +
-                            " a constant (" + ConstantExpressionExecutor.class.getCanonicalName() + ") but found " +
+                            " a constant (ConstantExpressionExecutor) but found " +
                             attributeExpressionExecutors[1].getClass().getCanonicalName());
                 }
 
@@ -132,8 +123,8 @@ public class StreamingClassificationExtension extends StreamProcessor
                                 + attributeExpressionExecutors[2].getReturnType().toString());
                     }
                 } else {
-                    throw new ExecutionPlanValidationException("Nominal attributes values must be a constant (" +
-                            ConstantExpressionExecutor.class.getCanonicalName() + ") but found " +
+                    throw new ExecutionPlanValidationException("Nominal attributes values must be a constant " +
+                            "(ConstantExpressionExecutor) but found " +
                             attributeExpressionExecutors[2].getClass().getCanonicalName() + " value.");
                 }
                 if (nominalAttributesValues.isEmpty() || nominalAttributesValues.equals(" ")) {
@@ -160,7 +151,7 @@ public class StreamingClassificationExtension extends StreamProcessor
                     }
                 } else {
                     throw new ExecutionPlanValidationException("Interval size values must be a constant " +
-                            "(" + ConstantExpressionExecutor.class.getCanonicalName() + ") but found " +
+                            "(ConstantExpressionExecutor) but found " +
                             "(" + attributeExpressionExecutors[3].getClass().getCanonicalName() + ") value.");
                 }
             }
@@ -176,8 +167,8 @@ public class StreamingClassificationExtension extends StreamProcessor
                                 + attributeExpressionExecutors[4].getReturnType().toString());
                     }
                 } else {
-                    throw new ExecutionPlanValidationException("Parallelism value must be a constant ("
-                            + ConstantExpressionExecutor.class.getCanonicalName() + ") but found (" +
+                    throw new ExecutionPlanValidationException("Parallelism value must be a constant " +
+                            "(ConstantExpressionExecutor) but found (" +
                             attributeExpressionExecutors[4].getClass().getCanonicalName() + ") value.");
                 }
             }
@@ -193,8 +184,8 @@ public class StreamingClassificationExtension extends StreamProcessor
                                 attributeExpressionExecutors[5].getReturnType().toString());
                     }
                 } else {
-                    throw new ExecutionPlanValidationException("Number of models(For bagging) must be a constant (" +
-                            ConstantExpressionExecutor.class.getCanonicalName() + ") but found (" +
+                    throw new ExecutionPlanValidationException("Number of models(For bagging) must be a constant " +
+                            "(ConstantExpressionExecutor) but found (" +
                             attributeExpressionExecutors[5].getClass().getCanonicalName() + ") value.");
                 }
             }
@@ -214,8 +205,8 @@ public class StreamingClassificationExtension extends StreamProcessor
                                 attributeExpressionExecutors[6].getReturnType().toString());
                     }
                 } else {
-                    throw new ExecutionPlanValidationException("Maximum events count must be a constant (" +
-                            ConstantExpressionExecutor.class.getCanonicalName() + ") but found (" +
+                    throw new ExecutionPlanValidationException("Maximum events count must be a constant" +
+                            " (ConstantExpressionExecutor) but found (" +
                             attributeExpressionExecutors[6].getClass().getCanonicalName() + ") value.");
                 }
             }
@@ -224,7 +215,6 @@ public class StreamingClassificationExtension extends StreamProcessor
                     "but found " + attributeExpressionExecutors.length);
         }
         numberOfNumerics = numberOfAttributes - numberOfNominals - 1;
-        lastScheduledTimestamp = executionPlanContext.getTimestampGenerator().currentTime();
         streamingClassification = new StreamingClassification(maxEvents, interval, numberOfClasses,
                 numberOfAttributes, numberOfNominals, nominalAttributesValues,
                 parallelism, numberModelsBagging);
@@ -253,8 +243,6 @@ public class StreamingClassificationExtension extends StreamProcessor
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater
                                    complexEventPopulater) {
-
-//        ComplexEventChunk<StreamEvent> complexEventChunk = new ComplexEventChunk<StreamEvent>(false);
 
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
@@ -309,35 +297,9 @@ public class StreamingClassificationExtension extends StreamProcessor
                         if (numberOfNominals > 0) {
                             outputData = outputNominals(outputData);
                         }
-//                        StreamEvent streamEvent1 = new StreamEvent(0, 0, outputData.length);
-//                        streamEvent1.setOutputData(outputData);
-//                        complexEventChunk.add(streamEvent1);
-
                         complexEventPopulater.populateComplexEvent(complexEvent, outputData);
                     }
                 }
-                // TODO: 12/22/16 try to remove it  
-//                else { // Timer events for poll output events from prediction queue
-//                    lastScheduledTimestamp = lastScheduledTimestamp + TIMER_DURATION;
-//                    scheduler.notifyAt(lastScheduledTimestamp);
-//                    Object[] outputData = null;
-//                    outputData = streamingClassification.getOutput();
-//                    if (outputData == null) {
-//                        streamEventChunk.remove();
-//                    } else {
-//                        int index_predict = (int) outputData[outputData.length - 1];
-//                        outputData[outputData.length - 1] = classes.get(index_predict);
-//                        if (numberOfNominals != 0) {
-//                            outputData = outputNominals(outputData);
-//                        }
-////                        StreamEvent streamEvent1 = new StreamEvent(0, 0, outputData.length);
-////                        streamEvent1.setOutputData(outputData);
-////                        complexEventChunk.add(streamEvent1);
-//                        complexEventPopulater.populateComplexEvent(complexEvent, outputData);
-//
-//                    }
-//
-//                }
             }
         }
         nextProcessor.process(streamEventChunk);
@@ -379,7 +341,6 @@ public class StreamingClassificationExtension extends StreamProcessor
     @Override
     public void start() {
         executorService.execute(streamingClassification);
-
     }
 
     @Override
@@ -389,30 +350,11 @@ public class StreamingClassificationExtension extends StreamProcessor
 
     @Override
     public Object[] currentState() {
-        return new Object[]{scheduler, lastScheduledTimestamp, TIMER_DURATION,
-                streamingClassification};
+        return new Object[]{streamingClassification};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        scheduler = (Scheduler) state[0];
-        lastScheduledTimestamp = (long) state[1];
-        TIMER_DURATION = (long) state[2];
-        streamingClassification = (StreamingClassification) state[3];
-    }
-
-    @Override
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
-        if (lastScheduledTimestamp > 0) {
-            lastScheduledTimestamp = executionPlanContext.getTimestampGenerator().currentTime() +
-                    TIMER_DURATION;
-            scheduler.notifyAt(lastScheduledTimestamp);
-        }
-    }
-
-    @Override
-    public Scheduler getScheduler() {
-        return this.scheduler;
+        streamingClassification = (StreamingClassification) state[0];
     }
 }
