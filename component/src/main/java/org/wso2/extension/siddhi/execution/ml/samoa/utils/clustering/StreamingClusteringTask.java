@@ -84,8 +84,7 @@ public class StreamingClusteringTask extends ProcessTask {
         builder.connectInputShuffleStream(sourcePiOutputStream, learner.getInputProcessor());
 
         // Evaluation Processor
-        StreamingClusteringEvaluationProcessor resultCheckPoint =
-                new StreamingClusteringEvaluationProcessor("Result check point");
+        StreamingClusteringEvaluationProcessor resultCheckPoint =(new StreamingClusteringEvaluationProcessor.Builder(this.sampleFrequencyOption.getValue())).dumpFile(this.dumpFileOption.getFile()).build();
         resultCheckPoint.setSamoaClusters(this.samoaClusters);
         resultCheckPoint.setNumberOfClusters(this.numberOfClusters);
         builder.addProcessor(resultCheckPoint);
@@ -93,7 +92,8 @@ public class StreamingClusteringTask extends ProcessTask {
         for (Stream evaluatorPiInputStream : learner.getResultStreams()) {
             builder.connectInputShuffleStream(evaluatorPiInputStream, resultCheckPoint);
         }
-        topology = builder.build();
+        this.builder.connectInputAllStream(this.evaluationStream,resultCheckPoint);
+        topology = this.builder.build();
         logger.info("Successfully built the topology");
     }
 

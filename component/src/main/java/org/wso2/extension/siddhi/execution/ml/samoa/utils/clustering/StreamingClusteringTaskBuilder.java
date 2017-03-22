@@ -40,14 +40,18 @@ public class StreamingClusteringTaskBuilder extends TaskBuilder {
     public Queue<Clustering> samoaClusters;
     public int numberOfClusters;
     private int parallelism;
+    private int samplefrequency;
+    private int interval;
 
     public StreamingClusteringTaskBuilder(int maxInstance, int numberofAttributes,
-                                          int numberOfClusters,int parallel, Queue<double[]> cepEvents,
-                                          Queue<Clustering> samoaClusters) {
+                                          int numberOfClusters, int parallel, int sampleFrequency, int interval,
+                                          Queue<double[]> cepEvents, Queue<Clustering> samoaClusters) {
         this.maxEvents = maxInstance;
         this.numberOfAttributes = numberofAttributes;
         this.numberOfClusters = numberOfClusters;
-        this.parallelism=parallel;
+        this.parallelism = parallel;
+        this.samplefrequency = sampleFrequency;
+        this.interval = interval;
         this.cepEvents = cepEvents;
         this.samoaClusters = samoaClusters;
     }
@@ -56,10 +60,11 @@ public class StreamingClusteringTaskBuilder extends TaskBuilder {
         String query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.clustering." +
                 "StreamingClusteringTask -i " + maxEvents + " -s  (org.wso2.extension." +
                 "siddhi.execution.ml.samoa.utils.clustering.StreamingClusteringStream -K "
-                + numberOfClusters + " -a " + numberOfAttributes + ") -l (org.apache.samoa." +
-                "learners.clusterers.simple.DistributedClusterer -P "+parallelism+" -l (org.apache.samoa.learners." +
-                "clusterers.ClustreamClustererAdapter -l (org.apache.samoa.moa.clusterers." +
-                "clustream.WithKmeans  -m 100 -k " + numberOfClusters + ")))";
+                + numberOfClusters + " -a " + numberOfAttributes + ") -l " +
+                "(org.wso2.extension.siddhi.execution.ml.samoa.utils.clustering.StreamingDistributor -F "
+                + samplefrequency + " -I " + interval + " -P " + parallelism +
+                " -l (org.apache.samoa.learners.clusterers.ClustreamClustererAdapter " +
+                "-l (org.apache.samoa.moa.clusterers.clustream.WithKmeans -k " +numberOfClusters + ")))";
         logger.info("QUERY: " + query);
         String args[] = {query};
         this.initClusteringTask(args);

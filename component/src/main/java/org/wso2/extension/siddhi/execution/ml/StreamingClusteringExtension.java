@@ -43,6 +43,7 @@ public class StreamingClusteringExtension extends StreamProcessor {
     private int parameterPosition;
     private StreamingClustering streamingClustering;
     private ExecutorService executorService;
+    private int interval;
 
     /**
      * Initialize the StreamingClusteringExtension
@@ -57,6 +58,9 @@ public class StreamingClusteringExtension extends StreamProcessor {
             attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         int maxEvents = -1;
         int parallelism = 2;
+        int sampleFrequency = 1000;
+        interval = sampleFrequency;
+
         this.executorService = executionPlanContext.getExecutorService();
         int numberOfClusters;
         int numberOfAttributes;
@@ -134,23 +138,67 @@ public class StreamingClusteringExtension extends StreamProcessor {
                 }
             }
             if (parameterPosition > 3) {
-                if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
-                    if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
+                if (parameterPosition > 4) {
+                    if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
+                        if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
+                            sampleFrequency = (Integer) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[3]).getValue();
+                            if (sampleFrequency < 100) {
+                                throw new ExecutionPlanValidationException("Sample frequency must be" +
+                                        " greater than 100, but found " + maxEvents);
+                            }
+                        } else {
+                            throw new ExecutionPlanValidationException("Invalid parameter type found for the" +
+                                    " fourth argument,required " + Attribute.Type.INT + " but found " +
+                                    attributeExpressionExecutors[3].getReturnType().toString());
+                        }
+                    } else {
+                        throw new ExecutionPlanValidationException("Sample frequency must be" +
+                                " a constant(ConstantExpressionExecutor) but found variable " +
+                                attributeExpressionExecutors[3].getClass().getCanonicalName() + " value.");
+                    }
+                    if (attributeExpressionExecutors[4] instanceof ConstantExpressionExecutor) {
+                        if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.INT) {
+                            interval = (Integer) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[4]).getValue();
+                            if ((interval<( sampleFrequency*parallelism))||(interval%( sampleFrequency*parallelism)!=0)) {
+                                throw new ExecutionPlanValidationException("Interval must be" +
+                                        " multiplication of samplefrequency*parallelism");
+                            }
+                        } else {
+                            throw new ExecutionPlanValidationException("Invalid parameter type found for the" +
+                                    " fifth argument,required " + Attribute.Type.INT + " but found " +
+                                    attributeExpressionExecutors[4].getReturnType().toString());
+                        }
+                    } else {
+                        throw new ExecutionPlanValidationException("Output interval must be" +
+                                " a constant(ConstantExpressionExecutor) but found variable " +
+                                attributeExpressionExecutors[4].getClass().getCanonicalName() + " value.");
+                    }
+
+                }else {
+                    throw new ExecutionPlanValidationException("You should enter both samplefrequency and output interval");
+                }
+            }
+
+            if (parameterPosition > 5) {
+                if (attributeExpressionExecutors[5] instanceof ConstantExpressionExecutor) {
+                    if (attributeExpressionExecutors[5].getReturnType() == Attribute.Type.INT) {
                         maxEvents = (Integer) ((ConstantExpressionExecutor)
-                                attributeExpressionExecutors[3]).getValue();
+                                attributeExpressionExecutors[5]).getValue();
                         if (maxEvents < -1) {
                             throw new ExecutionPlanValidationException("Maximum number of events must be" +
                                     " greater than or equal -1. (-1 = No limit), but found " + maxEvents);
                         }
                     } else {
                         throw new ExecutionPlanValidationException("Invalid parameter type found for the" +
-                                " fourth argument,required " + Attribute.Type.INT + " but found " +
-                                attributeExpressionExecutors[3].getReturnType().toString());
+                                " sixth argument,required " + Attribute.Type.INT + " but found " +
+                                attributeExpressionExecutors[5].getReturnType().toString());
                     }
                 } else {
                     throw new ExecutionPlanValidationException("Number of maximum events must be" +
                             " a constant(ConstantExpressionExecutor) but found variable " +
-                            attributeExpressionExecutors[3].getClass().getCanonicalName() + " value.");
+                            attributeExpressionExecutors[5].getClass().getCanonicalName() + " value.");
                 }
             }
         } else {
@@ -161,7 +209,7 @@ public class StreamingClusteringExtension extends StreamProcessor {
 
 
         streamingClustering = new StreamingClustering(maxEvents, numberOfAttributes,
-                numberOfClusters,parallelism);
+                numberOfClusters, parallelism, sampleFrequency, interval);
 
         // Add attributes
         List<Attribute> attributes = new ArrayList<Attribute>(numberOfClusters);

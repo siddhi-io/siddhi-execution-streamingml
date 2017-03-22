@@ -69,7 +69,7 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
                     " -s (org.wso2.extension.siddhi.execution.ml.samoa.utils." +
                     "classification.StreamingClassificationStream -K " + numberOfClasses + " -A " +
                     numberOfAttributes + " -N " + numberOfNominalAttributes + " -Z " + nominalValues
-                    + " ) -l (org.apache.samoa.learners.classifiers.trees.VerticalHoeffdingTree -p "
+                    + " ) -l (org.apache.samoa.learners.classifiers.trees.VerticalHoeffdingTree -g 300 -p "
                     + parallelism + ")";
         } else {
             //---------Bagging--------------

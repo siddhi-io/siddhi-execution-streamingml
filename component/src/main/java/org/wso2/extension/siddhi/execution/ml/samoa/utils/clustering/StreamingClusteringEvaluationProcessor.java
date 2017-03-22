@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.EvaluationProcessor;
 
+import java.io.File;
 import java.util.Queue;
 
 public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor {
@@ -38,9 +39,15 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
     String evaluationPoint;
     public Queue<Clustering> samoaClusters;
     public int numberOfClusters;
+    private final int samplingFrequency;
+    private final int decayHorizon;
+    private final File dumpFile;
 
-    StreamingClusteringEvaluationProcessor(String evaluationPoint) {
-        this.evaluationPoint = evaluationPoint;
+    StreamingClusteringEvaluationProcessor(StreamingClusteringEvaluationProcessor.Builder builder) {
+        this.samplingFrequency = builder.samplingFrequency;
+        this.dumpFile = builder.dumpFile;
+        this.decayHorizon = builder.decayHorizon;
+
     }
 
     @Override
@@ -52,12 +59,8 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
             Clustering clustering = resultEvent.getClustering();
 
             Clustering kmeansClustering = WithKmeans.kMeans_rand(numberOfClusters, clustering);
-            logger.info("K-mean Clusters: " + kmeansClustering.size() + " with dimension of : "
-                    + kmeansClustering.dimension());
             //Adding samoa Clusters into class
             samoaClusters.add(kmeansClustering);
-            logger.info("Number of Kernel Clusters : " + numberOfClusters +
-                    " Number of k-Means Clusters:" + kmeansClustering.size());
         }
         return true;
     }
@@ -65,7 +68,7 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
     @Override
     public void onCreate(int id) {
         this.processId = id;
-        logger.info("Creating PrequentialSourceProcessor with processId {}", processId);
+//        logger.info("Creating PrequentialSourceProcessor with processId {}", processId);
     }
 
     @Override
@@ -82,4 +85,41 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
     public void setNumberOfClusters(int numberOfClusters) {
         this.numberOfClusters = numberOfClusters;
     }
+
+
+    public static class Builder {
+        private int samplingFrequency = 1000;
+        private File dumpFile = null;
+        private int decayHorizon = 1000;
+
+        public Builder(int samplingFrequency) {
+            this.samplingFrequency = samplingFrequency;
+        }
+
+        public Builder(StreamingClusteringEvaluationProcessor oldProcessor) {
+            this.samplingFrequency = oldProcessor.samplingFrequency;
+            this.dumpFile = oldProcessor.dumpFile;
+            this.decayHorizon = oldProcessor.decayHorizon;
+        }
+
+        public StreamingClusteringEvaluationProcessor.Builder samplingFrequency(int samplingFrequency) {
+            this.samplingFrequency = samplingFrequency;
+            return this;
+        }
+
+        public StreamingClusteringEvaluationProcessor.Builder decayHorizon(int decayHorizon) {
+            this.decayHorizon = decayHorizon;
+            return this;
+        }
+
+        public StreamingClusteringEvaluationProcessor.Builder dumpFile(File file) {
+            this.dumpFile = file;
+            return this;
+        }
+
+        public StreamingClusteringEvaluationProcessor build() {
+            return new StreamingClusteringEvaluationProcessor(this);
+        }
+    }
+
 }

@@ -51,7 +51,7 @@ public class ClassificationTestCase {
 
         String inStreamDefinition = " define stream inputStream (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double,attribute_3 double, attribute_4 string );";
-        String query = ("@info(name = 'query1') from inputStream#ml:classificationHoeffdingtree(5,3,'',1000," +
+        String query = ("@info(name = 'query1') from inputStream#ml:classificationHoeffdingtree(5,3,''," +
                 "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select att_0 as attribute_0, " +
                 "att_1 as attribute_1,att_2 as attribute_2,att_3 as attribute_3, prediction as prediction insert into" +
                 " outputStream;");
