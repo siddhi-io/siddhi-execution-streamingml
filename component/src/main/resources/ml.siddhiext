@@ -16,4 +16,7 @@
 # under the License.
 #
 
+clusteringKmeans=org.wso2.extension.siddhi.execution.ml.StreamingClusteringExtension
+classificationHoeffdingtree=org.wso2.extension.siddhi.execution.ml.StreamingClassificationExtension
+regressionAMRules=org.wso2.extension.siddhi.execution.ml.StreamingRegressionExtension
 predict=org.wso2.extension.siddhi.execution.ml.PredictStreamProcessor
