@@ -23,10 +23,16 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.log4j.Logger;
 import org.wso2.carbon.ml.core.exceptions.MLInputAdapterException;
 import org.wso2.carbon.ml.core.exceptions.MLModelHandlerException;
 import org.wso2.carbon.ml.core.factories.AlgorithmType;
 import org.wso2.carbon.ml.core.h2o.POJOPredictor;
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -39,10 +45,26 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+@Extension(
+        name = "predict",
+        namespace = "ml",
+        description = "TBD",
+        parameters = {
+                @Parameter(name = "tbd",
+                        description = "TBD",
+                    type = DataType.DOUBLE),
 
+        },
+        returnAttributes = @ReturnAttribute(
+                name = "tbd",
+                description = "Returns median of aggregated events",
+                type = DataType.DOUBLE),
+        examples = @Example(description = "TBD", syntax = "TBD")
+)
 public class PredictStreamProcessor extends StreamProcessor {
 
     private ModelHandler[] modelHandlers;
@@ -58,6 +80,7 @@ public class PredictStreamProcessor extends StreamProcessor {
     private POJOPredictor[] pojoPredictor;
     private boolean deeplearningWithoutH2O;
 
+    private static final Logger log = Logger.getLogger(PredictStreamProcessor.class);
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
@@ -142,8 +165,8 @@ public class PredictStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition,
-                                   ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] expressionExecutors,
+                                   ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
 
         if (attributeExpressionExecutors.length < 2) {
             throw new ExecutionPlanValidationException("ML model storage locations and response variable type have not "
@@ -359,12 +382,12 @@ public class PredictStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0];
+    public Map<String, Object> currentState() {
+        return new HashMap<>();
     }
 
     @Override
-    public void restoreState(Object[] state) {
+    public void restoreState(Map<String, Object> map) {
 
     }
 }

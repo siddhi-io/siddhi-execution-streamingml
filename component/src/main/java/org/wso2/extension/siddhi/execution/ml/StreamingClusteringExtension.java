@@ -18,7 +18,13 @@
 
 package org.wso2.extension.siddhi.execution.ml;
 
+import org.wso2.extension.siddhi.execution.ml.samoa.utils.classification.StreamingClassification;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.clustering.StreamingClustering;
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -30,13 +36,32 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
+@Extension(
+        name = "clusteringKmeans",
+        namespace = "ml",
+        description = "TBD",
+        parameters = {
+                @Parameter(name = "tbd",
+                        description = "TBD",
+                type = DataType.DOUBLE),
+
+        },
+        returnAttributes = @ReturnAttribute(
+                name = "tbd",
+                description = "Returns median of aggregated events",
+                type = DataType.DOUBLE),
+        examples = @Example(description = "TBD", syntax = "TBD")
+)
 
 public class StreamingClusteringExtension extends StreamProcessor {
 
@@ -48,14 +73,14 @@ public class StreamingClusteringExtension extends StreamProcessor {
     /**
      * Initialize the StreamingClusteringExtension
      *
-     * @param inputDefinition              Input Definition
-     * @param attributeExpressionExecutors Array of AttributeExpressionExecutor
+     * @param abstractDefinition              Input Definition
+     * @param expressionExecutors Array of AttributeExpressionExecutor
      * @param executionPlanContext         ExecutionPlanContext of Siddhi
      * @return clusterCenters, list of cluster centers injected by StreamingClusteringExtension
      */
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] expressionExecutors,
+                                   ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         int maxEvents = -1;
         int parallelism = 2;
         int sampleFrequency = 1000;
@@ -264,14 +289,13 @@ public class StreamingClusteringExtension extends StreamProcessor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{streamingClustering};
-        // TODO: 12/20/16 check how to store this samoa app
+    public Map<String, Object> currentState() {
+        return Collections.singletonMap("streamingClustering", (Object) streamingClustering);
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        streamingClustering = (StreamingClustering) state[0];
+    public void restoreState(Map<String, Object> map) {
+        streamingClustering = (StreamingClustering) map.get("streamingClustering");
     }
 }
 

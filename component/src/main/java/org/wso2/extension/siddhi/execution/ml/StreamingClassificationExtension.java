@@ -18,7 +18,13 @@
 
 package org.wso2.extension.siddhi.execution.ml;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.classification.StreamingClassification;
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -31,13 +37,29 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
+@Extension(
+        name = "classificationHoeffdingtree",
+        namespace = "ml",
+        description = "TBD",
+        parameters = {
+                @Parameter(name = "tbd",
+                        description = "TBD",
+                        type = DataType.DOUBLE),
+
+        },
+        returnAttributes = @ReturnAttribute(
+                name = "tbd",
+                description = "Returns median of aggregated events",
+                type = DataType.DOUBLE),
+        examples = @Example(description = "TBD", syntax = "TBD")
+)
 
 public class StreamingClassificationExtension extends StreamProcessor {
 
@@ -53,8 +75,8 @@ public class StreamingClassificationExtension extends StreamProcessor {
     private List<ArrayList<String>> nominals = new ArrayList<ArrayList<String>>();//values of other nominal attributes
 
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] expressionExecutors,
+                                   ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         executorService = executionPlanContext.getExecutorService();
         int maxEvents = -1;
         int interval = 1000;
@@ -349,12 +371,12 @@ public class StreamingClassificationExtension extends StreamProcessor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[]{streamingClassification};
+    public Map<String, Object> currentState() {
+        return Collections.singletonMap("streamClassification", (Object) streamingClassification);
     }
 
     @Override
-    public void restoreState(Object[] state) {
-        streamingClassification = (StreamingClassification) state[0];
+    public void restoreState(Map<String, Object> map) {
+        streamingClassification = (StreamingClassification) map.get("streamClassification");
     }
 }
