@@ -41,7 +41,7 @@ public class StreamingRegressionEntranceProcessor extends SourceProcessor {
             numberOfInstancesSent++;
             Instance next = nextInstance();
             Object classValue = next.classValue();
-            if (classValue.toString().equals("-0.0")) {  // Check the last value of the event;
+            if (classValue.toString().equals("-0.0")) { // Check the last value of the event;
                 // If it equals -0.0 then use it as predicting event
                 contentEvent = new InstanceContentEvent(numberOfInstancesSent, next, false, true);
             } else {
@@ -58,10 +58,10 @@ public class StreamingRegressionEntranceProcessor extends SourceProcessor {
 
     @Override
     public Processor newProcessor(Processor p) {
-        StreamingRegressionEntranceProcessor newProcessor =
-                new StreamingRegressionEntranceProcessor();
-        StreamingRegressionEntranceProcessor originProcessor =
-                (StreamingRegressionEntranceProcessor) p;
+        StreamingRegressionEntranceProcessor newProcessor = new
+                StreamingRegressionEntranceProcessor();
+        StreamingRegressionEntranceProcessor originProcessor = (
+                StreamingRegressionEntranceProcessor) p;
         if (originProcessor.getStreamSource() != null) {
             newProcessor.setStreamSource(originProcessor.getStreamSource().getStream());
         }

@@ -55,10 +55,10 @@ public class StreamingClusteringStream extends DataStream {
     public Example<Instance> nextInstance() {
         double[] values_new = new double[numAttsOption.getValue()];
         if (numberOfGeneratedInstances == 0) {
-            while (cepEvents == null) ;
+            while (cepEvents == null);
         }
         numberOfGeneratedInstances++;
-        while (cepEvents.isEmpty()) ;
+        while (cepEvents.isEmpty());
         double[] values = cepEvents.poll();
         System.arraycopy(values, 0, values_new, 0, values.length);
         Instance inst = new DenseInstance(1.0, values_new);

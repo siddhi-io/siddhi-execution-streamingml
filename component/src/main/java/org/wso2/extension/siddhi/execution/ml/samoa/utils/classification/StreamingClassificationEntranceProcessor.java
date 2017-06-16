@@ -31,8 +31,8 @@ import java.util.concurrent.TimeUnit;
 
 public class StreamingClassificationEntranceProcessor extends SourceProcessor {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(StreamingClassificationEntranceProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+            StreamingClassificationEntranceProcessor.class);
 
     @Override
     public ContentEvent nextEvent() {
@@ -41,16 +41,16 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
             contentEvent = new InstanceContentEvent(-1, firstInstance, false, true);
             contentEvent.setLast(true);
             // set finished status _after_ tagging last event
-//            logger.info("Finished !");
+            // logger.info("Finished !");
             finished = true;
 
         } else if (hasNext()) {
             numberOfInstancesSent++;
             Instance next = nextInstance();
-            if (next.classValue() == -1.0) {     // If this event is a prediction event
-                     // This instance uses for testing
+            if (next.classValue() == -1.0) { // If this event is a prediction event
+                // This instance uses for testing
                 contentEvent = new InstanceContentEvent(numberOfInstancesSent, next, false, true);
-            } else { //If it is not a prediction data then it uses to train the model and test
+            } else { // If it is not a prediction data then it uses to train the model and test
                 contentEvent = new InstanceContentEvent(numberOfInstancesSent, next, true, true);
 
             }
@@ -65,8 +65,8 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
 
     @Override
     public Processor newProcessor(Processor p) {
-        StreamingClassificationEntranceProcessor newProcessor =
-                new StreamingClassificationEntranceProcessor();
+        StreamingClassificationEntranceProcessor newProcessor = new
+                StreamingClassificationEntranceProcessor();
         StreamingClassificationEntranceProcessor originProcessor =
                 (StreamingClassificationEntranceProcessor) p;
         if (originProcessor.getStreamSource() != null) {

@@ -33,8 +33,8 @@ import java.util.Queue;
 
 public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(StreamingClusteringEvaluationProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+            StreamingClusteringEvaluationProcessor.class);
 
     String evaluationPoint;
     public Queue<Clustering> samoaClusters;
@@ -59,7 +59,7 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
             Clustering clustering = resultEvent.getClustering();
 
             Clustering kmeansClustering = WithKmeans.kMeans_rand(numberOfClusters, clustering);
-            //Adding samoa Clusters into class
+            // Adding samoa Clusters into class
             samoaClusters.add(kmeansClustering);
         }
         return true;
@@ -68,7 +68,7 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
     @Override
     public void onCreate(int id) {
         this.processId = id;
-//        logger.info("Creating PrequentialSourceProcessor with processId {}", processId);
+        // logger.info("Creating PrequentialSourceProcessor with processId {}", processId);
     }
 
     @Override
@@ -86,7 +86,6 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
         this.numberOfClusters = numberOfClusters;
     }
 
-
     public static class Builder {
         private int samplingFrequency = 1000;
         private File dumpFile = null;
@@ -102,7 +101,8 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
             this.decayHorizon = oldProcessor.decayHorizon;
         }
 
-        public StreamingClusteringEvaluationProcessor.Builder samplingFrequency(int samplingFrequency) {
+        public StreamingClusteringEvaluationProcessor.Builder samplingFrequency(
+                int samplingFrequency) {
             this.samplingFrequency = samplingFrequency;
             return this;
         }

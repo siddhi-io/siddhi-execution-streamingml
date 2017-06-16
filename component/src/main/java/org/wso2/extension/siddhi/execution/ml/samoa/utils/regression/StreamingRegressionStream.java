@@ -36,14 +36,15 @@ import java.util.ArrayList;
 public class StreamingRegressionStream extends DataStream {
 
     public IntOption numAttOption = new IntOption("numberOfAttributes", 'A',
-            "The number of attributes in the stream.", 2, 1, Integer.MAX_VALUE);
+            "The number of attributes in the stream.",
+            2, 1, Integer.MAX_VALUE);
 
     @Override
     protected void prepareForUseImpl(TaskMonitor taskMonitor, ObjectRepository objectRepository) {
 
         taskMonitor.setCurrentActivity("Preparing random RBF...", -1.0);
         this.numberOfAttributes = numAttOption.getValue();
-        this.numberOfGeneratedInstances=0;
+        this.numberOfGeneratedInstances = 0;
         generateHeader();
         restart();
         values = new double[numberOfAttributes];
@@ -66,15 +67,16 @@ public class StreamingRegressionStream extends DataStream {
     public Example<Instance> nextInstance() {
         double[] values_new = new double[numberOfAttributes];
         if (numberOfGeneratedInstances == 0) {
-            while (cepEvents == null) ;
+            while (cepEvents == null);
         }
         numberOfGeneratedInstances++;
-        while (cepEvents.isEmpty()) ;
+        while (cepEvents.isEmpty());
         double[] values = cepEvents.poll();
-        System.arraycopy(values, 0, values_new, 0, values.length-1);
+        System.arraycopy(values, 0, values_new, 0, values.length - 1);
         Instance inst = new DenseInstance(1.0, values_new);
         inst.setDataset(getHeader());
-        inst.setClassValue(values[values.length - 1]);//Set the relevant class value to the data set
+        inst.setClassValue(values[values.length - 1]);// Set the relevant
+        // class value to the data set
         return new InstanceExample(inst);
     }
 }

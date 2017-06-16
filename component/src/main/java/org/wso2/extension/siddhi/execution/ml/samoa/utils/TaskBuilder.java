@@ -42,6 +42,3 @@ public abstract class TaskBuilder {
         SimpleEngine.submitTopology(topology);
     }
 }
-
-
-

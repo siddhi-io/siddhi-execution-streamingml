@@ -19,11 +19,11 @@
 package org.wso2.extension.siddhi.execution.ml;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.carbon.ml.core.utils.MLCoreServiceValueHolder;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -34,14 +34,13 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.Properties;
 
-
 public class PredictStreamProcessorTestCase {
     static final Logger log = Logger.getLogger(PredictStreamProcessorTestCase.class);
     private volatile boolean eventArrived;
     private String modelStorageLocation = System.getProperty("user.dir") + File.separator + "src" + File.separator
             + "test" + File.separator + "resources" + File.separator + "test-model";
 
-    @Before
+    @BeforeMethod
     public void init() {
         MLCoreServiceValueHolder valueHolder = MLCoreServiceValueHolder.getInstance();
         valueHolder.setMlProperties(new Properties());
@@ -59,26 +58,26 @@ public class PredictStreamProcessorTestCase {
         String query = "@info(name = 'query1') " + "from InputStream#ml:predict('" + modelStorageLocation
                 + "','double') " + "select * " + "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inputStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
-                    Assert.assertEquals(1.0, inEvents[0].getData(8));
+                    AssertJUnit.assertEquals(1.0, inEvents[0].getData(8));
                     eventArrived = true;
                 }
             }
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
-        executionPlanRuntime.start();
-        inputHandler.send(new Object[]{2, 84, 0, 0, 0, 0.0, 0.304, 21});
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
+        siddhiAppRuntime.start();
+        inputHandler.send(new Object[] { 2, 84, 0, 0, 0, 0.0, 0.304, 21 });
         sleepTillArrive(5001);
-        Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        AssertJUnit.assertTrue(eventArrived);
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -94,26 +93,26 @@ public class PredictStreamProcessorTestCase {
                 + "', 'double', NumPregnancies, PG2, DBP, TSFT, SI2, BMI, DPF, Age) " + "select * "
                 + "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inputStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
-                    Assert.assertEquals(1.0, inEvents[0].getData(8));
+                    AssertJUnit.assertEquals(1.0, inEvents[0].getData(8));
                     eventArrived = true;
                 }
             }
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
-        executionPlanRuntime.start();
-        inputHandler.send(new Object[]{2, 84, 0, 0, 0, 0.0, 0.304, 21});
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
+        siddhiAppRuntime.start();
+        inputHandler.send(new Object[] { 2, 84, 0, 0, 0, 0.0, 0.304, 21 });
         sleepTillArrive(5001);
-        Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        AssertJUnit.assertTrue(eventArrived);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -128,26 +127,26 @@ public class PredictStreamProcessorTestCase {
                 + "', 'double', NumPregnancies, PG2, DBP, TSFT, SI2, BMI, DPF, Age) " + "select Class "
                 + "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inputStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (inEvents != null) {
-                    Assert.assertEquals(1.0, inEvents[0].getData(0));
+                    AssertJUnit.assertEquals(1.0, inEvents[0].getData(0));
                     eventArrived = true;
                 }
             }
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("InputStream");
-        executionPlanRuntime.start();
-        inputHandler.send(new Object[]{2, 84, 0, 0, 0, 0.0, 0.304, 21});
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
+        siddhiAppRuntime.start();
+        inputHandler.send(new Object[] { 2, 84, 0, 0, 0, 0.0, 0.304, 21 });
         sleepTillArrive(5001);
-        Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        AssertJUnit.assertTrue(eventArrived);
+        siddhiAppRuntime.shutdown();
     }
 
     private void sleepTillArrive(int milliseconds) {

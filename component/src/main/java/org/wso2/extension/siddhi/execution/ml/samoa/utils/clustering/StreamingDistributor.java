@@ -26,7 +26,8 @@ public class StreamingDistributor implements Learner, Configurable {
 
     private Instances dataset;
 
-    public ClassOption learnerOption = new ClassOption("learner", 'l', "Clusterer to use.", LocalClustererAdapter.class,
+    public ClassOption learnerOption = new ClassOption("learner", 'l', "Clusterer to use.",
+            LocalClustererAdapter.class,
             ClustreamClustererAdapter.class.getName());
 
     public IntOption paralellismOption = new IntOption("paralellismOption", 'P',
@@ -67,7 +68,8 @@ public class StreamingDistributor implements Learner, Configurable {
 
         // Global Clustering
         LocalClustererProcessor globalClusteringCombinerP = new LocalClustererProcessor();
-        globalClusteringCombinerP.setSampleFrequency((intervalOption.getValue()/samplemOption.getValue())*100);
+        globalClusteringCombinerP.setSampleFrequency((intervalOption.getValue() /
+                samplemOption.getValue()) * 100);
         LocalClustererAdapter globalLearner = (LocalClustererAdapter) this.learnerOption.getValue();
         globalLearner.setDataset(this.dataset);
         globalClusteringCombinerP.setLearner(learner);

@@ -18,7 +18,7 @@
 package org.wso2.extension.siddhi.execution.ml.samoa.utils.regression;
 
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.StreamingProcess;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.Queue;
 import java.util.Vector;
@@ -27,14 +27,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class StreamingRegression extends StreamingProcess {
 
     private int maxInstance;
-    private int batchSize;            //Output display interval
+    private int batchSize; // Output display interval
     private int numberOfAttributes;
     private int parallelism;
 
     public Queue<Vector> samoaPredictions;
-   // public StreamingRegressionTaskBuilder regressionTask;
+    // public StreamingRegressionTaskBuilder regressionTask;
 
-    public StreamingRegression(int maxInstance, int batchSize, int parameterCount, int parallelism) {
+    public StreamingRegression(int maxInstance, int batchSize, int parameterCount,
+                               int parallelism) {
 
         this.maxInstance = maxInstance;
         this.numberOfAttributes = parameterCount;
@@ -44,16 +45,18 @@ public class StreamingRegression extends StreamingProcess {
         this.cepEvents = new ConcurrentLinkedQueue<double[]>();
         this.samoaPredictions = new ConcurrentLinkedQueue<Vector>();
         try {
-            this.processTaskBuilder = new StreamingRegressionTaskBuilder(this.maxInstance, this.batchSize,
-                    this.numberOfAttributes, this.cepEvents, this.samoaPredictions, this.parallelism);
+            this.processTaskBuilder = new StreamingRegressionTaskBuilder(
+                    this.maxInstance, this.batchSize, this.numberOfAttributes, this.cepEvents,
+                    this.samoaPredictions, this.parallelism);
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Fail to initiate the streaming regression task.", e);
+            throw new SiddhiAppRuntimeException("Fail to initiate the " +
+                    "streaming regression task.", e);
         }
     }
 
     public Object[] getOutput() {
         Object[] output;
-        if (!samoaPredictions.isEmpty()) {             // poll predicted events from prediction queue
+        if (!samoaPredictions.isEmpty()) { // poll predicted events from prediction queue
             output = new Object[numberOfAttributes];
             Vector prediction = samoaPredictions.poll();
             for (int i = 0; i < prediction.size(); i++) {

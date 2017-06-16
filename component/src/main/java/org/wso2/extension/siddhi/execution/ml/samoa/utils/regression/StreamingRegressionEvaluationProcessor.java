@@ -39,12 +39,12 @@ import org.apache.samoa.moa.evaluation.LearningEvaluation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.EvaluationProcessor;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(StreamingRegressionEvaluationProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+            StreamingRegressionEvaluationProcessor.class);
     private static final String ORDERING_MEASUREMENT_NAME = "evaluation instances";
 
     private final PerformanceEvaluator evaluator;
@@ -55,8 +55,8 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
     private Queue<Vector> regressionData;
     public Queue<Vector> samoaPredictions;
 
-    public StreamingRegressionEvaluationProcessor
-            (StreamingRegressionEvaluationProcessor.Builder builder) {
+    public StreamingRegressionEvaluationProcessor(StreamingRegressionEvaluationProcessor.
+                                                          Builder builder) {
         this.immediateResultStream = null;
         this.firstDump = true;
         this.totalCount = 0L;
@@ -117,20 +117,20 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
         if (this.dumpFile != null) {
             try {
                 if (dumpFile.exists()) {
-                    this.immediateResultStream = new PrintStream(
-                            new FileOutputStream(dumpFile, true), true);
+                    this.immediateResultStream = new PrintStream(new FileOutputStream(dumpFile,
+                            true), true);
                 } else {
-                    this.immediateResultStream = new PrintStream(
-                            new FileOutputStream(dumpFile), true);
+                    this.immediateResultStream = new PrintStream(new FileOutputStream(dumpFile),
+                            true);
                 }
 
             } catch (FileNotFoundException e) {
                 this.immediateResultStream = null;
-                throw new ExecutionPlanRuntimeException("File not found exception : ", e);
+                throw new SiddhiAppRuntimeException("File not found exception : ", e);
 
             } catch (Exception e) {
                 this.immediateResultStream = null;
-                throw new ExecutionPlanRuntimeException(e);
+                throw new SiddhiAppRuntimeException(e);
             }
         }
         this.firstDump = true;
@@ -141,7 +141,8 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
         StreamingRegressionEvaluationProcessor originalProcessor =
                 (StreamingRegressionEvaluationProcessor) p;
         StreamingRegressionEvaluationProcessor newProcessor =
-                (new StreamingRegressionEvaluationProcessor.Builder(originalProcessor)).build();
+                (new StreamingRegressionEvaluationProcessor.Builder(
+                originalProcessor)).build();
         newProcessor.setSamoaPredictions(samoaPredictions);
         if (originalProcessor.learningCurve != null) {
             newProcessor.learningCurve = originalProcessor.learningCurve;
@@ -161,7 +162,7 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
         try {
             regressionData.add(measurements);
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Fail to add measurements : ", e);
+            throw new SiddhiAppRuntimeException("Fail to add measurements : ", e);
         }
 
         if (immediateResultStream != null) {
@@ -169,8 +170,8 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
                 immediateResultStream.println(learningCurve.headerToString());
                 firstDump = false;
             }
-            immediateResultStream.println(
-                    learningCurve.entryToString(learningCurve.numEntries() - 1));
+            immediateResultStream.println(learningCurve.entryToString(
+                    learningCurve.numEntries() - 1));
             immediateResultStream.flush();
         }
     }
