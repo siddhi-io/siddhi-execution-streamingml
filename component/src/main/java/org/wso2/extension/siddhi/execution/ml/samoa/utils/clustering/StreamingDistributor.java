@@ -22,6 +22,7 @@ import com.github.javacliparser.ClassOption;
 import com.github.javacliparser.Configurable;
 import com.github.javacliparser.IntOption;
 import com.google.common.collect.ImmutableSet;
+
 import org.apache.samoa.core.Processor;
 import org.apache.samoa.instances.Instances;
 import org.apache.samoa.learners.Learner;
@@ -86,7 +87,7 @@ public class StreamingDistributor implements Learner, Configurable {
 
         // Global Clustering
         LocalClustererProcessor globalClusteringCombinerP = new LocalClustererProcessor();
-        globalClusteringCombinerP.setSampleFrequency(((long)(intervalOption.getValue() /
+        globalClusteringCombinerP.setSampleFrequency(((long) (intervalOption.getValue() /
                 samplemOption.getValue())) * 100);
         LocalClustererAdapter globalLearner = (LocalClustererAdapter) this.learnerOption.getValue();
         globalLearner.setDataset(this.dataset);

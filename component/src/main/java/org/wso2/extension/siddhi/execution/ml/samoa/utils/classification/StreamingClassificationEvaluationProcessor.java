@@ -25,7 +25,6 @@ import org.apache.samoa.learners.ResultContentEvent;
 import org.apache.samoa.moa.core.Measurement;
 import org.apache.samoa.moa.evaluation.LearningCurve;
 import org.apache.samoa.moa.evaluation.LearningEvaluation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.EvaluationProcessor;

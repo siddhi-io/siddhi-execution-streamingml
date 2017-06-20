@@ -18,9 +18,12 @@
 
 package org.wso2.extension.siddhi.execution.ml.samoa.utils;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Queue;
+import com.github.javacliparser.ClassOption;
+import com.github.javacliparser.Configurable;
+import com.github.javacliparser.FileOption;
+import com.github.javacliparser.FloatOption;
+import com.github.javacliparser.IntOption;
+import com.github.javacliparser.StringOption;
 
 import org.apache.samoa.evaluation.BasicClassificationPerformanceEvaluator;
 import org.apache.samoa.evaluation.BasicRegressionPerformanceEvaluator;
@@ -42,12 +45,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.classification.StreamingClassificationPerformanceEvaluator;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.classification.StreamingClassificationStream;
 
-import com.github.javacliparser.ClassOption;
-import com.github.javacliparser.Configurable;
-import com.github.javacliparser.FileOption;
-import com.github.javacliparser.FloatOption;
-import com.github.javacliparser.IntOption;
-import com.github.javacliparser.StringOption;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Queue;
 
 /**
  * Source : Samoa prequentialtask : https://github.com/apache/incubator-samoa/blob/master/samoa-api

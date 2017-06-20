@@ -20,7 +20,6 @@ package org.wso2.extension.siddhi.execution.ml.samoa.utils.clustering;
 
 import org.apache.samoa.moa.cluster.Cluster;
 import org.apache.samoa.moa.cluster.Clustering;
-
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.StreamingProcess;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 

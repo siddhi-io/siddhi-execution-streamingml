@@ -20,6 +20,7 @@ package org.wso2.extension.siddhi.execution.ml.samoa.utils.classification;
 
 import com.github.javacliparser.IntOption;
 import com.github.javacliparser.StringOption;
+
 import org.apache.samoa.instances.Attribute;
 import org.apache.samoa.instances.DenseInstance;
 import org.apache.samoa.instances.Instance;

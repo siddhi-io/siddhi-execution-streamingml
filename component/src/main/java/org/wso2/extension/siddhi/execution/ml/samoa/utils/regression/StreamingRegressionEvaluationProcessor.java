@@ -18,17 +18,6 @@
 
 package org.wso2.extension.siddhi.execution.ml.samoa.utils.regression;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.Collections;
-import java.util.Queue;
-import java.util.UUID;
-import java.util.Vector;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.core.Processor;
 import org.apache.samoa.evaluation.PerformanceEvaluator;
@@ -40,6 +29,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.EvaluationProcessor;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.Collections;
+import java.util.Queue;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Streaming Regression Evaluation Processor
