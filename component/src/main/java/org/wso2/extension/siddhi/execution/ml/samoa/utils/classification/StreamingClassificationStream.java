@@ -31,6 +31,7 @@ import org.apache.samoa.moa.core.ObjectRepository;
 import org.apache.samoa.moa.tasks.TaskMonitor;
 import org.apache.samoa.streams.InstanceStream;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.DataStream;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ import java.util.List;
  * Streaming Classification Stream
  */
 public class StreamingClassificationStream extends DataStream {
+    private static final long serialVersionUID = 44444;
 
     public IntOption numberOfClassesOption = new IntOption("numberOfClasses", 'K',
             "The number of classes in the model.", 2, 2, Integer.MAX_VALUE);
@@ -115,7 +117,11 @@ public class StreamingClassificationStream extends DataStream {
         double[] valuesNew = new double[numberOfAttributes];
         if (numberOfGeneratedInstances == 0) {
             while (cepEvents == null) {
-
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new SiddhiAppRuntimeException("Failed to sleep thread " + e);
+                }
             }
         }
         numberOfGeneratedInstances++;

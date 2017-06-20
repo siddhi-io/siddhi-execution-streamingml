@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Collections;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +36,6 @@ import org.apache.samoa.learners.ResultContentEvent;
 import org.apache.samoa.moa.core.Measurement;
 import org.apache.samoa.moa.evaluation.LearningCurve;
 import org.apache.samoa.moa.evaluation.LearningEvaluation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.EvaluationProcessor;
@@ -49,6 +49,7 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
     private static final Logger logger = LoggerFactory.getLogger(
             StreamingRegressionEvaluationProcessor.class);
     private static final String ORDERING_MEASUREMENT_NAME = "evaluation instances";
+    private static final long serialVersionUID = 11111;
 
     private final PerformanceEvaluator evaluator;
     private final int samplingFrequency;
@@ -74,6 +75,7 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
     @Override
     public boolean process(ContentEvent event) {
         boolean predicting = false;
+        assert event instanceof ResultContentEvent;
         ResultContentEvent result = (ResultContentEvent) event;
         Object a = result.getInstance().classValue();
         if (a.toString().equals("-0.0")) {
@@ -121,10 +123,10 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
             try {
                 if (dumpFile.exists()) {
                     this.immediateResultStream = new PrintStream(new FileOutputStream(dumpFile,
-                            true), true);
+                            true), true, "UTF-8");
                 } else {
                     this.immediateResultStream = new PrintStream(new FileOutputStream(dumpFile),
-                            true);
+                            true, "UTF-8");
                 }
 
             } catch (FileNotFoundException e) {
@@ -141,6 +143,7 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
 
     @Override
     public Processor newProcessor(Processor p) {
+        assert p instanceof StreamingRegressionEvaluationProcessor;
         StreamingRegressionEvaluationProcessor originalProcessor =
                 (StreamingRegressionEvaluationProcessor) p;
         StreamingRegressionEvaluationProcessor newProcessor =

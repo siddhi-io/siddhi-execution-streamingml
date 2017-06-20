@@ -36,6 +36,7 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
             StreamingClassificationEntranceProcessor.class);
+    private static final long serialVersionUID = 22222;
 
     @Override
     public ContentEvent nextEvent() {
@@ -70,6 +71,7 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
     public Processor newProcessor(Processor p) {
         StreamingClassificationEntranceProcessor newProcessor = new
                 StreamingClassificationEntranceProcessor();
+        assert p instanceof StreamingClassificationEntranceProcessor;
         StreamingClassificationEntranceProcessor originProcessor =
                 (StreamingClassificationEntranceProcessor) p;
         if (originProcessor.getStreamSource() != null) {
@@ -78,10 +80,10 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
         return newProcessor;
     }
 
-    private class DelayTimeoutHandler implements Runnable {
+    private static class DelayTimeoutHandler implements Runnable {
         private StreamingClassificationEntranceProcessor processor;
 
-        public DelayTimeoutHandler(StreamingClassificationEntranceProcessor processor) {
+        DelayTimeoutHandler(StreamingClassificationEntranceProcessor processor) {
             this.processor = processor;
         }
 

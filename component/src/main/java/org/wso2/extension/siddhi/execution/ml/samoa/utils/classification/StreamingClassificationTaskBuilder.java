@@ -125,7 +125,8 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
             StreamingClassificationTask t = (StreamingClassificationTask) task;
             t.setCepEvents(this.cepEvents); // link task events to cepEvents
             t.setSamoaClassifiers(this.classifiers);
-            t.setNumClasses(this.numberOfClasses);
+            // t.setNumClasses(this.numberOfClasses);
+            // TODO: 6/20/17 The set value is never used
         } else {
             throw new SiddhiAppRuntimeException("Check Task: " + "It is not a " +
                     "StreamingClassificationTask ");

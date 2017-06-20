@@ -31,6 +31,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class StreamingRegressionEntranceProcessor extends SourceProcessor {
 
+    private static final long serialVersionUID = 11112;
+
     @Override
     public ContentEvent nextEvent() {
 
@@ -63,6 +65,7 @@ public class StreamingRegressionEntranceProcessor extends SourceProcessor {
     public Processor newProcessor(Processor p) {
         StreamingRegressionEntranceProcessor newProcessor = new
                 StreamingRegressionEntranceProcessor();
+        assert p instanceof StreamingRegressionEntranceProcessor;
         StreamingRegressionEntranceProcessor originProcessor =
                 (StreamingRegressionEntranceProcessor) p;
         if (originProcessor.getStreamSource() != null) {
@@ -71,11 +74,11 @@ public class StreamingRegressionEntranceProcessor extends SourceProcessor {
         return newProcessor;
     }
 
-    private class DelayTimeoutHandler implements Runnable {
+    private static class DelayTimeoutHandler implements Runnable {
 
         private StreamingRegressionEntranceProcessor processor;
 
-        public DelayTimeoutHandler(StreamingRegressionEntranceProcessor processor) {
+        DelayTimeoutHandler(StreamingRegressionEntranceProcessor processor) {
             this.processor = processor;
         }
 

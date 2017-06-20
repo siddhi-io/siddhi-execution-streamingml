@@ -36,8 +36,10 @@ import java.util.Vector;
 public class StreamingClassificationTask extends ProcessTask {
 
     private static Logger logger = LoggerFactory.getLogger(StreamingClassificationTask.class);
+    private static final long serialVersionUID = 55555;
 
     private Queue<Vector> classifiers;
+    // private int numClasses1;
 
     @Override
     public void init() {
@@ -100,7 +102,7 @@ public class StreamingClassificationTask extends ProcessTask {
         this.classifiers = classifiers;
     }
 
-    public void setNumClasses(int numClasses) {
-        int numClasses1 = numClasses;
-    }
+    /*public void setNumClasses(int numClasses) {
+        this.numClasses1 = numClasses;
+    }*/
 }

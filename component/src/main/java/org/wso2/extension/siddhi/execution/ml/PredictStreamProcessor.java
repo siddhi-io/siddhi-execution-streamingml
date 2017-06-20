@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.wso2.carbon.ml.core.exceptions.MLInputAdapterException;
@@ -36,9 +37,9 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -104,6 +105,9 @@ public class PredictStreamProcessor extends StreamProcessor {
                 case 2:
                     dataValue = event.getOutputData()[attributeIndexArray[3]];
                     break;
+                default:
+                    throw new SiddhiAppRuntimeException("Undefined index " + attributeIndexArray[2]);
+                    // TODO: 6/20/17 throw more meaningful error
                 }
                 featureValues[featureIndex] = String.valueOf(dataValue);
             }
@@ -165,7 +169,7 @@ public class PredictStreamProcessor extends StreamProcessor {
 
                     Object[] output = new Object[] { predictionResult };
                     complexEventPopulater.populateComplexEvent(event, output);
-                } catch (Exception e) {
+                } catch (MLModelHandlerException e) {
                     log.error("Error while predicting", e);
                     throw new SiddhiAppRuntimeException("Error while predicting", e);
                 }

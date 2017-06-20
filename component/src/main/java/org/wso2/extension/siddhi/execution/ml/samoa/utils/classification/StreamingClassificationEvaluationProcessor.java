@@ -48,6 +48,7 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
 
     private static final Logger logger = LoggerFactory.getLogger(
             StreamingClassificationEvaluationProcessor.class);
+    private static final long serialVersionUID = 33333;
 
     private final PerformanceEvaluator evaluator;
     private final int samplingFrequency;
@@ -72,6 +73,7 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
     @Override
     public boolean process(ContentEvent event) {
         boolean predicting = false;
+        assert event instanceof ResultContentEvent;
         ResultContentEvent result = (ResultContentEvent) event;
         // Identify the event that uses to predict or train
         if (result.getInstance().classValue() == -1) {
@@ -119,10 +121,10 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
             try {
                 if (this.dumpFile.exists()) {
                     this.immediateResultStream = new PrintStream(new FileOutputStream(
-                            this.dumpFile, true), true);
+                            this.dumpFile, true), true, "UTF-8");
                 } else {
                     this.immediateResultStream = new PrintStream(new FileOutputStream(
-                            this.dumpFile), true);
+                            this.dumpFile)  , true, "UTF-8");
                 }
             } catch (FileNotFoundException var3) {
                 this.immediateResultStream = null;
@@ -136,6 +138,7 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
     }
 
     public Processor newProcessor(Processor p) {
+        assert p instanceof StreamingClassificationEvaluationProcessor;
         StreamingClassificationEvaluationProcessor originalProcessor =
                 (StreamingClassificationEvaluationProcessor) p;
         StreamingClassificationEvaluationProcessor newProcessor = (new

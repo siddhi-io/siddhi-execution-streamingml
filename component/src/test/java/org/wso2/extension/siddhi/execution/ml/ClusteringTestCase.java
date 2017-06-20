@@ -18,8 +18,13 @@
 
 package org.wso2.extension.siddhi.execution.ml;
 
-import org.testng.AssertJUnit;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.Scanner;
+
 import org.apache.log4j.Logger;
+import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
@@ -28,11 +33,6 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.Scanner;
 
 public class ClusteringTestCase {
     private static final Logger logger = Logger.getLogger(ClusteringTestCase.class);

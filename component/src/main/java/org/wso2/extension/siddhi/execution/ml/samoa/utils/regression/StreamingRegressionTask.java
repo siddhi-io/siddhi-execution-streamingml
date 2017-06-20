@@ -35,6 +35,7 @@ import java.util.Vector;
 public class StreamingRegressionTask extends ProcessTask {
 
     private static Logger logger = LoggerFactory.getLogger(StreamingRegression.class);
+    private static final long serialVersionUID = 11114;
 
     public Queue<Vector> samoaPredictions;
 
