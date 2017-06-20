@@ -27,6 +27,9 @@ import org.apache.samoa.streams.clustering.ClusteringStream;
 
 import java.util.Queue;
 
+/**
+ * Data Stream
+ */
 public abstract class DataStream extends ClusteringStream {
 
     protected InstancesHeader streamHeader;

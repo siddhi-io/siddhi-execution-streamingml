@@ -18,6 +18,18 @@
 
 package org.wso2.extension.siddhi.execution.ml.samoa.utils.regression;
 
+import org.apache.samoa.core.ContentEvent;
+import org.apache.samoa.core.Processor;
+import org.apache.samoa.evaluation.PerformanceEvaluator;
+import org.apache.samoa.learners.ResultContentEvent;
+import org.apache.samoa.moa.core.Measurement;
+import org.apache.samoa.moa.evaluation.LearningCurve;
+import org.apache.samoa.moa.evaluation.LearningEvaluation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.extension.siddhi.execution.ml.samoa.utils.EvaluationProcessor;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -28,35 +40,26 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.samoa.core.ContentEvent;
-import org.apache.samoa.core.Processor;
-import org.apache.samoa.evaluation.PerformanceEvaluator;
-import org.apache.samoa.learners.ResultContentEvent;
-import org.apache.samoa.moa.core.Measurement;
-import org.apache.samoa.moa.evaluation.LearningCurve;
-import org.apache.samoa.moa.evaluation.LearningEvaluation;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.extension.siddhi.execution.ml.samoa.utils.EvaluationProcessor;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
-
+/**
+ * Streaming Regression Evaluation Processor
+ */
 public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(StreamingRegressionEvaluationProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+            StreamingRegressionEvaluationProcessor.class);
     private static final String ORDERING_MEASUREMENT_NAME = "evaluation instances";
+    private static final long serialVersionUID = 11111;
 
     private final PerformanceEvaluator evaluator;
     private final int samplingFrequency;
     private final File dumpFile;
     private transient PrintStream immediateResultStream;
-    private transient boolean firstDump;
+    private boolean firstDump;
     private Queue<Vector> regressionData;
     public Queue<Vector> samoaPredictions;
 
-    public StreamingRegressionEvaluationProcessor
-            (StreamingRegressionEvaluationProcessor.Builder builder) {
+    public StreamingRegressionEvaluationProcessor(StreamingRegressionEvaluationProcessor.
+                                                          Builder builder) {
         this.immediateResultStream = null;
         this.firstDump = true;
         this.totalCount = 0L;
@@ -71,6 +74,7 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
     @Override
     public boolean process(ContentEvent event) {
         boolean predicting = false;
+        assert event instanceof ResultContentEvent;
         ResultContentEvent result = (ResultContentEvent) event;
         Object a = result.getInstance().classValue();
         if (a.toString().equals("-0.0")) {
@@ -117,20 +121,20 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
         if (this.dumpFile != null) {
             try {
                 if (dumpFile.exists()) {
-                    this.immediateResultStream = new PrintStream(
-                            new FileOutputStream(dumpFile, true), true);
+                    this.immediateResultStream = new PrintStream(new FileOutputStream(dumpFile,
+                            true), true, "UTF-8");
                 } else {
-                    this.immediateResultStream = new PrintStream(
-                            new FileOutputStream(dumpFile), true);
+                    this.immediateResultStream = new PrintStream(new FileOutputStream(dumpFile),
+                            true, "UTF-8");
                 }
 
             } catch (FileNotFoundException e) {
                 this.immediateResultStream = null;
-                throw new ExecutionPlanRuntimeException("File not found exception : ", e);
+                throw new SiddhiAppRuntimeException("File not found exception : ", e);
 
             } catch (Exception e) {
                 this.immediateResultStream = null;
-                throw new ExecutionPlanRuntimeException(e);
+                throw new SiddhiAppRuntimeException(e);
             }
         }
         this.firstDump = true;
@@ -138,10 +142,12 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
 
     @Override
     public Processor newProcessor(Processor p) {
+        assert p instanceof StreamingRegressionEvaluationProcessor;
         StreamingRegressionEvaluationProcessor originalProcessor =
                 (StreamingRegressionEvaluationProcessor) p;
         StreamingRegressionEvaluationProcessor newProcessor =
-                (new StreamingRegressionEvaluationProcessor.Builder(originalProcessor)).build();
+                (new StreamingRegressionEvaluationProcessor.Builder(
+                originalProcessor)).build();
         newProcessor.setSamoaPredictions(samoaPredictions);
         if (originalProcessor.learningCurve != null) {
             newProcessor.learningCurve = originalProcessor.learningCurve;
@@ -161,7 +167,7 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
         try {
             regressionData.add(measurements);
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Fail to add measurements : ", e);
+            throw new SiddhiAppRuntimeException("Fail to add measurements : ", e);
         }
 
         if (immediateResultStream != null) {
@@ -169,8 +175,8 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
                 immediateResultStream.println(learningCurve.headerToString());
                 firstDump = false;
             }
-            immediateResultStream.println(
-                    learningCurve.entryToString(learningCurve.numEntries() - 1));
+            immediateResultStream.println(learningCurve.entryToString(
+                    learningCurve.numEntries() - 1));
             immediateResultStream.flush();
         }
     }
@@ -196,6 +202,9 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
         this.samoaPredictions = samoaPrediction;
     }
 
+    /**
+     * Builder Class
+     */
     public static class Builder {
 
         private final PerformanceEvaluator evaluator;

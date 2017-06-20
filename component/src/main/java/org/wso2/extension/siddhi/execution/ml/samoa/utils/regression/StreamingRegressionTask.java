@@ -24,14 +24,18 @@ import org.apache.samoa.topology.TopologyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.ProcessTask;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.Queue;
 import java.util.Vector;
 
+/**
+ * Streaming Regression Task
+ */
 public class StreamingRegressionTask extends ProcessTask {
 
     private static Logger logger = LoggerFactory.getLogger(StreamingRegression.class);
+    private static final long serialVersionUID = 11114;
 
     public Queue<Vector> samoaPredictions;
 
@@ -43,8 +47,8 @@ public class StreamingRegressionTask extends ProcessTask {
             StreamingRegressionStream myStream = (StreamingRegressionStream) inputStream;
             myStream.setCepEvents(this.cepEvents);
         } else {
-            throw new ExecutionPlanRuntimeException("Check stream: " +
-                    "DataStream is not a StreamingRegressionStream");
+            throw new SiddhiAppRuntimeException("Check stream: "
+                    + "DataStream is not a StreamingRegressionStream");
         }
 
         if (builder == null) {
@@ -68,18 +72,17 @@ public class StreamingRegressionTask extends ProcessTask {
         // instantiate learner and connect it to sourcePiOutputStream
         learner = this.learnerOption.getValue();
         learner.init(builder, source.getDataset(), 1);
-        builder.connectInputShuffleStream(sourcePiOutputStream,
-                learner.getInputProcessor());
+        builder.connectInputShuffleStream(sourcePiOutputStream, learner.getInputProcessor());
 
         PerformanceEvaluator evaluatorOptionValue = this.evaluatorOption.getValue();
-        if (!StreamingRegressionTask.isLearnerAndEvaluatorCompatible(learner,
-                evaluatorOptionValue)) {
+        if (!StreamingRegressionTask.isLearnerAndEvaluatorCompatible(
+                learner, evaluatorOptionValue)) {
             evaluatorOptionValue = getDefaultPerformanceEvaluatorForLearner(learner);
         }
         StreamingRegressionEvaluationProcessor evaluator =
-                new StreamingRegressionEvaluationProcessor.Builder(evaluatorOptionValue)
-                .samplingFrequency(sampleFrequencyOption.getValue()).
-                        dumpFile(dumpFileOption.getFile()).build();
+                new StreamingRegressionEvaluationProcessor.Builder(
+                evaluatorOptionValue).samplingFrequency(sampleFrequencyOption.getValue())
+                        .dumpFile(dumpFileOption.getFile()).build();
 
         evaluator.setSamoaPredictions(samoaPredictions);
         builder.addProcessor(evaluator);

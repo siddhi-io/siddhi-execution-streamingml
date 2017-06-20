@@ -20,13 +20,15 @@ package org.wso2.extension.siddhi.execution.ml.samoa.utils.clustering;
 
 import org.apache.samoa.moa.cluster.Cluster;
 import org.apache.samoa.moa.cluster.Clustering;
-
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.StreamingProcess;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Streaming Clustering
+ */
 public class StreamingClustering extends StreamingProcess {
     private int numberOfAttributes;
     private int numberOfClusters;
@@ -37,24 +39,24 @@ public class StreamingClustering extends StreamingProcess {
 
     private Queue<Clustering> samoaClusters;
 
-    public StreamingClustering(int maxEvent, int paramCount, int numberOfClusters,int parallel, int samplefrequency,
-                               int interval) {
+    public StreamingClustering(int maxEvent, int paramCount, int numberOfClusters, int parallel,
+                               int samplefrequency, int interval) {
         this.maxEvents = maxEvent;
         this.numberOfAttributes = paramCount;
         this.numberOfClusters = numberOfClusters;
-        this.parallelism=parallel;
-        this.sampleFrequency=samplefrequency;
-        this.interval=interval;
+        this.parallelism = parallel;
+        this.sampleFrequency = samplefrequency;
+        this.interval = interval;
         this.cepEvents = new ConcurrentLinkedQueue<double[]>();
-        this.samoaClusters = new ConcurrentLinkedQueue<Clustering>();      //contain cluster centers
+        this.samoaClusters = new ConcurrentLinkedQueue<Clustering>(); // contain cluster centers
 
         try {
             this.processTaskBuilder = new StreamingClusteringTaskBuilder(this.maxEvents,
-                    this.numberOfAttributes, this.numberOfClusters,this.parallelism,this.sampleFrequency,this.interval,
-                    this.cepEvents, this.samoaClusters);
+                    this.numberOfAttributes, this.numberOfClusters, this.parallelism,
+                    this.sampleFrequency, this.interval, this.cepEvents, this.samoaClusters);
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Fail to Initiate the Streaming clustering" +
-                    " task", e);
+            throw new SiddhiAppRuntimeException("Fail to Initiate the Streaming clustering"
+                    + " task", e);
         }
     }
 
@@ -64,7 +66,7 @@ public class StreamingClustering extends StreamingProcess {
 
     public Object[] getOutput() {
         Object[] output;
-       if (!samoaClusters.isEmpty()) {
+        if (!samoaClusters.isEmpty()) {
             output = new Object[numberOfClusters];
             Clustering clusters = samoaClusters.poll();
             for (int i = 0; i < numberOfClusters; i++) {

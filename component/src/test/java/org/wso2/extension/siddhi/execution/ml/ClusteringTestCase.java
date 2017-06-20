@@ -18,11 +18,11 @@
 
 package org.wso2.extension.siddhi.execution.ml;
 
-import org.junit.Assert;
 import org.apache.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -38,7 +38,7 @@ public class ClusteringTestCase {
     private static final Logger logger = Logger.getLogger(ClusteringTestCase.class);
     private volatile int count;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
     }
@@ -48,24 +48,22 @@ public class ClusteringTestCase {
         logger.info("StreamingClusteringStreamProcessor TestCase 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = " define stream inputStream (attribute_0 double, " +
-                "attribute_1 double,attribute_2 double, attribute_3 double, attribute_4 double );";
-        String query = ("@info(name = 'query1') from inputStream#ml:" +
-                "clusteringKmeans(5,2,2,1000,10000,attribute_0, attribute_1 , attribute_2 , attribute_3," +
-                " attribute_4) select center0 as center0,center1 as center1 insert into " +
-                "outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime =
-                siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+        String inStreamDefinition = " define stream inputStream (attribute_0 double, "
+                + "attribute_1 double,attribute_2 double, attribute_3 double, attribute_4 double );";
+        String query = ("@info(name = 'query1') from inputStream#ml:"
+                + "clusteringKmeans(5,2,2,1000,10000,attribute_0, attribute_1 , attribute_2 , attribute_3,"
+                + " attribute_4) select center0 as center0,center1 as center1 insert into " + "outputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 count++;
                 if (count == 1) {
-                    Assert.assertEquals("[26.689013161214312,65.2985408650787,1010.0086638445954," +
-                            "62.56587280444617,436.13502625254046]", inEvents[0].getData()[0]);
-                    Assert.assertEquals("[14.71610078358815,45.70548516901456,1014.585093380316," +
-                            "75.29614297441418,465.57460856962507]", inEvents[0].getData()[1]);
+                    AssertJUnit.assertEquals("[26.689013161214312,65.2985408650787,1010.0086638445954,"
+                            + "62.56587280444617,436.13502625254046]", inEvents[0].getData()[0]);
+                    AssertJUnit.assertEquals("[14.71610078358815,45.70548516901456,1014.585093380316,"
+                            + "75.29614297441418,465.57460856962507]", inEvents[0].getData()[1]);
                 }
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
             }
@@ -78,29 +76,28 @@ public class ClusteringTestCase {
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             scanner = new Scanner(bufferedReader);
 
-            InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-            executionPlanRuntime.start();
+            InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+            siddhiAppRuntime.start();
             while (scanner.hasNext()) {
                 String eventStr = scanner.nextLine();
                 String[] event = eventStr.split(",");
-                inputHandler.send(new Object[]{Double.valueOf(event[0]),
-                        Double.valueOf(event[1]), Double.valueOf(event[2]),
-                        Double.valueOf(event[3]), Double.valueOf(event[4])});
+                inputHandler.send(new Object[] { Double.valueOf(event[0]), Double.valueOf(event[1]),
+                        Double.valueOf(event[2]), Double.valueOf(event[3]), Double.valueOf(event[4]) });
 
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             }
             Thread.sleep(1000);
-            Assert.assertEquals(1, count);
+            AssertJUnit.assertEquals(1, count);
 
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
             scanner.close();
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 }

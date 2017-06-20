@@ -22,6 +22,9 @@ import org.apache.samoa.topology.impl.SimpleEngine;
 
 import java.util.Queue;
 
+/**
+ * Task Builder
+ */
 public abstract class TaskBuilder {
     // These 3 extra options are not used directly, But It used when convert string to Task object.
     protected static final String SUPPRESS_STATUS_OUT_MSG =
@@ -42,6 +45,3 @@ public abstract class TaskBuilder {
         SimpleEngine.submitTopology(topology);
     }
 }
-
-
-

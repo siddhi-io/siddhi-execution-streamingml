@@ -26,7 +26,12 @@ import org.wso2.extension.siddhi.execution.ml.samoa.utils.SourceProcessor;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Streaming Regression Entrance Processor
+ */
 public class StreamingRegressionEntranceProcessor extends SourceProcessor {
+
+    private static final long serialVersionUID = 11112;
 
     @Override
     public ContentEvent nextEvent() {
@@ -41,7 +46,7 @@ public class StreamingRegressionEntranceProcessor extends SourceProcessor {
             numberOfInstancesSent++;
             Instance next = nextInstance();
             Object classValue = next.classValue();
-            if (classValue.toString().equals("-0.0")) {  // Check the last value of the event;
+            if (classValue.toString().equals("-0.0")) { // Check the last value of the event;
                 // If it equals -0.0 then use it as predicting event
                 contentEvent = new InstanceContentEvent(numberOfInstancesSent, next, false, true);
             } else {
@@ -58,8 +63,9 @@ public class StreamingRegressionEntranceProcessor extends SourceProcessor {
 
     @Override
     public Processor newProcessor(Processor p) {
-        StreamingRegressionEntranceProcessor newProcessor =
-                new StreamingRegressionEntranceProcessor();
+        StreamingRegressionEntranceProcessor newProcessor = new
+                StreamingRegressionEntranceProcessor();
+        assert p instanceof StreamingRegressionEntranceProcessor;
         StreamingRegressionEntranceProcessor originProcessor =
                 (StreamingRegressionEntranceProcessor) p;
         if (originProcessor.getStreamSource() != null) {
@@ -68,11 +74,11 @@ public class StreamingRegressionEntranceProcessor extends SourceProcessor {
         return newProcessor;
     }
 
-    private class DelayTimeoutHandler implements Runnable {
+    private static class DelayTimeoutHandler implements Runnable {
 
         private StreamingRegressionEntranceProcessor processor;
 
-        public DelayTimeoutHandler(StreamingRegressionEntranceProcessor processor) {
+        DelayTimeoutHandler(StreamingRegressionEntranceProcessor processor) {
             this.processor = processor;
         }
 

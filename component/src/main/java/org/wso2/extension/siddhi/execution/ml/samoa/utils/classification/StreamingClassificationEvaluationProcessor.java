@@ -25,11 +25,10 @@ import org.apache.samoa.learners.ResultContentEvent;
 import org.apache.samoa.moa.core.Measurement;
 import org.apache.samoa.moa.evaluation.LearningCurve;
 import org.apache.samoa.moa.evaluation.LearningEvaluation;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.EvaluationProcessor;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,19 +40,23 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Streaming Classification Evaluation Processor
+ */
 public class StreamingClassificationEvaluationProcessor extends EvaluationProcessor {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(StreamingClassificationEvaluationProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+            StreamingClassificationEvaluationProcessor.class);
+    private static final long serialVersionUID = 33333;
 
     private final PerformanceEvaluator evaluator;
     private final int samplingFrequency;
     private File dumpFile;
     private Queue<Vector> statistics;
-    public Queue<Vector> classifiers;
+    private Queue<Vector> classifiers;
 
-    protected StreamingClassificationEvaluationProcessor
-            (StreamingClassificationEvaluationProcessor.Builder builder) {
+    private StreamingClassificationEvaluationProcessor(
+            StreamingClassificationEvaluationProcessor.Builder builder) {
 
         this.immediateResultStream = null;
         this.firstDump = true;
@@ -69,14 +72,16 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
     @Override
     public boolean process(ContentEvent event) {
         boolean predicting = false;
+        assert event instanceof ResultContentEvent;
         ResultContentEvent result = (ResultContentEvent) event;
         // Identify the event that uses to predict or train
         if (result.getInstance().classValue() == -1) {
             predicting = true;
         }
         // After every interval log the current statistics
-        if (this.totalCount > 0L && this.totalCount % (long) this.samplingFrequency == 0L && !predicting) {
-            this.addMeasurement();     //calculate measurements(Current statistics )
+        if (this.totalCount > 0L && this.totalCount % (long) this.samplingFrequency ==
+                0L && !predicting) {
+            this.addMeasurement(); // calculate measurements(Current statistics )
             if (!statistics.isEmpty()) {
                 Vector stat = statistics.poll();
                 logger.info(stat.toString());
@@ -114,28 +119,30 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
         if (this.dumpFile != null) {
             try {
                 if (this.dumpFile.exists()) {
-                    this.immediateResultStream = new PrintStream(new FileOutputStream(this.dumpFile,
-                            true), true);
+                    this.immediateResultStream = new PrintStream(new FileOutputStream(
+                            this.dumpFile, true), true, "UTF-8");
                 } else {
-                    this.immediateResultStream = new PrintStream(new FileOutputStream(this.dumpFile)
-                            , true);
+                    this.immediateResultStream = new PrintStream(new FileOutputStream(
+                            this.dumpFile)  , true, "UTF-8");
                 }
             } catch (FileNotFoundException var3) {
                 this.immediateResultStream = null;
-                throw new ExecutionPlanRuntimeException(var3);
+                throw new SiddhiAppRuntimeException(var3);
             } catch (Exception var4) {
                 this.immediateResultStream = null;
-                throw new ExecutionPlanRuntimeException(var4);
+                throw new SiddhiAppRuntimeException(var4);
             }
         }
         this.firstDump = true;
     }
 
     public Processor newProcessor(Processor p) {
+        assert p instanceof StreamingClassificationEvaluationProcessor;
         StreamingClassificationEvaluationProcessor originalProcessor =
                 (StreamingClassificationEvaluationProcessor) p;
-        StreamingClassificationEvaluationProcessor newProcessor =
-                (new StreamingClassificationEvaluationProcessor.Builder(originalProcessor)).build();
+        StreamingClassificationEvaluationProcessor newProcessor = (new
+                StreamingClassificationEvaluationProcessor.Builder(
+                originalProcessor)).build();
         newProcessor.setSamoaClassifiers(classifiers);
         if (originalProcessor.learningCurve != null) {
             newProcessor.learningCurve = originalProcessor.learningCurve;
@@ -159,15 +166,15 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
         Vector measurements = new Vector();
         measurements.add(new Measurement("evaluation instances", (double) this.totalCount));
         Collections.addAll(measurements, this.evaluator.getPerformanceMeasurements());
-        Measurement[] finalMeasurements =
-                (Measurement[]) measurements.toArray(new Measurement[measurements.size()]);
+        Measurement[] finalMeasurements = (Measurement[]) measurements.toArray(
+                new Measurement[measurements.size()]);
         LearningEvaluation learningEvaluation = new LearningEvaluation(finalMeasurements);
         this.learningCurve.insertEntry(learningEvaluation);
 
         try {
             statistics.add(measurements);
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Fail to add measurements : ", e);
+            throw new SiddhiAppRuntimeException("Fail to add measurements : ", e);
         }
 
         if (this.immediateResultStream != null) {
@@ -175,18 +182,19 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
                 this.immediateResultStream.println(this.learningCurve.headerToString());
                 this.firstDump = false;
             }
-            this.immediateResultStream.println(this.learningCurve.entryToString
-                    (this.learningCurve.numEntries() - 1));
+            this.immediateResultStream.println(this.learningCurve.entryToString(
+                    this.learningCurve.numEntries() - 1));
             this.immediateResultStream.flush();
         }
     }
 
     private void concludeMeasurement() {
         long experimentEnd = System.nanoTime();
-        long totalExperimentTime = TimeUnit.SECONDS.convert(experimentEnd - this.experimentStart,
-                TimeUnit.NANOSECONDS);
+        long totalExperimentTime = TimeUnit.SECONDS.convert(experimentEnd -
+                this.experimentStart, TimeUnit.NANOSECONDS);
         logger.info("total evaluation time: {} seconds for {} instances",
-                Long.valueOf(totalExperimentTime), Long.valueOf(this.totalCount));
+                Long.valueOf(totalExperimentTime),
+                Long.valueOf(this.totalCount));
         if (this.immediateResultStream != null) {
             this.immediateResultStream.println("# COMPLETED");
             this.immediateResultStream.flush();
@@ -197,6 +205,9 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
         this.classifiers = classifiers;
     }
 
+    /**
+     * Builder class
+     */
     public static class Builder {
         private final PerformanceEvaluator evaluator;
         private int samplingFrequency = 100000;
@@ -212,8 +223,8 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
             this.dumpFile = oldProcessor.dumpFile;
         }
 
-        public StreamingClassificationEvaluationProcessor.Builder samplingFrequency
-                (int samplingFrequency) {
+        public StreamingClassificationEvaluationProcessor.Builder samplingFrequency(
+                int samplingFrequency) {
             this.samplingFrequency = samplingFrequency;
             return this;
         }

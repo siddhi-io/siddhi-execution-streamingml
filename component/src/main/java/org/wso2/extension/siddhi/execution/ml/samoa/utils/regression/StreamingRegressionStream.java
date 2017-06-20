@@ -19,6 +19,7 @@
 package org.wso2.extension.siddhi.execution.ml.samoa.utils.regression;
 
 import com.github.javacliparser.IntOption;
+
 import org.apache.samoa.instances.Attribute;
 import org.apache.samoa.instances.DenseInstance;
 import org.apache.samoa.instances.Instance;
@@ -30,20 +31,27 @@ import org.apache.samoa.moa.core.ObjectRepository;
 import org.apache.samoa.moa.tasks.TaskMonitor;
 import org.apache.samoa.streams.InstanceStream;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.DataStream;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.ArrayList;
 
+/**
+ * Streaming Regression Stream
+ */
 public class StreamingRegressionStream extends DataStream {
 
+    private static final long serialVersionUID = 11113;
+
     public IntOption numAttOption = new IntOption("numberOfAttributes", 'A',
-            "The number of attributes in the stream.", 2, 1, Integer.MAX_VALUE);
+            "The number of attributes in the stream.",
+            2, 1, Integer.MAX_VALUE);
 
     @Override
     protected void prepareForUseImpl(TaskMonitor taskMonitor, ObjectRepository objectRepository) {
 
         taskMonitor.setCurrentActivity("Preparing random RBF...", -1.0);
         this.numberOfAttributes = numAttOption.getValue();
-        this.numberOfGeneratedInstances=0;
+        this.numberOfGeneratedInstances = 0;
         generateHeader();
         restart();
         values = new double[numberOfAttributes];
@@ -64,17 +72,26 @@ public class StreamingRegressionStream extends DataStream {
 
     @Override
     public Example<Instance> nextInstance() {
-        double[] values_new = new double[numberOfAttributes];
+        double[] valuesNew = new double[numberOfAttributes];
         if (numberOfGeneratedInstances == 0) {
-            while (cepEvents == null) ;
+            while (cepEvents == null) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new SiddhiAppRuntimeException("Failed to sleep thread " + e);
+                }
+            }
         }
         numberOfGeneratedInstances++;
-        while (cepEvents.isEmpty()) ;
+        while (cepEvents.isEmpty()) {
+
+        }
         double[] values = cepEvents.poll();
-        System.arraycopy(values, 0, values_new, 0, values.length-1);
-        Instance inst = new DenseInstance(1.0, values_new);
+        System.arraycopy(values, 0, valuesNew, 0, values.length - 1);
+        Instance inst = new DenseInstance(1.0, valuesNew);
         inst.setDataset(getHeader());
-        inst.setClassValue(values[values.length - 1]);//Set the relevant class value to the data set
+        inst.setClassValue(values[values.length - 1]); // Set the relevant
+        // class value to the data set
         return new InstanceExample(inst);
     }
 }

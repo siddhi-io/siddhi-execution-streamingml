@@ -24,7 +24,12 @@ import org.apache.samoa.learners.clusterers.ClusteringContentEvent;
 import org.apache.samoa.moa.core.DataPoint;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.SourceProcessor;
 
+/**
+ * Streaming Clustering Entrance Processor
+ */
 public class StreamingClusteringEntranceProcessor extends SourceProcessor {
+
+    private static final long serialVersionUID = 33331;
 
     @Override
     public ContentEvent nextEvent() {
@@ -46,6 +51,7 @@ public class StreamingClusteringEntranceProcessor extends SourceProcessor {
     public Processor newProcessor(Processor processor) {
         StreamingClusteringEntranceProcessor newProcessor =
                 new StreamingClusteringEntranceProcessor();
+        assert processor instanceof StreamingClusteringEntranceProcessor;
         StreamingClusteringEntranceProcessor originProcessor =
                 (StreamingClusteringEntranceProcessor) processor;
         if (originProcessor.getStreamSource() != null) {

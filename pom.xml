@@ -21,16 +21,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
-        <version>1</version>
+        <groupId>org.wso2</groupId>
+        <version>5</version>
     </parent>
 
     <groupId>org.wso2.extension.siddhi.execution.ml</groupId>
     <artifactId>siddhi-execution-ml-parent</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>WSO2 Siddhi Execution Extension - ML Aggregator Pom</name>
+    <name>Siddhi Execution ML Extension Parent</name>
     <url>http://wso2.org</url>
 
     <profiles>
@@ -41,15 +41,13 @@
             </activation>
             <modules>
                 <module>component</module>
-                <module>feature</module>
             </modules>
         </profile>
     </profiles>
 
     <properties>
-        <siddhi.version>3.1.2</siddhi.version>
+        <siddhi.version>4.0.0-M7-SNAPSHOT</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
-        <junit.version>4.12</junit.version>
         <ml.version>1.2.2</ml.version>
         <breeze.version>0.11.2.wso2v1</breeze.version>
         <fommil.netlib.version>1.1.2.wso2v1</fommil.netlib.version>
@@ -59,6 +57,7 @@
         <javacliparser.version>0.5.0</javacliparser.version>
         <slf4j-version>1.7.5</slf4j-version>
         <apache.cassandra.version>0.8.1</apache.cassandra.version>
+        <testng.version>6.8</testng.version>
     </properties>
 
     <scm>
@@ -159,9 +158,9 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
 

@@ -31,14 +31,14 @@ import java.util.Queue;
 /**
  * A task that runs and evaluates a distributed clustering algorithm.
  */
-
 public class StreamingClusteringTask extends ProcessTask {
+
+    private static final long serialVersionUID = 33336;
 
     private static final int DISTRIBUTOR_PARALLELISM = 1;
     private static final Logger logger = LoggerFactory.getLogger(StreamingClusteringTask.class);
 
     private ClusteringDistributorProcessor distributor;
-    private Stream evaluationStream;
     public Queue<Clustering> samoaClusters;
     public int numberOfClusters;
 
@@ -72,10 +72,10 @@ public class StreamingClusteringTask extends ProcessTask {
         // distribution of instances and sampling for evaluation
         distributor = new ClusteringDistributorProcessor();
         builder.addProcessor(distributor, DISTRIBUTOR_PARALLELISM);
-        builder.connectInputShuffleStream( builder.createStream(source), distributor);
+        builder.connectInputShuffleStream(builder.createStream(source), distributor);
         sourcePiOutputStream = builder.createStream(distributor);
         distributor.setOutputStream(sourcePiOutputStream);
-        evaluationStream = builder.createStream(distributor);
+        Stream evaluationStream = builder.createStream(distributor);
         distributor.setEvaluationStream(evaluationStream); // passes evaluation events along
 
         // instantiate learner and connect it to sourcePiOutputStream
@@ -84,7 +84,10 @@ public class StreamingClusteringTask extends ProcessTask {
         builder.connectInputShuffleStream(sourcePiOutputStream, learner.getInputProcessor());
 
         // Evaluation Processor
-        StreamingClusteringEvaluationProcessor resultCheckPoint =(new StreamingClusteringEvaluationProcessor.Builder(this.sampleFrequencyOption.getValue())).dumpFile(this.dumpFileOption.getFile()).build();
+        StreamingClusteringEvaluationProcessor resultCheckPoint =
+                (new StreamingClusteringEvaluationProcessor.Builder(
+                this.sampleFrequencyOption.getValue())).dumpFile(
+                        this.dumpFileOption.getFile()).build();
         resultCheckPoint.setSamoaClusters(this.samoaClusters);
         resultCheckPoint.setNumberOfClusters(this.numberOfClusters);
         builder.addProcessor(resultCheckPoint);
@@ -92,7 +95,7 @@ public class StreamingClusteringTask extends ProcessTask {
         for (Stream evaluatorPiInputStream : learner.getResultStreams()) {
             builder.connectInputShuffleStream(evaluatorPiInputStream, resultCheckPoint);
         }
-        this.builder.connectInputAllStream(this.evaluationStream,resultCheckPoint);
+        this.builder.connectInputAllStream(evaluationStream, resultCheckPoint);
         topology = this.builder.build();
         logger.info("Successfully built the topology");
     }

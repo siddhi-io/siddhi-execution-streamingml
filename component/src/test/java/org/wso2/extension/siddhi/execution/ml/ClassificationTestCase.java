@@ -18,11 +18,11 @@
 
 package org.wso2.extension.siddhi.execution.ml;
 
-import org.junit.Assert;
 import org.apache.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -39,7 +39,7 @@ public class ClassificationTestCase {
     private static final Logger logger = Logger.getLogger(ClassificationTestCase.class);
     private volatile int count;
 
-    @Before
+    @BeforeMethod
     public void init() {
         count = 0;
     }
@@ -49,29 +49,28 @@ public class ClassificationTestCase {
         logger.info("StreamingClasificationStreamProcessor TestCase 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = " define stream inputStream (attribute_0 double, attribute_1 double, attribute_2 " +
-                "double,attribute_3 double, attribute_4 string );";
-        String query = ("@info(name = 'query1') from inputStream#ml:classificationHoeffdingtree(5,3,''," +
-                "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select att_0 as attribute_0, " +
-                "att_1 as attribute_1,att_2 as attribute_2,att_3 as attribute_3, prediction as prediction insert into" +
-                " outputStream;");
+        String inStreamDefinition = " define stream inputStream (attribute_0 double, attribute_1 double, attribute_2 "
+                + "double,attribute_3 double, attribute_4 string );";
+        String query = ("@info(name = 'query1') from inputStream#ml:classificationHoeffdingtree(5,3,'',"
+                + "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select att_0 as attribute_0, "
+                + "att_1 as attribute_1,att_2 as attribute_2,att_3 as attribute_3, prediction as prediction insert into"
+                + " outputStream;");
 
-        ExecutionPlanRuntime executionPlanRuntime =
-                siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 count++;
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (count == 1) {
-                    Assert.assertEquals("setosa", inEvents[0].getData()[4]);
+                    AssertJUnit.assertEquals("setosa", inEvents[0].getData()[4]);
                 }
                 if (count == 2) {
-                    Assert.assertEquals("versicolor", inEvents[0].getData()[4]);
+                    AssertJUnit.assertEquals("versicolor", inEvents[0].getData()[4]);
                 }
                 if (count == 3) {
-                    Assert.assertEquals("virginica", inEvents[0].getData()[4]);
+                    AssertJUnit.assertEquals("virginica", inEvents[0].getData()[4]);
                 }
             }
         });
@@ -82,59 +81,57 @@ public class ClassificationTestCase {
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             scanner = new Scanner(bufferedReader);
 
-            InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-            executionPlanRuntime.start();
+            InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+            siddhiAppRuntime.start();
             while (scanner.hasNext()) {
                 String eventStr = scanner.nextLine();
                 String[] event = eventStr.split(",");
-                inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]), Double.valueOf
-                        (event[2]), Double.valueOf(event[3]), event[4]});
+                inputHandler.send(new Object[] { Double.valueOf(event[0]), Double.valueOf(event[1]),
+                        Double.valueOf(event[2]), Double.valueOf(event[3]), event[4] });
 
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             }
 
             Thread.sleep(1100);
-            Assert.assertEquals(3, count);
+            AssertJUnit.assertEquals(3, count);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
             scanner.close();
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
-
 
     @Test
     public void testClassificationStreamProcessorExtension2() throws InterruptedException {
         logger.info("StreamingClasificationStreamProcessor TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = " define stream inputStream (attribute_0 double, attribute_1 double, attribute_2 " +
-                "string );";
-        String query = ("@info(name = 'query2') from inputStream#ml:classificationHoeffdingtree(3,2,'2,2',1000," +
-                "attribute_0, attribute_1 , attribute_2) select att_0 as attribute_0, att_1 as attribute_1, " +
-                "prediction as prediction insert into outputStream;");
+        String inStreamDefinition = " define stream inputStream (attribute_0 double, attribute_1 double, attribute_2 "
+                + "string );";
+        String query = ("@info(name = 'query2') from inputStream#ml:classificationHoeffdingtree(3,2,'2,2',1000,"
+                + "attribute_0, attribute_1 , attribute_2) select att_0 as attribute_0, att_1 as attribute_1, "
+                + "prediction as prediction insert into outputStream;");
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
-                query);
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 count++;
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
                 if (count == 1) {
-                    Assert.assertEquals("A", inEvents[0].getData()[2]);
+                    AssertJUnit.assertEquals("A", inEvents[0].getData()[2]);
                 }
                 if (count == 2) {
-                    Assert.assertEquals("B", inEvents[0].getData()[2]);
+                    AssertJUnit.assertEquals("B", inEvents[0].getData()[2]);
                 }
                 if (count == 3) {
-                    Assert.assertEquals("A", inEvents[0].getData()[2]);
+                    AssertJUnit.assertEquals("A", inEvents[0].getData()[2]);
                 }
             }
         });
@@ -145,26 +142,26 @@ public class ClassificationTestCase {
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             scanner = new Scanner(bufferedReader);
 
-            InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-            executionPlanRuntime.start();
+            InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+            siddhiAppRuntime.start();
             while (scanner.hasNext()) {
                 String eventStr = scanner.nextLine();
                 String[] event = eventStr.split(",");
-                inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]), event[2]});
+                inputHandler.send(new Object[] { Double.valueOf(event[0]), Double.valueOf(event[1]), event[2] });
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             }
 
             Thread.sleep(1100);
-            Assert.assertEquals(3, count);
+            AssertJUnit.assertEquals(3, count);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
             scanner.close();
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 }

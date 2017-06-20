@@ -19,32 +19,37 @@
 package org.wso2.extension.siddhi.execution.ml.samoa.utils.classification;
 
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.StreamingProcess;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Streaming Classification
+ */
 public class StreamingClassification extends StreamingProcess {
 
     private int numberOfAttributes;
 
-    private Queue<Vector> samoaClassifiers;                       // Output prediction data
+    private Queue<Vector> samoaClassifiers; // Output prediction data
 
     public StreamingClassification(int maxEvents, int interval, int classes, int parameterCount,
-                                   int nominals, String nominalAttributesValues, int parallelism, int bagging) {
+        int nominals, String nominalAttributesValues, int parallelism, int bagging) {
 
         this.numberOfAttributes = parameterCount;
         this.cepEvents = new ConcurrentLinkedQueue<double[]>();
         this.samoaClassifiers = new ConcurrentLinkedQueue<Vector>();
 
         try {
-            this.processTaskBuilder = new StreamingClassificationTaskBuilder(maxEvents, interval, classes,
-                    this.numberOfAttributes, nominals, nominalAttributesValues, this.cepEvents,
-                    this.samoaClassifiers, parallelism, bagging);
+            this.processTaskBuilder = new StreamingClassificationTaskBuilder(maxEvents, interval,
+                    classes, this.numberOfAttributes, nominals, nominalAttributesValues,
+                    this.cepEvents, this.samoaClassifiers,
+                    parallelism, bagging);
             // TODO: 12/23/16 need a specific exception
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Fail to initialize the Streaming Classification : ", e);
+            throw new SiddhiAppRuntimeException("Fail to initialize the Streaming " +
+                    "Classification : ", e);
         }
     }
 
@@ -52,11 +57,10 @@ public class StreamingClassification extends StreamingProcess {
         Object[] output;
         if (!samoaClassifiers.isEmpty()) {
             Vector prediction = samoaClassifiers.poll();
-            output=prediction.toArray();
+            output = prediction.toArray();
         } else {
             output = null;
         }
         return output;
     }
 }
-

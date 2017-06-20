@@ -90,7 +90,6 @@ public abstract class SourceProcessor implements EntranceProcessor {
         return false;
     }
 
-
     public void setStreamSource(InstanceStream stream) {
         if (stream instanceof AbstractOptionHandler) {
             ((AbstractOptionHandler) (stream)).prepareForUse();
@@ -132,10 +131,8 @@ public abstract class SourceProcessor implements EntranceProcessor {
         this.interval = batch;
     }
 
-    public StreamSource getStreamSource() {
+    protected StreamSource getStreamSource() {
         return streamSource;
     }
 
-
 }
-

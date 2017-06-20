@@ -18,15 +18,7 @@
 
 package org.wso2.extension.siddhi.execution.ml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.apache.commons.io.IOUtils;
 import org.wso2.carbon.ml.commons.constants.MLConstants;
 import org.wso2.carbon.ml.commons.domain.Feature;
 import org.wso2.carbon.ml.commons.domain.MLModel;
@@ -39,6 +31,19 @@ import org.wso2.carbon.ml.core.impl.Predictor;
 import org.wso2.carbon.ml.core.interfaces.MLInputAdapter;
 import org.wso2.carbon.ml.core.utils.MLCoreServiceValueHolder;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+/**
+ * Model Handler
+ */
 public class ModelHandler {
 
     public static final String FILE_STORAGE_PREFIX = "file";
@@ -51,18 +56,22 @@ public class ModelHandler {
     /**
      *
      * @param modelStorageLocation MLModel storage location
-     * @throws ClassNotFoundException
-     * @throws java.net.URISyntaxException
-     * @throws MLInputAdapterException
-     * @throws java.io.IOException
+     * @throws ClassNotFoundException class not found exception
+     * @throws java.net.URISyntaxException URI syntax exception
+     * @throws MLInputAdapterException ML input adapter exception
+     * @throws java.io.IOException java IO exception
      */
     public ModelHandler(String modelStorageLocation)
-            throws ClassNotFoundException, URISyntaxException, MLInputAdapterException, IOException {
+            throws ClassNotFoundException, URISyntaxException, MLInputAdapterException,
+            IOException {
         mlModel = retrieveModel(modelStorageLocation);
+        Random random = new Random();
+        modelId = random.nextLong();
     }
 
     /**
      * Retrieve the MLModel from the storage location.
+     * 
      * @param modelStorageLocation model storage location (file path or registry path)
      * @return the deserialized MLModel object
      * @throws URISyntaxException
@@ -71,28 +80,40 @@ public class ModelHandler {
      * @throws ClassNotFoundException
      */
     private static MLModel retrieveModel(String modelStorageLocation)
-            throws URISyntaxException, MLInputAdapterException, IOException, ClassNotFoundException {
+            throws URISyntaxException, MLInputAdapterException, IOException,
+            ClassNotFoundException {
 
         String[] modelStorage = modelStorageLocation.trim().split(":");
         String storageType = modelStorage[0];
-        if(storageType.equals(REGISTRY_STORAGE_PREFIX)) {
-            if(modelStorage[1].startsWith(PATH_TO_GOVERNANCE_REGISTRY)) {
-                modelStorageLocation = modelStorage[1].substring(PATH_TO_GOVERNANCE_REGISTRY.length());
+        if (storageType.equals(REGISTRY_STORAGE_PREFIX)) {
+            if (modelStorage[1].startsWith(PATH_TO_GOVERNANCE_REGISTRY)) {
+                modelStorageLocation = modelStorage[1].substring(
+                        PATH_TO_GOVERNANCE_REGISTRY.length());
             } else {
                 modelStorageLocation = modelStorage[1];
             }
-        } else if(storageType.equals(FILE_STORAGE_PREFIX)) {
+        } else if (storageType.equals(FILE_STORAGE_PREFIX)) {
             modelStorageLocation = modelStorage[1];
             storageType = DatasetType.FILE.getValue();
         } else {
             storageType = DatasetType.FILE.getValue();
         }
 
-        MLIOFactory ioFactory = new MLIOFactory(MLCoreServiceValueHolder.getInstance().getMlProperties());
-        MLInputAdapter inputAdapter = ioFactory.getInputAdapter(storageType + MLConstants.IN_SUFFIX);
+        MLIOFactory ioFactory = new MLIOFactory(
+                MLCoreServiceValueHolder.getInstance().getMlProperties());
+        MLInputAdapter inputAdapter = ioFactory.getInputAdapter(
+                storageType + MLConstants.IN_SUFFIX);
         InputStream in = inputAdapter.read(modelStorageLocation);
         ObjectInputStream ois = new ObjectInputStream(in);
-        MLModel mlModel = (MLModel) ois.readObject();
+        MLModel mlModel = null;
+        try {
+            mlModel = (MLModel) ois.readObject();
+        } finally {
+            IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(ois);
+        }
+
+        in.close();
         ois.close();
         return mlModel;
 
@@ -100,10 +121,11 @@ public class ModelHandler {
 
     /**
      * Predict the value using the feature values.
-     * @param data          feature values array
-     * @param outputType    data type of the output
-     * @return              predicted value
-     * @throws              MLModelHandlerException
+     * 
+     * @param data feature values array
+     * @param outputType data type of the output
+     * @return predicted value
+     * @throws MLModelHandlerException throws ML model handler exception
      */
     public Object predict(String[] data, String outputType) throws MLModelHandlerException {
         ArrayList<String[]> list = new ArrayList<String[]>();
@@ -117,12 +139,15 @@ public class ModelHandler {
 
     /**
      * Predict the value using the feature values.
+     * 
      * @param data feature values array
+     * @param outputType output type
      * @param percentile percentile value for predictions
      * @return predicted value
-     * @throws MLModelHandlerException
+     * @throws MLModelHandlerException throws ML model handler exception
      */
-    public Object predict(String[] data, String outputType, double percentile) throws MLModelHandlerException {
+    public Object predict(String[] data, String outputType, double percentile)
+            throws MLModelHandlerException {
         ArrayList<String[]> list = new ArrayList<String[]>();
         list.add(data);
         Predictor predictor = new Predictor(modelId, mlModel, list, percentile, false);
@@ -134,11 +159,12 @@ public class ModelHandler {
 
     /**
      * Predict the value using the feature values with POJO predictor.
-     * @param data          feature values array
-     * @param outputType    data type of the output
+     * 
+     * @param data feature values array
+     * @param outputType data type of the output
      * @param pojoPredictor POJO predictor
-     * @return              predicted value
-     * @throws              MLModelHandlerException
+     * @return predicted value
+     * @throws MLModelHandlerException ML model handler exception
      */
     public Object predict(String[] data, String outputType, POJOPredictor pojoPredictor)
             throws MLModelHandlerException {
@@ -149,6 +175,7 @@ public class ModelHandler {
 
     /**
      * Cast the given value to the given output type.
+     * 
      * @param outputType Output data type
      * @param value value to be casted in String
      * @return Value casted to output type object
@@ -170,13 +197,14 @@ public class ModelHandler {
     }
 
     /**
-     * Return the map containing <feature-name, index> pairs
-     * @return the <feature-name, feature-index> map of the MLModel
+     * Return the map containing &lt;feature-name, index&gt; pairs
+     *
+     * @return the &lt;feature-name, feature-index&gt; map of the MLModel
      */
     public Map<String, Integer> getFeatures() {
         List<Feature> features = mlModel.getFeatures();
         Map<String, Integer> featureIndexMap = new HashMap<String, Integer>();
-        for(Feature feature : features) {
+        for (Feature feature : features) {
             featureIndexMap.put(feature.getName(), feature.getIndex());
         }
         return featureIndexMap;
@@ -184,6 +212,7 @@ public class ModelHandler {
 
     /**
      * Get new to old indices list of this model.
+     * 
      * @return the new to old indices list of the MLModel
      */
     public List<Integer> getNewToOldIndicesList() {
@@ -192,6 +221,7 @@ public class ModelHandler {
 
     /**
      * Return the response variable of the model
+     * 
      * @return the response variable of the MLModel
      */
     public String getResponseVariable() {
@@ -200,6 +230,7 @@ public class ModelHandler {
 
     /**
      * Returns the algorithm class - classification, numerical prediction or clustering
+     * 
      * @return the algorithm class
      */
     public String getAlgorithmClass() {

@@ -22,27 +22,31 @@ import com.github.javacliparser.ClassOption;
 import com.github.javacliparser.FlagOption;
 import com.github.javacliparser.IntOption;
 import com.github.javacliparser.Option;
+
 import org.apache.samoa.tasks.Task;
 import org.apache.samoa.topology.impl.SimpleComponentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.TaskBuilder;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.Queue;
 import java.util.Vector;
 
+/**
+ * Streaming Regression Task Builder
+ */
 public class StreamingRegressionTaskBuilder extends TaskBuilder {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(StreamingRegressionTaskBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+            StreamingRegressionTaskBuilder.class);
     public Queue<Vector> samoaPredictions;
     public int batchSize;
     public int parallelism;
 
     public StreamingRegressionTaskBuilder(int maxInstance, int batchSize, int numAtts,
-                                          Queue<double[]> cepEvents, Queue<Vector> data,
-                                          int parallel) {
+                                          Queue<double[]> cepEvents,
+            Queue<Vector> data, int parallel) {
         this.cepEvents = cepEvents;
         this.maxEvents = maxInstance;
         this.batchSize = batchSize;
@@ -52,31 +56,32 @@ public class StreamingRegressionTaskBuilder extends TaskBuilder {
     }
 
     public void initTask() {
-        String query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.regression." +
-                "StreamingRegressionTask -f " + batchSize + " -i " + maxEvents +
-                " -s (org.wso2.extension.siddhi.execution.ml.samoa.utils." +
-                "regression.StreamingRegressionStream -A " + numberOfAttributes + " ) " +
-                "-l  (org.apache.samoa.learners.classifiers.rules.HorizontalAMRulesRegressor " +
-                " -p " + parallelism + ")";
+        String query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.regression."
+                + "StreamingRegressionTask -f "
+                + batchSize + " -i " + maxEvents + " -s " +
+                "(org.wso2.extension.siddhi.execution.ml.samoa.utils."
+                + "regression.StreamingRegressionStream -A " + numberOfAttributes + " ) "
+                + "-l  (org.apache.samoa.learners.classifiers.rules.HorizontalAMRulesRegressor "
+                + " -p " + parallelism
+                + ")";
 
         logger.info("QUERY: " + query);
-        String args[] = {query};
+        String args[] = { query };
         this.initRegressionTask(args);
     }
 
     private void initRegressionTask(String[] args) {
         /// No usage directly
-        FlagOption suppressStatusOutOpt =
-                new FlagOption("suppressStatusOut", 'S', SUPPRESS_STATUS_OUT_MSG);
-        FlagOption suppressResultOutOpt =
-                new FlagOption("suppressResultOut", 'R', SUPPRESS_RESULT_OUT_MSG);
-        IntOption statusUpdateFreqOpt =
-                new IntOption("statusUpdateFrequency", 'F', STATUS_UPDATE_FREQ_MSG, 1000, 0,
-                        Integer.MAX_VALUE);
+        FlagOption suppressStatusOutOpt = new FlagOption("suppressStatusOut", 'S',
+                SUPPRESS_STATUS_OUT_MSG);
+        FlagOption suppressResultOutOpt = new FlagOption("suppressResultOut", 'R',
+                SUPPRESS_RESULT_OUT_MSG);
+        IntOption statusUpdateFreqOpt = new IntOption("statusUpdateFrequency", 'F',
+                STATUS_UPDATE_FREQ_MSG, 1000, 0,
+                Integer.MAX_VALUE);
 
-        Option[] extraOptions = new Option[]{suppressStatusOutOpt, suppressResultOutOpt,
-                statusUpdateFreqOpt};
-
+        Option[] extraOptions = new Option[] { suppressStatusOutOpt, suppressResultOutOpt,
+                statusUpdateFreqOpt };
 
         StringBuilder cliString = new StringBuilder();
         for (String arg : args) {
@@ -88,7 +93,7 @@ public class StreamingRegressionTaskBuilder extends TaskBuilder {
         try {
             task = ClassOption.cliStringToObject(cliString.toString(), Task.class, extraOptions);
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Fail to initialize the task : ", e);
+            throw new SiddhiAppRuntimeException("Fail to initialize the task : ", e);
         }
 
         if (task instanceof StreamingRegressionTask) {
@@ -96,7 +101,7 @@ public class StreamingRegressionTaskBuilder extends TaskBuilder {
             t.setCepEvents(this.cepEvents);
             t.setSamoaData(this.samoaPredictions);
         } else {
-            throw new ExecutionPlanRuntimeException("Check the task:Not a StreamingRegressionTask");
+            throw new SiddhiAppRuntimeException("Check the task:Not a StreamingRegressionTask");
         }
 
         task.setFactory(new SimpleComponentFactory());

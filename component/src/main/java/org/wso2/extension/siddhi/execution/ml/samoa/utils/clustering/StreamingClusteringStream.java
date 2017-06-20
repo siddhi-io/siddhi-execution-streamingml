@@ -31,10 +31,16 @@ import org.apache.samoa.moa.core.ObjectRepository;
 import org.apache.samoa.moa.tasks.TaskMonitor;
 import org.apache.samoa.streams.InstanceStream;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.DataStream;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.ArrayList;
 
+/**
+ * Streaming Clustering Stream
+ */
 public class StreamingClusteringStream extends DataStream {
+
+    private static final long serialVersionUID = 33334;
 
     public IntOption numClusterOption = new IntOption("numCluster", 'K',
             "The average number of centroids in the model.", 5, 1, Integer.MAX_VALUE);
@@ -53,15 +59,23 @@ public class StreamingClusteringStream extends DataStream {
 
     @Override
     public Example<Instance> nextInstance() {
-        double[] values_new = new double[numAttsOption.getValue()];
+        double[] valuesNew = new double[numAttsOption.getValue()];
         if (numberOfGeneratedInstances == 0) {
-            while (cepEvents == null) ;
+            while (cepEvents == null) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new SiddhiAppRuntimeException("Failed to sleep thread " + e);
+                }
+            }
         }
         numberOfGeneratedInstances++;
-        while (cepEvents.isEmpty()) ;
+        while (cepEvents.isEmpty()) {
+
+        }
         double[] values = cepEvents.poll();
-        System.arraycopy(values, 0, values_new, 0, values.length);
-        Instance inst = new DenseInstance(1.0, values_new);
+        System.arraycopy(values, 0, valuesNew, 0, values.length);
+        Instance inst = new DenseInstance(1.0, valuesNew);
         inst.setDataset(getHeader());
         return new InstanceExample(inst);
     }

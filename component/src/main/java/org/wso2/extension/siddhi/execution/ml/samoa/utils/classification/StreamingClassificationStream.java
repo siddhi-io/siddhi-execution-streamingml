@@ -20,6 +20,7 @@ package org.wso2.extension.siddhi.execution.ml.samoa.utils.classification;
 
 import com.github.javacliparser.IntOption;
 import com.github.javacliparser.StringOption;
+
 import org.apache.samoa.instances.Attribute;
 import org.apache.samoa.instances.DenseInstance;
 import org.apache.samoa.instances.Instance;
@@ -31,11 +32,16 @@ import org.apache.samoa.moa.core.ObjectRepository;
 import org.apache.samoa.moa.tasks.TaskMonitor;
 import org.apache.samoa.streams.InstanceStream;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.DataStream;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Streaming Classification Stream
+ */
 public class StreamingClassificationStream extends DataStream {
+    private static final long serialVersionUID = 44444;
 
     public IntOption numberOfClassesOption = new IntOption("numberOfClasses", 'K',
             "The number of classes in the model.", 2, 2, Integer.MAX_VALUE);
@@ -43,8 +49,9 @@ public class StreamingClassificationStream extends DataStream {
             "The number of classes in the model.", 2, 1, Integer.MAX_VALUE);
     public IntOption numberOfNominalsOption = new IntOption("numberOfNominals", 'N',
             "The number of nominal attributes to generate.", 0, 0, 2147483647);
-    public StringOption numberOfValuesPerNominalOption = new StringOption("numberOfValuesPerNominal"
-            + "Option", 'Z', "The number of values per nominal attributes", "null");
+    public StringOption numberOfValuesPerNominalOption = new StringOption(
+            "numberOfValuesPerNominal" + "Option", 'Z',
+            "The number of values per nominal attributes", "null");
 
     private int numberOfNominals;
     private int numberOfClasses;
@@ -110,15 +117,24 @@ public class StreamingClassificationStream extends DataStream {
     public Example<Instance> nextInstance() {
         double[] valuesNew = new double[numberOfAttributes];
         if (numberOfGeneratedInstances == 0) {
-            while (cepEvents == null) ;
+            while (cepEvents == null) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new SiddhiAppRuntimeException("Failed to sleep thread " + e);
+                }
+            }
         }
         numberOfGeneratedInstances++;
-        while (cepEvents.isEmpty()) ;
+        while (cepEvents.isEmpty()) {
+
+        }
         double[] values = cepEvents.poll();
         System.arraycopy(values, 0, valuesNew, 0, values.length - 1);
         Instance instance = new DenseInstance(1.0, valuesNew);
         instance.setDataset(getHeader());
-        instance.setClassValue(values[values.length - 1]);// Set the relevant class value to the dataset
+        instance.setClassValue(values[values.length - 1]); // Set the relevant
+        // class value to the dataset
         return new InstanceExample(instance);
     }
 }

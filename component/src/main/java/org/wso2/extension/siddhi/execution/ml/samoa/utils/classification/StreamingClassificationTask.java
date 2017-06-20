@@ -23,7 +23,7 @@ import org.apache.samoa.topology.TopologyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.ProcessTask;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.Queue;
 import java.util.Vector;
@@ -36,8 +36,10 @@ import java.util.Vector;
 public class StreamingClassificationTask extends ProcessTask {
 
     private static Logger logger = LoggerFactory.getLogger(StreamingClassificationTask.class);
+    private static final long serialVersionUID = 55555;
 
     private Queue<Vector> classifiers;
+    // private int numClasses1;
 
     @Override
     public void init() {
@@ -46,11 +48,11 @@ public class StreamingClassificationTask extends ProcessTask {
             StreamingClassificationStream myStream = (StreamingClassificationStream) inputStream;
             myStream.setCepEvents(this.cepEvents);
         } else {
-            throw new ExecutionPlanRuntimeException("Check DataStream: " +
-                    "DataStream is not a StreamingClassificationStream");
+            throw new SiddhiAppRuntimeException(
+                    "Check DataStream: " + "DataStream is not a StreamingClassificationStream");
         }
 
-        if (builder == null) {               // This part done by setFactory method
+        if (builder == null) { // This part done by setFactory method
             builder = new TopologyBuilder();
             builder.initTopology(evaluationNameOption.getValue());
             logger.debug("Successfully initialized SAMOA topology with name {}",
@@ -69,7 +71,7 @@ public class StreamingClassificationTask extends ProcessTask {
         // Create stream from Entrance processor
         sourcePiOutputStream = builder.createStream(source);
 
-        learner = this.learnerOption.getValue();   // Vertical Hoeffding Tree
+        learner = this.learnerOption.getValue(); // Vertical Hoeffding Tree
         learner.init(builder, source.getDataset(), 1);
         builder.connectInputShuffleStream(sourcePiOutputStream, learner.getInputProcessor());
 
@@ -81,10 +83,10 @@ public class StreamingClassificationTask extends ProcessTask {
         }
 
         // Set ClassificationEvaluationProcessor
-        StreamingClassificationEvaluationProcessor evaluator
-                = new StreamingClassificationEvaluationProcessor.Builder(evaluatorOptionValue).
-                samplingFrequency(sampleFrequencyOption.getValue()).
-                dumpFile(dumpFileOption.getFile()).build();
+        StreamingClassificationEvaluationProcessor evaluator =
+                new StreamingClassificationEvaluationProcessor.Builder(
+                evaluatorOptionValue).samplingFrequency(sampleFrequencyOption.getValue())
+                        .dumpFile(dumpFileOption.getFile()).build();
 
         evaluator.setSamoaClassifiers(classifiers);
         builder.addProcessor(evaluator);
@@ -100,7 +102,7 @@ public class StreamingClassificationTask extends ProcessTask {
         this.classifiers = classifiers;
     }
 
-    public void setNumClasses(int numClasses) {
-        int numClasses1 = numClasses;
-    }
+    /*public void setNumClasses(int numClasses) {
+        this.numClasses1 = numClasses;
+    }*/
 }

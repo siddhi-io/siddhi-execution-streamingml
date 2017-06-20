@@ -20,12 +20,15 @@ package org.wso2.extension.siddhi.execution.ml.samoa.utils;
 
 import java.util.Queue;
 
+/**
+ * Streaming Process
+ */
 public abstract class StreamingProcess implements Runnable {
 
     public Queue<double[]> cepEvents;
     protected TaskBuilder processTaskBuilder;
 
-    abstract public Object[] getOutput();
+    public abstract Object[] getOutput();
 
     public void run() {
         processTaskBuilder.initTask();

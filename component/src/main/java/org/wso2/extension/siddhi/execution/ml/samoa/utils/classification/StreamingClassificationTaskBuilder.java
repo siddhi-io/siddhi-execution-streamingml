@@ -22,19 +22,23 @@ import com.github.javacliparser.ClassOption;
 import com.github.javacliparser.FlagOption;
 import com.github.javacliparser.IntOption;
 import com.github.javacliparser.Option;
+
 import org.apache.samoa.tasks.Task;
 import org.apache.samoa.topology.impl.SimpleComponentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.TaskBuilder;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.Queue;
 import java.util.Vector;
 
+/**
+ * Streaming Classification Task Builder
+ */
 public class StreamingClassificationTaskBuilder extends TaskBuilder {
-    protected static final Logger logger =
-            LoggerFactory.getLogger(StreamingClassificationTaskBuilder.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(
+            StreamingClassificationTaskBuilder.class);
 
     public Queue<Vector> classifiers;
     private int batchSize;
@@ -47,13 +51,14 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
     public StreamingClassificationTaskBuilder(int maxInstance, int batchSize, int numClasses,
                                               int numAtts, int numNominals, String nominalVals,
                                               Queue<double[]> cepEvents, Queue<Vector> classifiers,
-                                              int parallelism, int bagging) {
+                                              int parallelism,
+            int bagging) {
         this.maxEvents = maxInstance;
         this.numberOfClasses = numClasses;
         this.batchSize = batchSize;
         this.numberOfAttributes = numAtts;
         this.numberOfNominalAttributes = numNominals;
-        this.nominalValues =nominalVals;
+        this.nominalValues = nominalVals;
         this.cepEvents = cepEvents;
         this.classifiers = classifiers;
         this.parallelism = parallelism;
@@ -64,25 +69,27 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
         String query;
 
         if (bagging == 0) {
-            query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.classification." +
-                    "StreamingClassificationTask -f " + batchSize + " -i " + maxEvents +
-                    " -s (org.wso2.extension.siddhi.execution.ml.samoa.utils." +
-                    "classification.StreamingClassificationStream -K " + numberOfClasses + " -A " +
-                    numberOfAttributes + " -N " + numberOfNominalAttributes + " -Z " + nominalValues
-                    + " ) -l (org.apache.samoa.learners.classifiers.trees.VerticalHoeffdingTree -g 300 -p "
+            query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.classification."
+                    + "StreamingClassificationTask -f " + batchSize + " -i " + maxEvents
+                    + " -s (org.wso2.extension.siddhi.execution.ml.samoa.utils."
+                    + "classification.StreamingClassificationStream -K " + numberOfClasses + " -A "
+                    + numberOfAttributes
+                    + " -N " + numberOfNominalAttributes + " -Z " + nominalValues + " ) -l " +
+                    "(org.apache.samoa.learners.classifiers.trees.VerticalHoeffdingTree -g 300 -p "
                     + parallelism + ")";
         } else {
-            //---------Bagging--------------
-            query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.classification." +
-                    "StreamingClassificationTask -f " + batchSize + " -i " + maxEvents +
-                    " -s (org.wso2.extension.siddhi.execution.ml.samoa.utils." +
-                    "classification.StreamingClassificationStream -K " + numberOfClasses + " -A " +
-                    numberOfAttributes + " -N " + numberOfNominalAttributes + " -Z " +
-                    nominalValues + " ) -l (classifiers.ensemble.Bagging -s " + bagging +
-                    " -l (classifiers.trees.VerticalHoeffdingTree -p " + parallelism + "))";
+            // ---------Bagging--------------
+            query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.classification."
+                    + "StreamingClassificationTask -f " + batchSize + " -i " + maxEvents
+                    + " -s (org.wso2.extension.siddhi.execution.ml.samoa.utils."
+                    + "classification.StreamingClassificationStream -K " + numberOfClasses + " -A "
+                    + numberOfAttributes
+                    + " -N " + numberOfNominalAttributes + " -Z " + nominalValues
+                    + " ) -l (classifiers.ensemble.Bagging -s " + bagging
+                    + " -l (classifiers.trees.VerticalHoeffdingTree -p " + parallelism + "))";
         }
-        logger.info("QUERY: " + query);
-        String args[] = {query};
+        LOGGER.info("QUERY: " + query);
+        String args[] = { query };
         this.initClassificationTask(args);
     }
 
@@ -94,9 +101,10 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
         FlagOption suppressResultOutOpt = new FlagOption("suppressResultOut", 'R',
                 SUPPRESS_RESULT_OUT_MSG);
         IntOption statusUpdateFreqOpt = new IntOption("statusUpdateFrequency", 'F',
-                STATUS_UPDATE_FREQ_MSG, 1000, 0, Integer.MAX_VALUE);
-        Option[] extraOptions = new Option[]{suppressStatusOutOpt, suppressResultOutOpt,
-                statusUpdateFreqOpt};
+                STATUS_UPDATE_FREQ_MSG, 1000, 0,
+                Integer.MAX_VALUE);
+        Option[] extraOptions = new Option[] { suppressStatusOutOpt, suppressResultOutOpt,
+                statusUpdateFreqOpt };
 
         StringBuilder cliString = new StringBuilder();
         for (String arg : args) {
@@ -109,27 +117,25 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
             task = ClassOption.cliStringToObject(cliString.toString(), Task.class, extraOptions);
             // TODO: 12/23/16 need to find actual exception
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Fail to initialize the task.", e);
+            throw new SiddhiAppRuntimeException("Fail to initialize the task.", e);
 
         }
 
         if (task instanceof StreamingClassificationTask) {
             // Cast that created task to streamingclassificationTask
             StreamingClassificationTask t = (StreamingClassificationTask) task;
-            t.setCepEvents(this.cepEvents);                       //link task events to cepEvents
+            t.setCepEvents(this.cepEvents); // link task events to cepEvents
             t.setSamoaClassifiers(this.classifiers);
-            t.setNumClasses(this.numberOfClasses);
+            // t.setNumClasses(this.numberOfClasses);
+            // TODO: 6/20/17 The set value is never used
         } else {
-            throw new ExecutionPlanRuntimeException("Check Task: " +
-                    "It is not a StreamingClassificationTask ");
+            throw new SiddhiAppRuntimeException("Check Task: " + "It is not a " +
+                    "StreamingClassificationTask ");
         }
 
         task.setFactory(new SimpleComponentFactory());
         task.init();
-        logger.info("Successfully initiated the streamingClassification task");
+        LOGGER.info("Successfully initiated the streamingClassification task");
         topology = task.getTopology();
     }
 }
-
-
-

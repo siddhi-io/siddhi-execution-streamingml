@@ -20,8 +20,7 @@ package org.wso2.extension.siddhi.execution.ml.samoa.utils;
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.core.Processor;
 import org.apache.samoa.moa.evaluation.LearningCurve;
-import org.wso2.extension.siddhi.execution.ml.samoa.utils.classification.
-        StreamingClassificationEvaluationProcessor;
+import org.wso2.extension.siddhi.execution.ml.samoa.utils.classification.StreamingClassificationEvaluationProcessor;
 
 import java.io.PrintStream;
 

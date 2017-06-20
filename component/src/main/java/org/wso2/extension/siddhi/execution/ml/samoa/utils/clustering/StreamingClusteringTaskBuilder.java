@@ -22,20 +22,24 @@ import com.github.javacliparser.ClassOption;
 import com.github.javacliparser.FlagOption;
 import com.github.javacliparser.IntOption;
 import com.github.javacliparser.Option;
+
 import org.apache.samoa.moa.cluster.Clustering;
 import org.apache.samoa.tasks.Task;
 import org.apache.samoa.topology.impl.SimpleComponentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.TaskBuilder;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.Queue;
 
+/**
+ * Streaming Clustering TaskBuilder
+ */
 public class StreamingClusteringTaskBuilder extends TaskBuilder {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(StreamingClusteringTaskBuilder.class);
+    private static final Logger logger = LoggerFactory.getLogger(
+            StreamingClusteringTaskBuilder.class);
 
     public Queue<Clustering> samoaClusters;
     public int numberOfClusters;
@@ -44,8 +48,8 @@ public class StreamingClusteringTaskBuilder extends TaskBuilder {
     private int interval;
 
     public StreamingClusteringTaskBuilder(int maxInstance, int numberofAttributes,
-                                          int numberOfClusters, int parallel, int sampleFrequency, int interval,
-                                          Queue<double[]> cepEvents, Queue<Clustering> samoaClusters) {
+            int numberOfClusters, int parallel, int sampleFrequency, int interval,
+            Queue<double[]> cepEvents, Queue<Clustering> samoaClusters) {
         this.maxEvents = maxInstance;
         this.numberOfAttributes = numberofAttributes;
         this.numberOfClusters = numberOfClusters;
@@ -57,16 +61,19 @@ public class StreamingClusteringTaskBuilder extends TaskBuilder {
     }
 
     public void initTask() {
-        String query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.clustering." +
-                "StreamingClusteringTask -i " + maxEvents + " -s  (org.wso2.extension." +
-                "siddhi.execution.ml.samoa.utils.clustering.StreamingClusteringStream -K "
-                + numberOfClusters + " -a " + numberOfAttributes + ") -l " +
-                "(org.wso2.extension.siddhi.execution.ml.samoa.utils.clustering.StreamingDistributor -F "
-                + samplefrequency + " -I " + interval + " -P " + parallelism +
-                " -l (org.apache.samoa.learners.clusterers.ClustreamClustererAdapter " +
-                "-l (org.apache.samoa.moa.clusterers.clustream.WithKmeans -k " +numberOfClusters + ")))";
+        String query = "org.wso2.extension.siddhi.execution.ml.samoa.utils.clustering."
+                + "StreamingClusteringTask -i "
+                + maxEvents + " -s  (org.wso2.extension."
+                + "siddhi.execution.ml.samoa.utils.clustering.StreamingClusteringStream -K "
+                + numberOfClusters + " -a "
+                + numberOfAttributes + ") -l (org.wso2.extension.siddhi.execution.ml.samoa.utils." +
+                "clustering.StreamingDistributor -F "
+                + samplefrequency + " -I " + interval + " -P " + parallelism
+                + " -l (org.apache.samoa.learners.clusterers.ClustreamClustererAdapter "
+                + "-l (org.apache.samoa.moa.clusterers.clustream.WithKmeans -k " + numberOfClusters
+                + ")))";
         logger.info("QUERY: " + query);
-        String args[] = {query};
+        String args[] = { query };
         this.initClusteringTask(args);
     }
 
@@ -79,8 +86,8 @@ public class StreamingClusteringTaskBuilder extends TaskBuilder {
                 STATUS_UPDATE_FREQ_MSG, 1000, 0,
                 Integer.MAX_VALUE);
 
-        Option[] extraOptions = new Option[]{suppressStatusOutOpt, suppressResultOutOpt,
-                statusUpdateFreqOpt};
+        Option[] extraOptions = new Option[] { suppressStatusOutOpt, suppressResultOutOpt,
+                statusUpdateFreqOpt };
         StringBuilder cliString = new StringBuilder();
         for (String arg : args) {
             cliString.append(" ").append(arg);
@@ -90,7 +97,7 @@ public class StreamingClusteringTaskBuilder extends TaskBuilder {
         try {
             task = ClassOption.cliStringToObject(cliString.toString(), Task.class, extraOptions);
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Fail to initialize the task", e);
+            throw new SiddhiAppRuntimeException("Fail to initialize the task", e);
         }
         if (task instanceof StreamingClusteringTask) {
             StreamingClusteringTask clusteringTask = (StreamingClusteringTask) task;
@@ -99,7 +106,7 @@ public class StreamingClusteringTaskBuilder extends TaskBuilder {
             clusteringTask.setNumberOfClusters(this.numberOfClusters);
 
         } else {
-            throw new ExecutionPlanRuntimeException("Check the task: Not a StreamingClusteringTask");
+            throw new SiddhiAppRuntimeException("Check the task: Not a StreamingClusteringTask");
         }
 
         task.setFactory(new SimpleComponentFactory());

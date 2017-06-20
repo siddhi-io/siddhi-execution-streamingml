@@ -22,17 +22,20 @@ import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.core.Processor;
 import org.apache.samoa.instances.Instance;
 import org.apache.samoa.learners.InstanceContentEvent;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.SourceProcessor;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Streaming Classification Entrance Processor
+ */
 public class StreamingClassificationEntranceProcessor extends SourceProcessor {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(StreamingClassificationEntranceProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            StreamingClassificationEntranceProcessor.class);
+    private static final long serialVersionUID = 22222;
 
     @Override
     public ContentEvent nextEvent() {
@@ -41,16 +44,16 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
             contentEvent = new InstanceContentEvent(-1, firstInstance, false, true);
             contentEvent.setLast(true);
             // set finished status _after_ tagging last event
-//            logger.info("Finished !");
+            // logger.info("Finished !");
             finished = true;
 
         } else if (hasNext()) {
             numberOfInstancesSent++;
             Instance next = nextInstance();
-            if (next.classValue() == -1.0) {     // If this event is a prediction event
-                     // This instance uses for testing
+            if (next.classValue() == -1.0) { // If this event is a prediction event
+                // This instance uses for testing
                 contentEvent = new InstanceContentEvent(numberOfInstancesSent, next, false, true);
-            } else { //If it is not a prediction data then it uses to train the model and test
+            } else { // If it is not a prediction data then it uses to train the model and test
                 contentEvent = new InstanceContentEvent(numberOfInstancesSent, next, true, true);
 
             }
@@ -65,8 +68,9 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
 
     @Override
     public Processor newProcessor(Processor p) {
-        StreamingClassificationEntranceProcessor newProcessor =
-                new StreamingClassificationEntranceProcessor();
+        StreamingClassificationEntranceProcessor newProcessor = new
+                StreamingClassificationEntranceProcessor();
+        assert p instanceof StreamingClassificationEntranceProcessor;
         StreamingClassificationEntranceProcessor originProcessor =
                 (StreamingClassificationEntranceProcessor) p;
         if (originProcessor.getStreamSource() != null) {
@@ -75,10 +79,10 @@ public class StreamingClassificationEntranceProcessor extends SourceProcessor {
         return newProcessor;
     }
 
-    private class DelayTimeoutHandler implements Runnable {
+    private static class DelayTimeoutHandler implements Runnable {
         private StreamingClassificationEntranceProcessor processor;
 
-        public DelayTimeoutHandler(StreamingClassificationEntranceProcessor processor) {
+        DelayTimeoutHandler(StreamingClassificationEntranceProcessor processor) {
             this.processor = processor;
         }
 
