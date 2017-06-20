@@ -39,7 +39,6 @@ public class StreamingClusteringTask extends ProcessTask {
     private static final Logger logger = LoggerFactory.getLogger(StreamingClusteringTask.class);
 
     private ClusteringDistributorProcessor distributor;
-    private Stream evaluationStream;
     public Queue<Clustering> samoaClusters;
     public int numberOfClusters;
 
@@ -76,7 +75,7 @@ public class StreamingClusteringTask extends ProcessTask {
         builder.connectInputShuffleStream(builder.createStream(source), distributor);
         sourcePiOutputStream = builder.createStream(distributor);
         distributor.setOutputStream(sourcePiOutputStream);
-        evaluationStream = builder.createStream(distributor);
+        Stream evaluationStream = builder.createStream(distributor);
         distributor.setEvaluationStream(evaluationStream); // passes evaluation events along
 
         // instantiate learner and connect it to sourcePiOutputStream
@@ -96,7 +95,7 @@ public class StreamingClusteringTask extends ProcessTask {
         for (Stream evaluatorPiInputStream : learner.getResultStreams()) {
             builder.connectInputShuffleStream(evaluatorPiInputStream, resultCheckPoint);
         }
-        this.builder.connectInputAllStream(this.evaluationStream, resultCheckPoint);
+        this.builder.connectInputAllStream(evaluationStream, resultCheckPoint);
         topology = this.builder.build();
         logger.info("Successfully built the topology");
     }

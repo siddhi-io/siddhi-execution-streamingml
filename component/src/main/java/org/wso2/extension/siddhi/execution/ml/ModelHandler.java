@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+import org.apache.commons.io.IOUtils;
 import org.wso2.carbon.ml.commons.constants.MLConstants;
 import org.wso2.carbon.ml.commons.domain.Feature;
 import org.wso2.carbon.ml.commons.domain.MLModel;
@@ -63,6 +65,8 @@ public class ModelHandler {
             throws ClassNotFoundException, URISyntaxException, MLInputAdapterException,
             IOException {
         mlModel = retrieveModel(modelStorageLocation);
+        Random random = new Random();
+        modelId = random.nextLong();
     }
 
     /**
@@ -101,7 +105,15 @@ public class ModelHandler {
                 storageType + MLConstants.IN_SUFFIX);
         InputStream in = inputAdapter.read(modelStorageLocation);
         ObjectInputStream ois = new ObjectInputStream(in);
-        MLModel mlModel = (MLModel) ois.readObject();
+        MLModel mlModel = null;
+        try {
+            mlModel = (MLModel) ois.readObject();
+        } finally {
+            IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(ois);
+        }
+
+        in.close();
         ois.close();
         return mlModel;
 

@@ -55,7 +55,7 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
     private final int samplingFrequency;
     private final File dumpFile;
     private transient PrintStream immediateResultStream;
-    private transient boolean firstDump;
+    private boolean firstDump;
     private Queue<Vector> regressionData;
     public Queue<Vector> samoaPredictions;
 

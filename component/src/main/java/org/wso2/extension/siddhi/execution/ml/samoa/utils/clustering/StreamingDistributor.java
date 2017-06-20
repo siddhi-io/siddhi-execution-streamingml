@@ -40,7 +40,7 @@ public class StreamingDistributor implements Learner, Configurable {
 
     private static final long serialVersionUID = 684111382631697031L;
 
-    private Stream resultStream;
+    private transient Stream resultStream;
 
     private Instances dataset;
 
@@ -55,13 +55,13 @@ public class StreamingDistributor implements Learner, Configurable {
     public IntOption intervalOption = new IntOption("IntervalOption", 'I',
             "The frequency of output cluster centers values", 1000, 100, Integer.MAX_VALUE);
 
-    private TopologyBuilder builder;
+    private transient TopologyBuilder builder;
 
     // private ClusteringDistributorProcessor distributorP;
     private LocalClustererProcessor learnerP;
 
     // private Stream distributorToLocalStream;
-    private Stream localToGlobalStream;
+    private transient Stream localToGlobalStream;
 
     // private int parallelism;
 
