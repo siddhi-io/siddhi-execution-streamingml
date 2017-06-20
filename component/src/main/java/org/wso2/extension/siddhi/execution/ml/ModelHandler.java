@@ -56,10 +56,10 @@ public class ModelHandler {
     /**
      *
      * @param modelStorageLocation MLModel storage location
-     * @throws ClassNotFoundException
-     * @throws java.net.URISyntaxException
-     * @throws MLInputAdapterException
-     * @throws java.io.IOException
+     * @throws ClassNotFoundException class not found exception
+     * @throws java.net.URISyntaxException URI syntax exception
+     * @throws MLInputAdapterException ML input adapter exception
+     * @throws java.io.IOException java IO exception
      */
     public ModelHandler(String modelStorageLocation)
             throws ClassNotFoundException, URISyntaxException, MLInputAdapterException,
@@ -125,7 +125,7 @@ public class ModelHandler {
      * @param data feature values array
      * @param outputType data type of the output
      * @return predicted value
-     * @throws MLModelHandlerException
+     * @throws MLModelHandlerException throws ML model handler exception
      */
     public Object predict(String[] data, String outputType) throws MLModelHandlerException {
         ArrayList<String[]> list = new ArrayList<String[]>();
@@ -141,9 +141,10 @@ public class ModelHandler {
      * Predict the value using the feature values.
      * 
      * @param data feature values array
+     * @param outputType output type
      * @param percentile percentile value for predictions
      * @return predicted value
-     * @throws MLModelHandlerException
+     * @throws MLModelHandlerException throws ML model handler exception
      */
     public Object predict(String[] data, String outputType, double percentile)
             throws MLModelHandlerException {
@@ -163,7 +164,7 @@ public class ModelHandler {
      * @param outputType data type of the output
      * @param pojoPredictor POJO predictor
      * @return predicted value
-     * @throws MLModelHandlerException
+     * @throws MLModelHandlerException ML model handler exception
      */
     public Object predict(String[] data, String outputType, POJOPredictor pojoPredictor)
             throws MLModelHandlerException {
@@ -196,9 +197,9 @@ public class ModelHandler {
     }
 
     /**
-     * Return the map containing <feature-name, index> pairs
-     * 
-     * @return the <feature-name, feature-index> map of the MLModel
+     * Return the map containing &lt;feature-name, index&gt; pairs
+     *
+     * @return the &lt;feature-name, feature-index&gt; map of the MLModel
      */
     public Map<String, Integer> getFeatures() {
         List<Feature> features = mlModel.getFeatures();
