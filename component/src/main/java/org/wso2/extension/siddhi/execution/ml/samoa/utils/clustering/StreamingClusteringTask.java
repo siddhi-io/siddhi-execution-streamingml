@@ -33,6 +33,8 @@ import java.util.Queue;
  */
 public class StreamingClusteringTask extends ProcessTask {
 
+    private static final long serialVersionUID = 33336;
+
     private static final int DISTRIBUTOR_PARALLELISM = 1;
     private static final Logger logger = LoggerFactory.getLogger(StreamingClusteringTask.class);
 

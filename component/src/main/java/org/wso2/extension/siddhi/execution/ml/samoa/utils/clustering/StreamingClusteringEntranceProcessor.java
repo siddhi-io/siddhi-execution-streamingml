@@ -29,6 +29,8 @@ import org.wso2.extension.siddhi.execution.ml.samoa.utils.SourceProcessor;
  */
 public class StreamingClusteringEntranceProcessor extends SourceProcessor {
 
+    private static final long serialVersionUID = 33331;
+
     @Override
     public ContentEvent nextEvent() {
         if (isFinished()) {
@@ -49,6 +51,7 @@ public class StreamingClusteringEntranceProcessor extends SourceProcessor {
     public Processor newProcessor(Processor processor) {
         StreamingClusteringEntranceProcessor newProcessor =
                 new StreamingClusteringEntranceProcessor();
+        assert processor instanceof StreamingClusteringEntranceProcessor;
         StreamingClusteringEntranceProcessor originProcessor =
                 (StreamingClusteringEntranceProcessor) processor;
         if (originProcessor.getStreamSource() != null) {

@@ -86,8 +86,8 @@ public class StreamingDistributor implements Learner, Configurable {
 
         // Global Clustering
         LocalClustererProcessor globalClusteringCombinerP = new LocalClustererProcessor();
-        globalClusteringCombinerP.setSampleFrequency((intervalOption.getValue() /
-                samplemOption.getValue()) * 100);
+        globalClusteringCombinerP.setSampleFrequency(((long)(intervalOption.getValue() /
+                samplemOption.getValue())) * 100);
         LocalClustererAdapter globalLearner = (LocalClustererAdapter) this.learnerOption.getValue();
         globalLearner.setDataset(this.dataset);
         globalClusteringCombinerP.setLearner(learner);

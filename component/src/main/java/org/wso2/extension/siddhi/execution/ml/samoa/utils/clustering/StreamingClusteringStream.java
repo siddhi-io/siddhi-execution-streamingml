@@ -31,6 +31,7 @@ import org.apache.samoa.moa.core.ObjectRepository;
 import org.apache.samoa.moa.tasks.TaskMonitor;
 import org.apache.samoa.streams.InstanceStream;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.DataStream;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.ArrayList;
 
@@ -38,6 +39,8 @@ import java.util.ArrayList;
  * Streaming Clustering Stream
  */
 public class StreamingClusteringStream extends DataStream {
+
+    private static final long serialVersionUID = 33334;
 
     public IntOption numClusterOption = new IntOption("numCluster", 'K',
             "The average number of centroids in the model.", 5, 1, Integer.MAX_VALUE);
@@ -59,7 +62,11 @@ public class StreamingClusteringStream extends DataStream {
         double[] valuesNew = new double[numAttsOption.getValue()];
         if (numberOfGeneratedInstances == 0) {
             while (cepEvents == null) {
-
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new SiddhiAppRuntimeException("Failed to sleep thread " + e);
+                }
             }
         }
         numberOfGeneratedInstances++;

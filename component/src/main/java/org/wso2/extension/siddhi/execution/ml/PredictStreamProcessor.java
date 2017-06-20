@@ -112,67 +112,65 @@ public class PredictStreamProcessor extends StreamProcessor {
                 featureValues[featureIndex] = String.valueOf(dataValue);
             }
 
-            if (featureValues != null) {
-                try {
-                    Object[] predictionResults = new Object[modelHandlers.length];
-                    Object predictionResult = null;
+            try {
+                Object[] predictionResults = new Object[modelHandlers.length];
+                Object predictionResult = null;
 
-                    if (AlgorithmType.CLASSIFICATION.getValue().equals(algorithmClass)) {
+                if (AlgorithmType.CLASSIFICATION.getValue().equals(algorithmClass)) {
+                    for (int i = 0; i < modelHandlers.length; i++) {
+                        predictionResults[i] = modelHandlers[i].predict(featureValues,
+                                outputType);
+                    }
+                    // Gets the majority vote
+                    predictionResult = ObjectUtils.mode(predictionResults);
+                } else if (AlgorithmType.NUMERICAL_PREDICTION.getValue().equals(
+                        algorithmClass)) {
+                    double sum = 0;
+                    for (int i = 0; i < modelHandlers.length; i++) {
+                        sum += Double.parseDouble(modelHandlers[i].predict(featureValues,
+                                outputType).toString());
+                    }
+                    // Gets the average value of predictions
+                    predictionResult = sum / modelHandlers.length;
+                } else if (AlgorithmType.ANOMALY_DETECTION.getValue().equals(algorithmClass)) {
+                    for (int i = 0; i < modelHandlers.length; i++) {
+                        predictionResults[i] = modelHandlers[i].predict(featureValues,
+                                outputType, percentileValue);
+                    }
+                    // Gets the majority vote
+                    predictionResult = ObjectUtils.mode(predictionResults);
+
+                } else if (AlgorithmType.DEEPLEARNING.getValue().equals(algorithmClass)) {
+                    // if H2O cluster is not available
+                    if (deeplearningWithoutH2O) {
+                        for (int i = 0; i < modelHandlers.length; i++) {
+                            predictionResults[i] = modelHandlers[i].predict(featureValues,
+                                    outputType,
+                                    pojoPredictor[i]);
+                        }
+                        // Gets the majority vote
+                        predictionResult = ObjectUtils.mode(predictionResults);
+                    } else {
                         for (int i = 0; i < modelHandlers.length; i++) {
                             predictionResults[i] = modelHandlers[i].predict(featureValues,
                                     outputType);
                         }
                         // Gets the majority vote
                         predictionResult = ObjectUtils.mode(predictionResults);
-                    } else if (AlgorithmType.NUMERICAL_PREDICTION.getValue().equals(
-                            algorithmClass)) {
-                        double sum = 0;
-                        for (int i = 0; i < modelHandlers.length; i++) {
-                            sum += Double.parseDouble(modelHandlers[i].predict(featureValues,
-                                    outputType).toString());
-                        }
-                        // Gets the average value of predictions
-                        predictionResult = sum / modelHandlers.length;
-                    } else if (AlgorithmType.ANOMALY_DETECTION.getValue().equals(algorithmClass)) {
-                        for (int i = 0; i < modelHandlers.length; i++) {
-                            predictionResults[i] = modelHandlers[i].predict(featureValues,
-                                    outputType, percentileValue);
-                        }
-                        // Gets the majority vote
-                        predictionResult = ObjectUtils.mode(predictionResults);
-
-                    } else if (AlgorithmType.DEEPLEARNING.getValue().equals(algorithmClass)) {
-                        // if H2O cluster is not available
-                        if (deeplearningWithoutH2O) {
-                            for (int i = 0; i < modelHandlers.length; i++) {
-                                predictionResults[i] = modelHandlers[i].predict(featureValues,
-                                        outputType,
-                                        pojoPredictor[i]);
-                            }
-                            // Gets the majority vote
-                            predictionResult = ObjectUtils.mode(predictionResults);
-                        } else {
-                            for (int i = 0; i < modelHandlers.length; i++) {
-                                predictionResults[i] = modelHandlers[i].predict(featureValues,
-                                        outputType);
-                            }
-                            // Gets the majority vote
-                            predictionResult = ObjectUtils.mode(predictionResults);
-                        }
-                    } else {
-                        String msg = String.format(
-                                "Error while predicting. Prediction is not supported for " +
-                                        "the algorithm class %s. ",
-                                algorithmClass);
-                        throw new SiddhiAppRuntimeException(msg);
                     }
-
-                    Object[] output = new Object[] { predictionResult };
-                    complexEventPopulater.populateComplexEvent(event, output);
-                } catch (MLModelHandlerException e) {
-                    log.error("Error while predicting", e);
-                    throw new SiddhiAppRuntimeException("Error while predicting", e);
+                } else {
+                    String msg = String.format(
+                            "Error while predicting. Prediction is not supported for " +
+                                    "the algorithm class %s. ",
+                            algorithmClass);
+                    throw new SiddhiAppRuntimeException(msg);
                 }
+
+                Object[] output = new Object[] { predictionResult };
+                complexEventPopulater.populateComplexEvent(event, output);
+            } catch (MLModelHandlerException e) {
+                log.error("Error while predicting", e);
+                throw new SiddhiAppRuntimeException("Error while predicting", e);
             }
         }
         nextProcessor.process(streamEventChunk);

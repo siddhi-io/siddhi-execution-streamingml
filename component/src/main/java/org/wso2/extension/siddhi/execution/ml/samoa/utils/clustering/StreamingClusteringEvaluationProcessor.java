@@ -38,6 +38,7 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
             StreamingClusteringEvaluationProcessor.class);
+    private static final long serialVersionUID = 33332;
 
     String evaluationPoint;
     public Queue<Clustering> samoaClusters;
@@ -76,6 +77,7 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
 
     @Override
     public Processor newProcessor(Processor p) {
+        assert p instanceof StreamingClusteringEvaluationProcessor;
         StreamingClusteringEvaluationProcessor newEvaluator =
                 (StreamingClusteringEvaluationProcessor) p;
         return newEvaluator;
