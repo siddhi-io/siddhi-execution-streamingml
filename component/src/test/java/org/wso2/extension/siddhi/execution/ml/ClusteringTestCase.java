@@ -87,7 +87,7 @@ public class ClusteringTestCase {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             }
             Thread.sleep(1000);

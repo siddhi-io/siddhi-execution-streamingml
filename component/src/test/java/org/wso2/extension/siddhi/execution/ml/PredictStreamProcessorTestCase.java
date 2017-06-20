@@ -35,7 +35,7 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 
 public class PredictStreamProcessorTestCase {
-    static final Logger log = Logger.getLogger(PredictStreamProcessorTestCase.class);
+    static final Logger LOG = Logger.getLogger(PredictStreamProcessorTestCase.class);
     private volatile boolean eventArrived;
     private String modelStorageLocation = System.getProperty("user.dir") + File.separator + "src" + File.separator
             + "test" + File.separator + "resources" + File.separator + "test-model";
@@ -53,7 +53,8 @@ public class PredictStreamProcessorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inputStream = "define stream InputStream "
-                + "(NumPregnancies double, PG2 double, DBP double, TSFT double, SI2 double, BMI double, DPF double, Age double);";
+                + "(NumPregnancies double, PG2 double, DBP double, TSFT double, SI2 double, " +
+                "BMI double, DPF double, Age double);";
 
         String query = "@info(name = 'query1') " + "from InputStream#ml:predict('" + modelStorageLocation
                 + "','double') " + "select * " + "insert into outputStream ;";
@@ -87,7 +88,8 @@ public class PredictStreamProcessorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inputStream = "define stream InputStream "
-                + "(NumPregnancies double, PG2 double, DBP double, TSFT double, SI2 double, BMI double, DPF double, Age double);";
+                + "(NumPregnancies double, PG2 double, DBP double, TSFT double, SI2 double, " +
+                "BMI double, DPF double, Age double);";
 
         String query = "@info(name = 'query1') " + "from InputStream#ml:predict('" + modelStorageLocation
                 + "', 'double', NumPregnancies, PG2, DBP, TSFT, SI2, BMI, DPF, Age) " + "select * "
@@ -121,7 +123,8 @@ public class PredictStreamProcessorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inputStream = "define stream InputStream "
-                + "(NumPregnancies double, PG2 double, DBP double, TSFT double, SI2 double, BMI double, DPF double, Age double);";
+                + "(NumPregnancies double, PG2 double, DBP double, TSFT double, SI2 double, " +
+                "BMI double, DPF double, Age double);";
 
         String query = "@info(name = 'query1') " + "from InputStream#ml:predict('" + modelStorageLocation
                 + "', 'double', NumPregnancies, PG2, DBP, TSFT, SI2, BMI, DPF, Age) " + "select Class "

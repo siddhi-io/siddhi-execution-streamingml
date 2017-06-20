@@ -43,12 +43,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-@Extension(name = "clusteringKmeans", namespace = "ml", description = "Performs k-means clustering", parameters = { // TODO:
-                                                                                                                    // 6/16/17
-                                                                                                                    // To
-                                                                                                                    // be
-                                                                                                                    // Decided
-}, examples = { @Example(syntax = "TBD", description = "TBD") })
+/**
+ * StreamingClusteringExtension performs k-means clustering
+ */
+@Extension(
+        name = "clusteringKmeans",
+        namespace = "ml",
+        description = "Performs k-means clustering",
+        parameters =
+                { // TODO: 6/16/17 To be Decided
+                },
+        examples = {
+                @Example(
+                        syntax = "TBD",
+                        description = "TBD"
+                )
+        }
+)
 public class StreamingClusteringExtension extends StreamProcessor {
 
     private int parameterPosition;
@@ -60,82 +71,91 @@ public class StreamingClusteringExtension extends StreamProcessor {
      *
      * @param inputDefinition Input Definition
      * @param attributeExpressionExecutors Array of AttributeExpressionExecutor
-     * @param executionPlanContext ExecutionPlanContext of Siddhi
+     * @param siddhiAppContext SiddhiAppContext of Siddhi
      * @return clusterCenters, list of cluster centers injected by StreamingClusteringExtension
      */
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition,
             ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-            SiddhiAppContext executionPlanContext) {
+            SiddhiAppContext siddhiAppContext) {
         int maxEvents = -1;
         int parallelism = 2;
         int sampleFrequency = 1000;
         int interval = sampleFrequency;
 
-        this.executorService = executionPlanContext.getExecutorService();
+        this.executorService = siddhiAppContext.getExecutorService();
         int numberOfClusters;
         int numberOfAttributes;
         if (attributeExpressionExecutors.length >= 4) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
-                    numberOfAttributes = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0])
-                            .getValue();
+                    numberOfAttributes = (Integer) ((ConstantExpressionExecutor)
+                            attributeExpressionExecutors[0]).getValue();
                     if (numberOfAttributes < 2) {
                         throw new SiddhiAppValidationException(
-                                "Number of attributes must be greater than 1 but" + " found " + numberOfAttributes);
+                                "Number of attributes must be greater than 1 but" + " found "
+                                        + numberOfAttributes);
                     }
                     if (numberOfAttributes >= attributeExpressionExecutors.length - 1) {
-                        throw new SiddhiAppValidationException("There is a inconsistency with number of "
-                                + "attributes and entered parameters. Number of attributes should be less than "
-                                + numberOfAttributes + " or entered attributes should be change.");
+                        throw new SiddhiAppValidationException("There is a inconsistency with number " +
+                                "of attributes and entered parameters. Number of attributes should " +
+                                "be less than " + numberOfAttributes +
+                                " or entered attributes should be change.");
                     }
                     for (int i = attributeExpressionExecutors.length
                             - numberOfAttributes; i < attributeExpressionExecutors.length; i++) {
                         if (!(attributeExpressionExecutors[i] instanceof VariableExpressionExecutor)) {
                             throw new SiddhiAppValidationException((i + 1) + "th parameter is not an "
-                                    + "attribute (VariableExpressionExecutor). Check the number of attribute entered as a attribute set with number "
+                                    + "attribute (VariableExpressionExecutor). Check the number of " +
+                                    "attribute entered as a attribute set with number "
                                     + "of attribute configuration parameter");
                         }
                     }
                 } else {
                     throw new SiddhiAppValidationException(
-                            "Invalid parameter type found for the" + " first argument, required " + Attribute.Type.INT
-                                    + " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                            "Invalid parameter type found for the" + " first argument, required "
+                                    + Attribute.Type.INT + " but found "
+                                    + attributeExpressionExecutors[0].getReturnType().toString());
                 }
             } else {
                 throw new SiddhiAppValidationException(
-                        "Number of attributes must be" + " a constant(ConstantExpressionExecutor) but found variable "
-                                + attributeExpressionExecutors[0].getClass().getCanonicalName() + " value.");
+                        "Number of attributes must be" + " a constant(ConstantExpressionExecutor) " +
+                                "but found variable " + attributeExpressionExecutors[0].getClass().
+                                getCanonicalName() + " value.");
             }
 
             if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
-                    numberOfClusters = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1])
-                            .getValue();
+                    numberOfClusters = (Integer) ((ConstantExpressionExecutor)
+                            attributeExpressionExecutors[1]).getValue();
                     if (numberOfClusters < 2) {
                         throw new SiddhiAppValidationException(
-                                "Number of clusters must be greater than 1 but" + " found " + numberOfClusters);
+                                "Number of clusters must be greater than 1 but" + " found "
+                                        + numberOfClusters);
                     }
                 } else {
                     throw new SiddhiAppValidationException(
-                            "Invalid parameter type found for the" + " second argument, required " + Attribute.Type.INT
-                                    + " but found " + attributeExpressionExecutors[1].getReturnType().toString());
+                            "Invalid parameter type found for the" + " second argument, required "
+                                    + Attribute.Type.INT + " but found "
+                                    + attributeExpressionExecutors[1].getReturnType().toString());
                 }
             } else {
                 throw new SiddhiAppValidationException(
-                        "Number of clusters must be" + " a constant(ConstantExpressionExecutor) but found variable "
-                                + attributeExpressionExecutors[1].getClass().getCanonicalName() + " value.");
+                        "Number of clusters must be" + " a constant(ConstantExpressionExecutor) " +
+                                "but found variable " + attributeExpressionExecutors[1].getClass().
+                                getCanonicalName() + " value.");
             }
             parameterPosition = attributeExpressionExecutors.length - numberOfAttributes;
 
             if (parameterPosition > 2) {
                 if (attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor) {
                     if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
-                        parallelism = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[2])
-                                .getValue();
+                        parallelism = (Integer) ((ConstantExpressionExecutor)
+                                attributeExpressionExecutors[2]).getValue();
                         if (parallelism <= 0) {
                             throw new SiddhiAppValidationException(
-                                    "Parallelism must be greater than ," + " but found " + parallelism);
+                                    "Parallelism must be greater than ," + " but found "
+                                            + parallelism);
                         }
                     } else {
                         throw new SiddhiAppValidationException("Invalid parameter type found for the"
@@ -144,19 +164,21 @@ public class StreamingClusteringExtension extends StreamProcessor {
                     }
                 } else {
                     throw new SiddhiAppValidationException(
-                            "Parallelism must be" + " a constant(ConstantExpressionExecutor) but found variable "
-                                    + attributeExpressionExecutors[2].getClass().getCanonicalName() + " value.");
+                            "Parallelism must be" + " a constant(ConstantExpressionExecutor) " +
+                                    "but found variable " + attributeExpressionExecutors[2].
+                                    getClass().getCanonicalName() + " value.");
                 }
             }
             if (parameterPosition > 3) {
                 if (parameterPosition > 4) {
                     if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
                         if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
-                            sampleFrequency = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[3])
-                                    .getValue();
+                            sampleFrequency = (Integer) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[3]).getValue();
                             if (sampleFrequency < 100) {
                                 throw new SiddhiAppValidationException(
-                                        "Sample frequency must be" + " greater than 100, but found " + maxEvents);
+                                        "Sample frequency must be" + " greater than 100, but found "
+                                                + maxEvents);
                             }
                         } else {
                             throw new SiddhiAppValidationException("Invalid parameter type found for the"
@@ -166,40 +188,47 @@ public class StreamingClusteringExtension extends StreamProcessor {
                     } else {
                         throw new SiddhiAppValidationException("Sample frequency must be"
                                 + " a constant(ConstantExpressionExecutor) but found variable "
-                                + attributeExpressionExecutors[3].getClass().getCanonicalName() + " value.");
+                                + attributeExpressionExecutors[3].getClass().getCanonicalName()
+                                + " value.");
                     }
                     if (attributeExpressionExecutors[4] instanceof ConstantExpressionExecutor) {
                         if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.INT) {
-                            interval = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[4])
-                                    .getValue();
+                            interval = (Integer) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[4]).getValue();
                             if ((interval < (sampleFrequency * parallelism))
                                     || (interval % (sampleFrequency * parallelism) != 0)) {
                                 throw new SiddhiAppValidationException(
-                                        "Interval must be" + " multiplication of samplefrequency*parallelism");
+                                        "Interval must be" + " multiplication of " +
+                                                "samplefrequency*parallelism");
                             }
                         } else {
-                            throw new SiddhiAppValidationException("Invalid parameter type found for the"
-                                    + " fifth argument,required " + Attribute.Type.INT + " but found "
+                            throw new SiddhiAppValidationException("Invalid parameter type found " +
+                                    "for the fifth argument,required " + Attribute.Type.INT
+                                    + " but found "
                                     + attributeExpressionExecutors[4].getReturnType().toString());
                         }
                     } else {
                         throw new SiddhiAppValidationException("Output interval must be"
                                 + " a constant(ConstantExpressionExecutor) but found variable "
-                                + attributeExpressionExecutors[4].getClass().getCanonicalName() + " value.");
+                                + attributeExpressionExecutors[4].getClass().getCanonicalName()
+                                + " value.");
                     }
 
                 } else {
-                    throw new SiddhiAppValidationException("You should enter both samplefrequency and output interval");
+                    throw new SiddhiAppValidationException("You should enter both samplefrequency " +
+                            "and output interval");
                 }
             }
 
             if (parameterPosition > 5) {
                 if (attributeExpressionExecutors[5] instanceof ConstantExpressionExecutor) {
                     if (attributeExpressionExecutors[5].getReturnType() == Attribute.Type.INT) {
-                        maxEvents = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[5]).getValue();
+                        maxEvents = (Integer) ((ConstantExpressionExecutor)
+                                attributeExpressionExecutors[5]).getValue();
                         if (maxEvents < -1) {
                             throw new SiddhiAppValidationException("Maximum number of events must be"
-                                    + " greater than or equal -1. (-1 = No limit), but found " + maxEvents);
+                                    + " greater than or equal -1. (-1 = No limit), but found "
+                                    + maxEvents);
                         }
                     } else {
                         throw new SiddhiAppValidationException("Invalid parameter type found for the"
@@ -209,7 +238,8 @@ public class StreamingClusteringExtension extends StreamProcessor {
                 } else {
                     throw new SiddhiAppValidationException("Number of maximum events must be"
                             + " a constant(ConstantExpressionExecutor) but found variable "
-                            + attributeExpressionExecutors[5].getClass().getCanonicalName() + " value.");
+                            + attributeExpressionExecutors[5].getClass().getCanonicalName()
+                            + " value.");
                 }
             }
         } else {
@@ -218,8 +248,8 @@ public class StreamingClusteringExtension extends StreamProcessor {
                     + attributeExpressionExecutors.length + " parameters.");
         }
 
-        streamingClustering = new StreamingClustering(maxEvents, numberOfAttributes, numberOfClusters, parallelism,
-                sampleFrequency, interval);
+        streamingClustering = new StreamingClustering(maxEvents, numberOfAttributes,
+                numberOfClusters, parallelism, sampleFrequency, interval);
 
         // Add attributes
         List<Attribute> attributes = new ArrayList<>(numberOfClusters);
@@ -246,7 +276,8 @@ public class StreamingClusteringExtension extends StreamProcessor {
                 double[] cepEvent = new double[attributeExpressionLength - parameterPosition];
 
                 for (int i = parameterPosition; i < attributeExpressionLength; i++) {
-                    cepEvent[i - parameterPosition] = ((Number) attributeExpressionExecutors[i].execute(complexEvent))
+                    cepEvent[i - parameterPosition] = ((Number) attributeExpressionExecutors[i].
+                            execute(complexEvent))
                             .doubleValue();
                 }
                 streamingClustering.addEvents(cepEvent);

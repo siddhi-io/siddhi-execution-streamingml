@@ -29,9 +29,12 @@ import org.wso2.extension.siddhi.execution.ml.samoa.utils.SourceProcessor;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Streaming Classification Entrance Processor
+ */
 public class StreamingClassificationEntranceProcessor extends SourceProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(
+    private static final Logger LOGGER = LoggerFactory.getLogger(
             StreamingClassificationEntranceProcessor.class);
 
     @Override

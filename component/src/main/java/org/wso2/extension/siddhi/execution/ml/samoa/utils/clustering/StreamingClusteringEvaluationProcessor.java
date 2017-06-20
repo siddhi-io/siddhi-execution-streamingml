@@ -31,9 +31,12 @@ import org.wso2.extension.siddhi.execution.ml.samoa.utils.EvaluationProcessor;
 import java.io.File;
 import java.util.Queue;
 
+/**
+ * Streaming Clustering Evaluation Processor
+ */
 public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(
+    private static final Logger LOGGER = LoggerFactory.getLogger(
             StreamingClusteringEvaluationProcessor.class);
 
     String evaluationPoint;
@@ -53,7 +56,7 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
     @Override
     public boolean process(ContentEvent event) {
         if (event instanceof ClusteringContentEvent) {
-            logger.info(event.getKey() + " " + evaluationPoint + "ClusteringContentEvent");
+            LOGGER.info(event.getKey() + " " + evaluationPoint + "ClusteringContentEvent");
         } else if (event instanceof ClusteringResultContentEvent) {
             ClusteringResultContentEvent resultEvent = (ClusteringResultContentEvent) event;
             Clustering clustering = resultEvent.getClustering();
@@ -86,6 +89,9 @@ public class StreamingClusteringEvaluationProcessor extends EvaluationProcessor 
         this.numberOfClusters = numberOfClusters;
     }
 
+    /**
+     * Builder Class
+     */
     public static class Builder {
         private int samplingFrequency = 1000;
         private File dumpFile = null;

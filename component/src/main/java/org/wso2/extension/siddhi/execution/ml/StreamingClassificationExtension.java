@@ -44,6 +44,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * StreamingClassificationExtension performs classification
+ */
 @Extension(
         name = "classificationHoeffdingtree",
         namespace = "ml",
@@ -385,8 +388,8 @@ public class StreamingClassificationExtension extends StreamProcessor {
     private Object[] outputNominals(Object[] output) {
         Object[] outputData = output;
         for (int k = numberOfNumerics; k < numberOfAttributes - 1; k++) {
-            int nominal_index = ((Double) outputData[k]).intValue();
-            outputData[k] = nominals.get(k - numberOfNumerics).get(nominal_index);
+            int nominalIndex = ((Double) outputData[k]).intValue();
+            outputData[k] = nominals.get(k - numberOfNumerics).get(nominalIndex);
         }
         return outputData;
     }

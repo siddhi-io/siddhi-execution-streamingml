@@ -25,6 +25,9 @@ import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Streaming Classification
+ */
 public class StreamingClassification extends StreamingProcess {
 
     private int numberOfAttributes;

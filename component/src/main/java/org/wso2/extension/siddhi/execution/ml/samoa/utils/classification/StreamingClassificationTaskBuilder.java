@@ -32,8 +32,11 @@ import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import java.util.Queue;
 import java.util.Vector;
 
+/**
+ * Streaming Classification Task Builder
+ */
 public class StreamingClassificationTaskBuilder extends TaskBuilder {
-    protected static final Logger logger = LoggerFactory.getLogger(
+    protected static final Logger LOGGER = LoggerFactory.getLogger(
             StreamingClassificationTaskBuilder.class);
 
     public Queue<Vector> classifiers;
@@ -84,7 +87,7 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
                     + " ) -l (classifiers.ensemble.Bagging -s " + bagging
                     + " -l (classifiers.trees.VerticalHoeffdingTree -p " + parallelism + "))";
         }
-        logger.info("QUERY: " + query);
+        LOGGER.info("QUERY: " + query);
         String args[] = { query };
         this.initClassificationTask(args);
     }
@@ -130,7 +133,7 @@ public class StreamingClassificationTaskBuilder extends TaskBuilder {
 
         task.setFactory(new SimpleComponentFactory());
         task.init();
-        logger.info("Successfully initiated the streamingClassification task");
+        LOGGER.info("Successfully initiated the streamingClassification task");
         topology = task.getTopology();
     }
 }

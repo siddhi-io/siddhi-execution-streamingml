@@ -92,7 +92,7 @@ public class ClassificationTestCase {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             }
 
@@ -151,7 +151,7 @@ public class ClassificationTestCase {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             }
 

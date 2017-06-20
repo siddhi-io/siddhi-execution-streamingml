@@ -26,6 +26,9 @@ import org.wso2.extension.siddhi.execution.ml.samoa.utils.SourceProcessor;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Streaming Regression Entrance Processor
+ */
 public class StreamingRegressionEntranceProcessor extends SourceProcessor {
 
     @Override
@@ -60,8 +63,8 @@ public class StreamingRegressionEntranceProcessor extends SourceProcessor {
     public Processor newProcessor(Processor p) {
         StreamingRegressionEntranceProcessor newProcessor = new
                 StreamingRegressionEntranceProcessor();
-        StreamingRegressionEntranceProcessor originProcessor = (
-                StreamingRegressionEntranceProcessor) p;
+        StreamingRegressionEntranceProcessor originProcessor =
+                (StreamingRegressionEntranceProcessor) p;
         if (originProcessor.getStreamSource() != null) {
             newProcessor.setStreamSource(originProcessor.getStreamSource().getStream());
         }

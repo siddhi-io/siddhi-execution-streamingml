@@ -41,6 +41,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.EvaluationProcessor;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
+/**
+ * Streaming Regression Evaluation Processor
+ */
 public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(
@@ -197,6 +200,9 @@ public class StreamingRegressionEvaluationProcessor extends EvaluationProcessor 
         this.samoaPredictions = samoaPrediction;
     }
 
+    /**
+     * Builder Class
+     */
     public static class Builder {
 
         private final PerformanceEvaluator evaluator;

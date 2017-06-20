@@ -24,6 +24,9 @@ import org.apache.samoa.learners.clusterers.ClusteringContentEvent;
 import org.apache.samoa.moa.core.DataPoint;
 import org.wso2.extension.siddhi.execution.ml.samoa.utils.SourceProcessor;
 
+/**
+ * Streaming Clustering Entrance Processor
+ */
 public class StreamingClusteringEntranceProcessor extends SourceProcessor {
 
     @Override

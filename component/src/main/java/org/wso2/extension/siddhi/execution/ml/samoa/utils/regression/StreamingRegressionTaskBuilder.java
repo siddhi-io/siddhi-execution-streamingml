@@ -32,6 +32,9 @@ import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import java.util.Queue;
 import java.util.Vector;
 
+/**
+ * Streaming Regression Task Builder
+ */
 public class StreamingRegressionTaskBuilder extends TaskBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(

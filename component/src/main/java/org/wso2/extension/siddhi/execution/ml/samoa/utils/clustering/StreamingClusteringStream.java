@@ -34,6 +34,9 @@ import org.wso2.extension.siddhi.execution.ml.samoa.utils.DataStream;
 
 import java.util.ArrayList;
 
+/**
+ * Streaming Clustering Stream
+ */
 public class StreamingClusteringStream extends DataStream {
 
     public IntOption numClusterOption = new IntOption("numCluster", 'K',
@@ -53,15 +56,19 @@ public class StreamingClusteringStream extends DataStream {
 
     @Override
     public Example<Instance> nextInstance() {
-        double[] values_new = new double[numAttsOption.getValue()];
+        double[] valuesNew = new double[numAttsOption.getValue()];
         if (numberOfGeneratedInstances == 0) {
-            while (cepEvents == null);
+            while (cepEvents == null) {
+
+            }
         }
         numberOfGeneratedInstances++;
-        while (cepEvents.isEmpty());
+        while (cepEvents.isEmpty()) {
+
+        }
         double[] values = cepEvents.poll();
-        System.arraycopy(values, 0, values_new, 0, values.length);
-        Instance inst = new DenseInstance(1.0, values_new);
+        System.arraycopy(values, 0, valuesNew, 0, values.length);
+        Instance inst = new DenseInstance(1.0, valuesNew);
         inst.setDataset(getHeader());
         return new InstanceExample(inst);
     }

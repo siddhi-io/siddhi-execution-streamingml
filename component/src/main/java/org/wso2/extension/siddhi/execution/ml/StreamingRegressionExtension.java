@@ -43,12 +43,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-@Extension(name = "regressionAMRules", namespace = "ml", description = "Performs classification", parameters = { // TODO:
-                                                                                                                 // 6/16/17
-                                                                                                                 // To
-                                                                                                                 // be
-                                                                                                                 // Decided
-}, examples = { @Example(syntax = "TBD", description = "TBD") })
+/**
+ * StreamingRegressionExtension performs regression
+ */
+@Extension(
+        name = "regressionAMRules",
+        namespace = "ml",
+        description = "Performs regression",
+        parameters =
+                { // TODO: 6/16/17 To be Decided
+                },
+        examples = {
+                @Example(
+                        syntax = "TBD",
+                        description = "TBD"
+                )
+        }
+)
 public class StreamingRegressionExtension extends StreamProcessor {
 
     private int numberOfAttributes;
@@ -76,43 +87,48 @@ public class StreamingRegressionExtension extends StreamProcessor {
         if (attributeExpressionExecutors.length >= 3) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
-                    numberOfAttributes = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0])
-                            .getValue();
+                    numberOfAttributes = (Integer) ((ConstantExpressionExecutor)
+                            attributeExpressionExecutors[0]).getValue();
                     if (numberOfAttributes < 2) {
                         throw new SiddhiAppValidationException(
-                                "Number of attributes must be greater than 1 but " + "found " + numberOfAttributes);
+                                "Number of attributes must be greater than 1 but " + "found "
+                                        + numberOfAttributes);
                     }
                     if (numberOfAttributes + 4 < attributeExpressionExecutors.length) {
-                        throw new SiddhiAppValidationException("There is a inconsistency with number of "
-                                + "attributes and entered attributes. Number of attributes should be greater than "
-                                + numberOfAttributes + " or entered attributes should be change.");
+                        throw new SiddhiAppValidationException("There is a inconsistency with number " +
+                                "of attributes and entered attributes. Number of attributes should " +
+                                "be greater than " + numberOfAttributes +
+                                " or entered attributes should be change.");
                     }
 
                     for (int i = attributeExpressionExecutors.length
                             - numberOfAttributes; i < attributeExpressionExecutors.length; i++) {
                         if (!(attributeExpressionExecutors[i] instanceof VariableExpressionExecutor)) {
-                            throw new SiddhiAppValidationException("Parameter number " + (i + 1) + " is not an "
-                                    + "attribute (VariableExpressionExecutor). Check "
-                                    + "the number of attribute entered as an attribute set with number of attribute "
-                                    + "configuration parameter");
+                            throw new SiddhiAppValidationException("Parameter number " + (i + 1)
+                                    + " is not an attribute (VariableExpressionExecutor). Check "
+                                    + "the number of attribute entered as an attribute set with " +
+                                    "number of attribute configuration parameter");
                         }
                     }
                 } else {
                     throw new SiddhiAppValidationException(
-                            "Invalid parameter type found for the" + " first argument, required " + Attribute.Type.INT
-                                    + " but found " + attributeExpressionExecutors[0].getReturnType().toString());
+                            "Invalid parameter type found for the" + " first argument, required "
+                                    + Attribute.Type.INT + " but found "
+                                    + attributeExpressionExecutors[0].getReturnType().toString());
                 }
             } else {
                 throw new SiddhiAppValidationException(
                         "Parameter count must be a constant " + "( ConstantExpressionExecutor)and at"
-                                + " least one configuration parameter required. streamingRegressionSamoa(parCount,"
+                                + " least one configuration parameter required. " +
+                                "streamingRegressionSamoa(parCount,"
                                 + "attribute_set) but found 0 configuration parameters.");
             }
             parameterPosition = attributeExpressionExecutors.length - numberOfAttributes;
             if (parameterPosition > 1) {
                 if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
                     if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
-                        interval = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
+                        interval = (Integer) ((ConstantExpressionExecutor)
+                                attributeExpressionExecutors[1]).getValue();
                     } else {
                         throw new SiddhiAppValidationException("Invalid parameter type found for "
                                 + "the second argument, required " + Attribute.Type.INT + " but found "
@@ -120,18 +136,22 @@ public class StreamingRegressionExtension extends StreamProcessor {
                     }
                 } else {
                     throw new SiddhiAppValidationException(
-                            "Display interval  values must be a constant " + "(ConstantExpressionExecutor) but found "
-                                    + "(" + attributeExpressionExecutors[1].getClass().getCanonicalName() + ") value.");
+                            "Display interval  values must be a constant "
+                                    + "(ConstantExpressionExecutor) but found "
+                                    + "(" + attributeExpressionExecutors[1].getClass().
+                                    getCanonicalName() + ") value.");
                 }
             }
 
             if (parameterPosition > 2) {
                 if (attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor) {
                     if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
-                        maxEvents = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue();
+                        maxEvents = (Integer) ((ConstantExpressionExecutor)
+                                attributeExpressionExecutors[2]).getValue();
                         if (maxEvents < -1) {
-                            throw new SiddhiAppValidationException("Maximum number of events must be greater than"
-                                    + " or equal -1. (-1 = No limit), but found " + maxEvents);
+                            throw new SiddhiAppValidationException("Maximum number of events must " +
+                                    "be greater than or equal -1. (-1 = No limit), but found "
+                                    + maxEvents);
                         }
                     } else {
                         throw new SiddhiAppValidationException("Invalid parameter type found for"
@@ -139,17 +159,18 @@ public class StreamingRegressionExtension extends StreamProcessor {
                                 + attributeExpressionExecutors[2].getReturnType().toString());
                     }
                 } else {
-                    throw new SiddhiAppValidationException("The maximum number of events must be a constant "
-                            + "(ConstantExpressionExecutor)but found " + "("
-                            + attributeExpressionExecutors[2].getClass().getCanonicalName() + ") value.");
+                    throw new SiddhiAppValidationException("The maximum number of events must " +
+                            "be a constant (ConstantExpressionExecutor)but found " + "("
+                            + attributeExpressionExecutors[2].getClass().getCanonicalName()
+                            + ") value.");
                 }
             }
 
             if (parameterPosition > 3) {
                 if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
                     if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
-                        parallelism = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[3])
-                                .getValue();
+                        parallelism = (Integer) ((ConstantExpressionExecutor)
+                                attributeExpressionExecutors[3]).getValue();
                     } else {
                         throw new SiddhiAppValidationException("Invalid parameter type found for"
                                 + " the fourth argument, required " + Attribute.Type.INT + " but found "
@@ -157,16 +178,19 @@ public class StreamingRegressionExtension extends StreamProcessor {
                     }
                 } else {
                     throw new SiddhiAppValidationException(
-                            "Parallelism value must be a constant " + "(ConstantExpressionExecutor) but found " + "("
-                                    + attributeExpressionExecutors[3].getClass().getCanonicalName() + ") value.");
+                            "Parallelism value must be a constant "
+                                    + "(ConstantExpressionExecutor) but found " + "("
+                                    + attributeExpressionExecutors[3].getClass().getCanonicalName()
+                                    + ") value.");
                 }
             }
         } else {
-            throw new SiddhiAppValidationException("Number of parameter should be greater than 2  " + "but found "
-                    + attributeExpressionExecutors.length);
+            throw new SiddhiAppValidationException("Number of parameter should be greater than 2  "
+                    + "but found " + attributeExpressionExecutors.length);
         }
 
-        streamingRegression = new StreamingRegression(maxEvents, interval, numberOfAttributes, parallelism);
+        streamingRegression = new StreamingRegression(maxEvents, interval, numberOfAttributes,
+                parallelism);
 
         List<Attribute> attributes = new ArrayList<Attribute>(numberOfAttributes);
         for (int i = 0; i < numberOfAttributes - 1; i++) {
@@ -193,8 +217,8 @@ public class StreamingRegressionExtension extends StreamProcessor {
                 ComplexEvent complexEvent = streamEventChunk.next();
                 double[] cepEvent = new double[attributeExpressionLength - parameterPosition];
                 for (int i = 0; i < numberOfAttributes; i++) {
-                    cepEvent[i] = ((Number) attributeExpressionExecutors[i + parameterPosition].execute(complexEvent))
-                            .doubleValue();
+                    cepEvent[i] = ((Number) attributeExpressionExecutors[i + parameterPosition]
+                            .execute(complexEvent)).doubleValue();
                 }
 
                 streamingRegression.addEvents(cepEvent);

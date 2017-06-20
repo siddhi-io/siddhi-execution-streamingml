@@ -39,6 +39,9 @@ import org.wso2.carbon.ml.core.impl.Predictor;
 import org.wso2.carbon.ml.core.interfaces.MLInputAdapter;
 import org.wso2.carbon.ml.core.utils.MLCoreServiceValueHolder;
 
+/**
+ * Model Handler
+ */
 public class ModelHandler {
 
     public static final String FILE_STORAGE_PREFIX = "file";

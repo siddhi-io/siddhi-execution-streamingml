@@ -35,6 +35,9 @@ import org.wso2.extension.siddhi.execution.ml.samoa.utils.DataStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Streaming Classification Stream
+ */
 public class StreamingClassificationStream extends DataStream {
 
     public IntOption numberOfClassesOption = new IntOption("numberOfClasses", 'K',
@@ -111,15 +114,19 @@ public class StreamingClassificationStream extends DataStream {
     public Example<Instance> nextInstance() {
         double[] valuesNew = new double[numberOfAttributes];
         if (numberOfGeneratedInstances == 0) {
-            while (cepEvents == null);
+            while (cepEvents == null) {
+
+            }
         }
         numberOfGeneratedInstances++;
-        while (cepEvents.isEmpty());
+        while (cepEvents.isEmpty()) {
+
+        }
         double[] values = cepEvents.poll();
         System.arraycopy(values, 0, valuesNew, 0, values.length - 1);
         Instance instance = new DenseInstance(1.0, valuesNew);
         instance.setDataset(getHeader());
-        instance.setClassValue(values[values.length - 1]);// Set the relevant
+        instance.setClassValue(values[values.length - 1]); // Set the relevant
         // class value to the dataset
         return new InstanceExample(instance);
     }

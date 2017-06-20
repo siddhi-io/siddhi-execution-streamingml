@@ -32,6 +32,9 @@ import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.Queue;
 
+/**
+ * Streaming Clustering TaskBuilder
+ */
 public class StreamingClusteringTaskBuilder extends TaskBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(

@@ -18,10 +18,14 @@
 
 package org.wso2.extension.siddhi.execution.ml;
 
+
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
-
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.log4j.Logger;
 import org.wso2.carbon.ml.core.exceptions.MLInputAdapterException;
@@ -32,9 +36,9 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
+import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
@@ -47,6 +51,9 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
+/**
+ * PredictStreamProcessor performs prediction
+ */
 @Extension(
         name = "predict",
         namespace = "ml",
@@ -169,8 +176,8 @@ public class PredictStreamProcessor extends StreamProcessor {
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition,
-            ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-            SiddhiAppContext siddhiAppContext) {
+                                   ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                                   SiddhiAppContext siddhiAppContext) {
 
         if (attributeExpressionExecutors.length < 2) {
             throw new SiddhiAppValidationException("ML model storage locations and response " +

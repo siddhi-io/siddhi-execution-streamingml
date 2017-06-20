@@ -31,7 +31,6 @@ import java.util.Queue;
 /**
  * A task that runs and evaluates a distributed clustering algorithm.
  */
-
 public class StreamingClusteringTask extends ProcessTask {
 
     private static final int DISTRIBUTOR_PARALLELISM = 1;

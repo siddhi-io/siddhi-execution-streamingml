@@ -27,6 +27,9 @@ import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Streaming Clustering
+ */
 public class StreamingClustering extends StreamingProcess {
     private int numberOfAttributes;
     private int numberOfClusters;

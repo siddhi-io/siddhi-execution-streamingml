@@ -41,6 +41,9 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Streaming Classification Evaluation Processor
+ */
 public class StreamingClassificationEvaluationProcessor extends EvaluationProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger(
@@ -200,6 +203,9 @@ public class StreamingClassificationEvaluationProcessor extends EvaluationProces
         this.classifiers = classifiers;
     }
 
+    /**
+     * Builder class
+     */
     public static class Builder {
         private final PerformanceEvaluator evaluator;
         private int samplingFrequency = 100000;

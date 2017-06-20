@@ -29,6 +29,9 @@ import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import java.util.Queue;
 import java.util.Vector;
 
+/**
+ * Streaming Regression Task
+ */
 public class StreamingRegressionTask extends ProcessTask {
 
     private static Logger logger = LoggerFactory.getLogger(StreamingRegression.class);

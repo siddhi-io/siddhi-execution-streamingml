@@ -24,6 +24,9 @@ import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Streaming Regression
+ */
 public class StreamingRegression extends StreamingProcess {
 
     private int maxInstance;
