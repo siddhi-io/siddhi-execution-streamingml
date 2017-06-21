@@ -46,7 +46,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-M7-SNAPSHOT</siddhi.version>
+        <siddhi.version>4.0.0-M8</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <ml.version>1.2.2</ml.version>
         <breeze.version>0.11.2.wso2v1</breeze.version>
@@ -226,7 +226,6 @@
             <plugin>
                 <groupId>org.jvnet.maven.incrementalbuild</groupId>
                 <artifactId>incremental-build-plugin</artifactId>
-                <version>1.3</version>
                 <executions>
                     <execution>
                         <goals>
@@ -238,11 +237,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>
