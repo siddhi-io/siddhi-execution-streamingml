@@ -184,19 +184,16 @@
                 <groupId>org.wso2.orbit.org.scalanlp</groupId>
                 <artifactId>breeze_2.10</artifactId>
                 <version>${breeze.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.github.fommil.netlib</groupId>
                 <artifactId>core</artifactId>
                 <version>${fommil.netlib.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.sourceforge.f2j</groupId>
                 <artifactId>arpack_combined</artifactId>
                 <version>${arpack.combined.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
