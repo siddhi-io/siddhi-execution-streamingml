@@ -53,17 +53,14 @@
         <dependency>
             <groupId>org.wso2.orbit.org.scalanlp</groupId>
             <artifactId>breeze_2.10</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.github.fommil.netlib</groupId>
             <artifactId>core</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.sourceforge.f2j</groupId>
             <artifactId>arpack_combined</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -144,7 +141,15 @@
                         <Private-Package>
                             org.apache.samoa.*,
                             com.github.javacliparser.*,
-                            com.google.common.*
+                            com.google.common.*,
+                            scala.*,
+                            org.apache.spark.*,
+                            org.json4s.*,
+                            breeze.linalg.*,
+                            org.wso2.carbon.ml.*,
+                            org.wso2.carbon.metrics.*,
+                            com.github.fommil.netlib.*,
+                            org.netlib.blas.*
                         </Private-Package>
                         <Import-Package>
                             *;resolution:=optional
