@@ -27,7 +27,7 @@
 
     <groupId>org.wso2.extension.siddhi.execution.ml</groupId>
     <artifactId>siddhi-execution-ml-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Siddhi Execution ML Extension Parent</name>
     <url>http://wso2.org</url>
@@ -64,7 +64,7 @@
         <url>https://github.com/wso2-extensions/siddhi-execution-ml.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/siddhi-execution-ml.git
         </developerConnection>
-        <tag>v1.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencyManagement>
