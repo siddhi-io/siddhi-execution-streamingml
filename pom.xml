@@ -45,7 +45,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-M9</siddhi.version>
+        <siddhi.version>4.0.0-M13</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <ml.version>1.2.2</ml.version>
         <breeze.version>0.11.2.wso2v1</breeze.version>
