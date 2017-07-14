@@ -1,5 +1,8 @@
 package org.wso2.extension.siddhi.execution.ml.kmeansFromScratch;
 
+import breeze.util.ArrayUtil;
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -109,7 +112,7 @@ public class Clusterer {
      * @param currentDatapoint input DataPoint to which we need to find nearest centroid
      * @return centroid - the nearest centroid to the input DataPoint
      */
-    private Coordinates findAssociatedCentroid(DataPoint currentDatapoint) {
+    public Coordinates findAssociatedCentroid(DataPoint currentDatapoint) {
         double minDistance = euclideanDistance(centroidList.get(0), currentDatapoint);
         Coordinates associatedCentroid = centroidList.get(0);
         for (Coordinates centroid: centroidList) {
@@ -121,6 +124,22 @@ public class Clusterer {
         }
         return associatedCentroid;
     }
+
+    /*public Object[] getAssociatedCentroidInfo(DataPoint currentDatapoint) {
+        double minDistance = euclideanDistance(centroidList.get(0), currentDatapoint);
+        Coordinates associatedCentroid = centroidList.get(0);
+        for (Coordinates centroid: centroidList) {
+            double dist = euclideanDistance(centroid, currentDatapoint);
+            if (dist < minDistance) {
+                minDistance = dist;
+                associatedCentroid = centroid;
+            }
+        }
+        double[] md = {minDistance};
+        double[] associatedCentroidInfo = ArrayUtils.addAll(md, associatedCentroid.getCoordinates());
+
+        //return associatedCentroid;
+    }*/ //TODO : find a way to pass double array as object array
 
     /**
      * finds the euclidean distance between two input points of equal dimension

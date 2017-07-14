@@ -50,9 +50,11 @@ public class ClusteringTestCase {
 
         String inStreamDefinition = " define stream inputStream (attribute_0 double, "
                 + "attribute_1 double,attribute_2 double, attribute_3 double, attribute_4 double );";
-        String query = ("@info(name = 'query1') from inputStream#ml:"
-                + "clusteringKmeans(5,2,2,1000,10000,attribute_0, attribute_1 , attribute_2 , attribute_3,"
-                + " attribute_4) select center0 as center0,center1 as center1 insert into " + "outputStream;");
+        String query = ("@info(name = 'query1') " +
+                "from inputStream#ml:clusteringKmeans(5,2,2,1000,10000,attribute_0, attribute_1 , attribute_2 " +
+                "attribute_3, attribute_4) " +
+                "select center0 as center0,center1 as center1 " +
+                "insert into " + "outputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
