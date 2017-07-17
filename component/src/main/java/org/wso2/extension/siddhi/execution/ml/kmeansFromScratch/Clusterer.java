@@ -1,10 +1,9 @@
 package org.wso2.extension.siddhi.execution.ml.kmeansFromScratch;
 
-import breeze.util.ArrayUtil;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by niruhan on 7/11/17.
@@ -13,7 +12,7 @@ public class Clusterer {
     private int k;
     private int maximumIterations;
     private ArrayList<Coordinates> centroidList = new ArrayList<>();
-    public ArrayList<Coordinates> newCentroidList = new ArrayList<>();
+    private ArrayList<Coordinates> newCentroidList = new ArrayList<>();
     private int dimensionality;
     private ArrayList<DataPoint> dataPointsArray;
 
@@ -100,7 +99,7 @@ public class Clusterer {
      * finds the nearest centroid to each data point in the input array
      * @param dataPointsArray arraylist containing datapoints for which we need to assign centroids
      */
-    public void assignToCluster(ArrayList<DataPoint> dataPointsArray) {
+    private void assignToCluster(ArrayList<DataPoint> dataPointsArray) {
         for (DataPoint currentDataPoint : dataPointsArray) {
             Coordinates associatedCentroid = findAssociatedCentroid(currentDataPoint);
             currentDataPoint.setAssociatedCentroid(associatedCentroid);
@@ -112,7 +111,7 @@ public class Clusterer {
      * @param currentDatapoint input DataPoint to which we need to find nearest centroid
      * @return centroid - the nearest centroid to the input DataPoint
      */
-    public Coordinates findAssociatedCentroid(DataPoint currentDatapoint) {
+    private Coordinates findAssociatedCentroid(DataPoint currentDatapoint) {
         double minDistance = euclideanDistance(centroidList.get(0), currentDatapoint);
         Coordinates associatedCentroid = centroidList.get(0);
         for (Coordinates centroid: centroidList) {
@@ -125,7 +124,13 @@ public class Clusterer {
         return associatedCentroid;
     }
 
-    /*public Object[] getAssociatedCentroidInfo(DataPoint currentDatapoint) {
+    /**
+     * similar to findAssociatedCentroid method but return an Object[] array with the distance
+     * to closest centroid and the coordinates of the closest centroid
+     * @param currentDatapoint the input dataPoint for which the closest centroid needs to be found
+     * @return an Object[] array as mentioned above
+     */
+    public Object[] getAssociatedCentroidInfo(DataPoint currentDatapoint) {
         double minDistance = euclideanDistance(centroidList.get(0), currentDatapoint);
         Coordinates associatedCentroid = centroidList.get(0);
         for (Coordinates centroid: centroidList) {
@@ -135,11 +140,19 @@ public class Clusterer {
                 associatedCentroid = centroid;
             }
         }
-        double[] md = {minDistance};
-        double[] associatedCentroidInfo = ArrayUtils.addAll(md, associatedCentroid.getCoordinates());
 
-        //return associatedCentroid;
-    }*/ //TODO : find a way to pass double array as object array
+        List<Double> associatedCentroidInfoList = new ArrayList<Double>();
+        associatedCentroidInfoList.add(minDistance);
+        for (double x: associatedCentroid.getCoordinates()) {
+            associatedCentroidInfoList.add(x);
+        }
+
+        Object[] associatedCentroidInfo = new Object[associatedCentroidInfoList.size()];
+
+        associatedCentroidInfoList.toArray(associatedCentroidInfo);
+
+        return associatedCentroidInfo;
+    }
 
     /**
      * finds the euclidean distance between two input points of equal dimension
@@ -147,7 +160,7 @@ public class Clusterer {
      * @param point2 input point two
      * @return euclidean distance between point1 and point2
      */
-    public double euclideanDistance(Coordinates point1, Coordinates point2) {
+    private double euclideanDistance(Coordinates point1, Coordinates point2) {
         double sum = 0.0;
         for (int i=0; i<dimensionality; i++) {
             sum += Math.pow((point1.getCoordinates()[i] - point2.getCoordinates()[i]),2);
@@ -165,7 +178,12 @@ public class Clusterer {
         return centroidList;
     }
 
-    public ArrayList<Coordinates> calculateNewCentroids() {
+    /**
+     * after assigning data points to closest centroids this method calculates new centroids using
+     * the assigned points
+     * @return returns an array list of coordinate objects each representing a centroid
+     */
+    private ArrayList<Coordinates> calculateNewCentroids() {
 
         ArrayList<double[]> total = new ArrayList<>();
         int[] count = new int[k];

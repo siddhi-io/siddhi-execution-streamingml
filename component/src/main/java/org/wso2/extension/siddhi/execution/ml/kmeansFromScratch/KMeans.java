@@ -32,60 +32,75 @@ import java.util.Map;
 @Extension(
         name = "cluster",
         namespace = "kmeans",
-        description = "Performs single dimension clustering on a given data set for a given window implementation." +
-                "For example: #window.length(10)#kmeans:cluster(value, 4, 20, train)" +
-                "The model is trained for the number of events specified or when true is sent for an event. " +
-                "The training process initializes the first k distinct" +
-                "events in the window as initial centroids. The data are assigned to a centroid based on the " +
-                "nearest distance. If a data point is equidistant to two centroids, it is assigned to the centroid" +
-                " with the higher center value",
+        description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality should be passed as parameter" +
+                "All data points to be processed by an instance of class Clusterer should be of same dimensionality. The Euclidean distance is taken as the distance metric." +
+                "The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). Supports a given size window implementation." +
+                "For example: #window.length(10)#kmeans:cluster(dimensionality, k, maxIterations, train, x1, x2, .... , xd)" +
+                "Model is trained for every specified number of events or when true is passed as train parameter. The training process initializes the first k distinct events in the window as" +
+                "initial centroids. The dataPoints are assigned to the respective closest centroid.",
         parameters = {
-                @Parameter(name = "value",
-                        description = "Value to be clustered",
-                        type = {DataType.DOUBLE}),
-                @Parameter(name = "cluster.centers",
-                        description = "Number of cluster centers",
-                        type = {DataType.INT}),
-                @Parameter(name = "iterations",
-                        description = "Number of iterations, the process iterates until the number of maximum " +
-                                "iterations is reached or the centroids do not change",
-                        type = DataType.INT),
-                @Parameter(name = "events.to.train",
+                @Parameter(
+                        name = "dimensionality",
+                        description = "The number of dimensions need to represent dataPoint. Needs to be constant for all events in a single stream.",
+                        type = {DataType.INT}
+                ),
+                @Parameter(
+                        name = "k",
+                        description = "The assumed number of natural clusters in the data set.",
+                        type = {DataType.INT}
+                ),
+                @Parameter(
+                        name = "maxIterations",
+                        description = "Number of iterations, the process iterates until the number of maximum iterations is reached or the centroids do not change",
+                        type = {DataType.INT}
+                ),
+                @Parameter(
+                        name = "numberOfEventsToRetrain",
                         description = "New cluster centers are found for given number of events",
                         optional = true,
-                        type = DataType.INT),
-                @Parameter(name = "train",
+                        type = {DataType.INT}
+                ),
+                @Parameter(
+                        name = "train",
                         optional = true,
                         description = "train the model for available amount of data",
-                        type = DataType.BOOL)
+                        type = {DataType.BOOL}
+                ),
+                @Parameter(
+                        name = "coordinateValues",
+                        description = "This is a variable length argument. Depending on the dimensionality of data points we will receive coordinates along each axis.",
+                        type = {DataType.DOUBLE}
+                )
 
         },
         returnAttributes = {
                 @ReturnAttribute(
-                        name = "matchedClusterCentroid",
-                        description = "Returns cluster center to which data point belongs to",
-                        type = {DataType.DOUBLE}),
-                @ReturnAttribute(
-                        name = "matchedClusterIndex",
-                        description = "the index of the cluster center",
-                        type = {DataType.INT}
+                        name = "euclideanDistanceToClosestCentroid",
+                        description = "Represents the Euclidean distance between the current data point and the closest centroid.",
+                        type = {DataType.DOUBLE}
                 ),
                 @ReturnAttribute(
-                        name = "distanceToCenter",
-                        description = "the difference between the value and the cluster center",
+                        name = "closestCentroidCoordinatei",
+                        description = "This is a variable length attribute. Depending on the dimensionality(d) we will return closestCentroidCoordinate1 to closestCentroidCoordinated",
                         type = {DataType.DOUBLE}
                 )
         },
-        examples = {@Example(syntax = "\"from InputStream#window.length(5)#kmeans:cluster(value, 4, 20, 5) \"\n" +
-                " select value, matchedClusterCentroid, matchedClusterIndex, distanceToCenter \"\n" +
-                " insert into OutputStream;",
-                description = "This will cluster the collected values within the window for every 5 events" +
-                        "and give the output after the first 5 events."),
-                @Example(syntax = "from InputStream#window.length(10)#kmeans:cluster(value, 4, 20, train) "
-                        + "select value, matchedClusterCentroid, matchedClusterIndex, distanceToCenter "
-                        + "insert into OutputStream;",
-                        description = "This will cluster the current values within the window when true is received " +
-                                "in the event stream, for a particular event where train should be a boolean")}
+        examples = {
+                @Example(
+                        syntax = "from InputStream#window.length(5)#kmeans:cluster(dimensionality, k, maxIterations, numberOfEventsToRetrain, coordinateValue1, coordinateValue2)\"\n" +
+                                "select coordinateValue1, coordinateValue2, euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, closestCentroidCoordinate2\"\n" +
+                                "insert into OutputStream",
+                        description = "dimensionality =2, k=2, numberOfEventsToRetrain = 5, maxIterations=10. This will cluster the collected data points within the window for every 5 events" +
+                                "and give output after the first 5 events"
+                ),
+                @Example(
+                        syntax = "from InputStream#window.length(5)#kmeans:cluster(2, 2, 20, trainNow, coordinateValue1, coordinateValue2)\"\n" +
+                                "select coordinateValue1, coordinateValue2, euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, closestCentroidCoordinate2\"\n" +
+                                "insert into OutputStream",
+                        description = "This will cluster the collected data points within the window when true is received" +
+                                "in the event stream, for any event trainNow should be a boolean"
+                )
+        }
 )
 public class KMeans extends StreamProcessor {
     private int k;
@@ -147,10 +162,14 @@ public class KMeans extends StreamProcessor {
 
                 if (modelTrained) {
                     Object[] outputData;
-                    //outputData = clusterer.g
+                    outputData = clusterer.getAssociatedCentroidInfo(currentDataPoint);
+                    complexEventPopulater.populateComplexEvent(streamEvent, outputData);
+                } else {
+                    streamEventChunk.remove();
                 }
-            }
+            } // should we need to handle RESET and EXPIRED?
         }
+        nextProcessor.process(streamEventChunk);
     }
 
     @Override
