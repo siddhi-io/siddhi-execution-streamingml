@@ -3,12 +3,12 @@ package org.wso2.extension.siddhi.execution.ml.kmeansFromScratch;
 import java.io.Serializable;
 import java.util.Arrays;
 
+/**
+ * Object which holds the data to be clustered and the
+ * associatedCentroid, the centroid to which it belongs to
+ */
 public class DataPoint extends Coordinates implements Serializable {
 
-    /**
-     * Object which holds the data to be clustered and the
-     * associatedCentroid, the centroid to which it belongs to
-     */
 
     private Coordinates associatedCentroid;
 

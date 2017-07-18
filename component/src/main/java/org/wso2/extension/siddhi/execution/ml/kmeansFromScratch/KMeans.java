@@ -50,24 +50,26 @@ import java.util.Map;
                         type = {DataType.INT}
                 ),
                 @Parameter(
-                        name = "maxIterations",
+                        name = "max.iterations",
                         description = "Number of iterations, the process iterates until the number of maximum iterations is reached or the centroids do not change",
                         type = {DataType.INT}
                 ),
                 @Parameter(
-                        name = "numberOfEventsToRetrain",
+                        name = "number.of.events.to.retrain",
                         description = "New cluster centers are found for given number of events",
                         optional = true,
-                        type = {DataType.INT}
+                        type = DataType.INT,
+                        defaultValue = "5"
                 ),
                 @Parameter(
                         name = "train",
                         optional = true,
                         description = "train the model for available amount of data",
-                        type = {DataType.BOOL}
+                        type = DataType.BOOL,
+                        defaultValue = "false"
                 ),
                 @Parameter(
-                        name = "coordinateValues",
+                        name = "coordinate.values",
                         description = "This is a variable length argument. Depending on the dimensionality of data points we will receive coordinates along each axis.",
                         type = {DataType.DOUBLE}
                 )
@@ -128,10 +130,6 @@ public class KMeans extends StreamProcessor {
 
                 //validating and getting coordinate values
                 for (int i=4; i<4+dimensionality; i++) {
-                    //validate the coordinate values of the dataPoint
-                    if (!(attributeExpressionExecutors[i] instanceof ConstantExpressionExecutor)) {
-                        throw new SiddhiAppValidationException("Coordinate values of data points should be constant");
-                    }
                     Object content = attributeExpressionExecutors[i].execute(streamEvent);
                     if (content instanceof Double) {
                         coordinateValues[i-4] = (Double) content;

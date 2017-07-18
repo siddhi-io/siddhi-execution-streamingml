@@ -69,21 +69,7 @@ public class Clusterer {
                 assignToCluster(dataPointsArray);
                 calculateNewCentroids();
 
-                //test
-                System.out.println("centroidList");
-                for (Coordinates cen: centroidList) {
-                    System.out.print(Arrays.toString(cen.getCoordinates()));
-                }
-                System.out.println();
-                System.out.println("newCentroidList");
-                for (Coordinates cen: newCentroidList) {
-                    System.out.print(Arrays.toString(cen.getCoordinates()));
-                }
-                //test end
-
                 centroidShifted = !centroidList.equals(newCentroidList);
-                System.out.println();
-                System.out.println(centroidShifted);
                 if (centroidShifted==false) {
                     break;
                 }
@@ -192,12 +178,8 @@ public class Clusterer {
             total.add(new double[dimensionality]);
         }
 
-        /*DataPoint d;
-        d = dataPointsArray.get(0);
-        System.out.print(Arrays.toString(d.getCoordinates()));*/
 
         for (int y = 0; y<dataPointsArray.size(); y++) {
-            //System.out.println("Hi3");
             Coordinates associatedCen = dataPointsArray.get(y).getAssociatedCentroid();
             int index = centroidList.indexOf(associatedCen);
             int c = y;
@@ -210,8 +192,6 @@ public class Clusterer {
                 double newValue = total.get(j)[x] / count[j];
                 newValue = Math.round(newValue * 10000.0) / 10000.0;
                 total.get(j)[x] = newValue;
-
-                //System.out.println(Arrays.toString(total.get(j)));
             }
             newCentroidList.get(j).setCoordinates(total.get(j));
         }

@@ -3,12 +3,13 @@ package org.wso2.extension.siddhi.execution.ml.kmeansFromScratch;
 import java.io.Serializable;
 import java.util.Arrays;
 
+/**
+ * Object which holds the data about coordinate values in a multidimensional space
+ * dimensionality specified by the variable dimensionality
+ */
 public class Coordinates implements Serializable {
 
-    /**
-     * Object which holds the data about coordinate values in a multidimensional space
-     * dimensionality specified by the variable dimensionality
-     */
+
 
     private double[] coordinates;
     private int dimensionality;
