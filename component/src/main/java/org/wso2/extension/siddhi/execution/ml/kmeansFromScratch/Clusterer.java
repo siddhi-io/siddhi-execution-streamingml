@@ -11,10 +11,11 @@ import java.util.List;
 public class Clusterer {
     private int k;
     private int maximumIterations;
-    private ArrayList<Coordinates> centroidList = new ArrayList<>();
-    private ArrayList<Coordinates> newCentroidList = new ArrayList<>();
+    private ArrayList<Coordinates> centroidList;
+    private ArrayList<Coordinates> newCentroidList;
     private int dimensionality;
     private ArrayList<DataPoint> dataPointsArray;
+    private int[] count;
 
     /**
      * Initialize no. of cluster centers, no. of iterations
@@ -22,6 +23,9 @@ public class Clusterer {
     public Clusterer(int k, int maximumIterations) {
         this.k = k;
         this.maximumIterations = maximumIterations;
+        count = new int[k];
+        centroidList = new ArrayList<>();
+        newCentroidList = new ArrayList<>();
 
     }
 
@@ -51,9 +55,9 @@ public class Clusterer {
                 distinctCount++;
             }
         }
-        if (distinctCount < k) {
+        /*if (distinctCount < k) {
             k = distinctCount;
-        }
+        }*/
     }
 
     /**
@@ -61,10 +65,10 @@ public class Clusterer {
      */
     public void cluster(ArrayList<DataPoint> batchDataPointsIn) {
         System.out.println("initial Clustering");
-        dataPointsArray = new ArrayList(batchDataPointsIn);
+        dataPointsArray = batchDataPointsIn;
         initialize(dataPointsArray);
         int iter = 0;
-        if (dataPointsArray.size() != 0) {
+        if (dataPointsArray.size() != 0 & (centroidList.size() == k)) {
             boolean centroidShifted = false;
             while(iter < maximumIterations) {
                 assignToCluster(dataPointsArray);
@@ -92,34 +96,92 @@ public class Clusterer {
      */
     public void updateCluster(ArrayList<DataPoint> batchDataPointsIn, float decayRate) {
         System.out.println("Updating cluster");
-        ArrayList<Coordinates> oldCentroidList = new ArrayList(centroidList);
 
-        dataPointsArray = new ArrayList(batchDataPointsIn);
+        dataPointsArray = batchDataPointsIn;
 
         int iter = 0;
         if (dataPointsArray.size() != 0) {
-            boolean centroidShifted = false;
-            while(iter < maximumIterations) {
-                assignToCluster(dataPointsArray);
-                calculateNewCentroids();
 
-                centroidShifted = !centroidList.equals(newCentroidList);
-                if (!centroidShifted) {
-                    break;
+            //when number of elements in centroid list is less than k
+            if (centroidList.size() < k) {
+                int distinctCount = centroidList.size();
+                for (DataPoint currentDataPoint : dataPointsArray) {
+                    if (distinctCount >= k) {
+                        break;
+                    }
+                    Coordinates coordinatesOfCurrentDataPoint = new Coordinates(currentDataPoint.getDimensionality());
+                    coordinatesOfCurrentDataPoint.setCoordinates(currentDataPoint.getCoordinates());
+                    if (!centroidList.contains(coordinatesOfCurrentDataPoint)) {
+                        centroidList.add(coordinatesOfCurrentDataPoint);
+                        distinctCount++;
+                    }
                 }
-                for (int i = 0; i<k; i++) {
-                    centroidList.get(i).setCoordinates(newCentroidList.get(i).getCoordinates());
-                }
-                iter++;
             }
-        }
 
-        for (int i = 0; i<k; i++) {
-            double[] weightedCoordinates = new double[dimensionality];
-            double[] oldCoordinates = oldCentroidList.get(i).getCoordinates();
-            double[] newCoordinates = centroidList.get(i).getCoordinates();
-            Arrays.setAll(weightedCoordinates, j -> Math.round(((1-decayRate) * oldCoordinates[j] + decayRate * newCoordinates[j]) * 10000.0) / 10000.0);
-            centroidList.get(i).setCoordinates(weightedCoordinates);
+            if (centroidList.size() == k) {
+                ArrayList<Coordinates> oldCentroidList = new ArrayList<>(k);
+                for (int i = 0; i<k; i++) {
+                    Coordinates c = new Coordinates(dimensionality);
+                    c.setCoordinates(centroidList.get(i).getCoordinates());
+                    oldCentroidList.add(c);
+                }
+                boolean centroidShifted = false;
+                while (iter < maximumIterations) {
+                    assignToCluster(dataPointsArray);
+                    System.out.println("data points array");
+                    for (Coordinates c: dataPointsArray) {
+                        System.out.print(Arrays.toString(c.getCoordinates()));
+                    }
+                    System.out.println();
+                    calculateNewCentroids();
+
+                    centroidShifted = !centroidList.equals(newCentroidList);
+                    //System.out.println(Arrays.toString(centroidList.get(0).getCoordinates()));
+                    //System.out.println(Arrays.toString(newCentroidList.get(0).getCoordinates()) + Arrays.toString(newCentroidList.get(1).getCoordinates()));
+
+                    System.out.println("centroid list");
+                    for (Coordinates c: centroidList) {
+                        System.out.print(Arrays.toString(c.getCoordinates()));
+                    }
+                    System.out.println();
+                    System.out.println("new centroid list");
+                    for (Coordinates c: newCentroidList) {
+                        System.out.print( Arrays.toString(c.getCoordinates()));
+                    }
+                    System.out.println();
+
+                    System.out.println("Centroid shifted? = " + centroidShifted);
+                    if (!centroidShifted) {
+                        break;
+                    }
+                    for (int i = 0; i < k; i++) {
+                        centroidList.get(i).setCoordinates(newCentroidList.get(i).getCoordinates());
+                    }
+                    iter++;
+                }
+                System.out.println("old centroid list");
+                for (Coordinates c: oldCentroidList) {
+                    System.out.print(Arrays.toString(c.getCoordinates()));
+                }
+                System.out.println();
+                for (int i = 0; i<k; i++) {
+                    if (count[i] > 0) {
+                        double[] weightedCoordinates = new double[dimensionality];
+                        double[] oldCoordinates = oldCentroidList.get(i).getCoordinates();
+                        double[] newCoordinates = centroidList.get(i).getCoordinates();
+                        Arrays.setAll(weightedCoordinates, j -> Math.round(((1 - decayRate) * oldCoordinates[j] + decayRate * newCoordinates[j]) * 10000.0) / 10000.0);
+                        System.out.println("weighted" + Arrays.toString(weightedCoordinates));
+                        centroidList.get(i).setCoordinates(weightedCoordinates);
+                    } else {
+                        centroidList.get(i).setCoordinates(oldCentroidList.get(i).getCoordinates());
+                    }
+                }
+                System.out.println("weighted centroid list");
+                for (Coordinates c: centroidList) {
+                    System.out.print(Arrays.toString(c.getCoordinates()));
+                }
+                System.out.println();
+            }
         }
 
     }
@@ -212,10 +274,9 @@ public class Clusterer {
      * the assigned points
      * @return returns an array list of coordinate objects each representing a centroid
      */
-    private ArrayList<Coordinates> calculateNewCentroids() {
+    private void calculateNewCentroids() {
 
         ArrayList<double[]> total = new ArrayList<>();
-        int[] count = new int[k];
         for (int i=0; i<k; i++) {
             count[i] = 0;
             total.add(new double[dimensionality]);
@@ -231,14 +292,17 @@ public class Clusterer {
         }
 
         for (int j=0; j<k; j++) {
-            for (int x=0; x<dimensionality; x++) {
-                double newValue = total.get(j)[x] / count[j];
-                newValue = Math.round(newValue * 10000.0) / 10000.0;
-                total.get(j)[x] = newValue;
+            if (count[j] > 0) {
+                for (int x = 0; x < dimensionality; x++) {
+                    double newValue = total.get(j)[x] / count[j];
+                    newValue = Math.round(newValue * 10000.0) / 10000.0;
+                    total.get(j)[x] = newValue;
+                }
+                newCentroidList.get(j).setCoordinates(total.get(j));
+            } else {
+                newCentroidList.get(j).setCoordinates(total.get(j));
             }
-            newCentroidList.get(j).setCoordinates(total.get(j));
         }
-        return newCentroidList;
     }
 
 

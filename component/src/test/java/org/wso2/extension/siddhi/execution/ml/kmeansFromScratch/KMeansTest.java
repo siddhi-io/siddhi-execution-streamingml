@@ -31,15 +31,15 @@ public class KMeansTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                "from InputStream#window.length(5)#kmeans:cluster(2, 2, 10, 10, 0.2f, x, y) " +
-                "select closestCentroidCoordinate1, closestCentroidCoordinate2 " +
+                "from InputStream#window.length(5)#kmeans:cluster(2, 2, 10, 1, 0.2f, x, y) " +
+                "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                 "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                System.out.print("running receive method");
+                System.out.println("running receive method");
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
 
                 /*for (Event event: inEvents) {
@@ -47,10 +47,10 @@ public class KMeansTest {
 
                     switch (count) {
                         case 1:
-                            Assert.assertArrayEquals(new Double[]{25.3023, 24.9005}, new Object[]{event.getData(3), event.getData(4)});
+                            Assert.assertArrayEquals(new Double[]{25.3023, 24.9005}, new Object[]{event.getData(0), event.getData(1)});
                             break;
                         case 2:
-                            Assert.assertArrayEquals(new Double[]{4.3103, 5.2955}, new Object[]{event.getData(3), event.getData(4)});
+                            Assert.assertArrayEquals(new Double[]{4.3103, 5.2955}, new Object[]{event.getData(0), event.getData(1)});
                             break;
                     }
                 }*/
@@ -60,26 +60,26 @@ public class KMeansTest {
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
         siddhiAppRuntime.start();
         try {
-            inputHandler.send(new Object[]{2.9951, 3.9887});
-            inputHandler.send(new Object[]{20.2798, 29.9966});
-            inputHandler.send(new Object[]{3.159, 5.336});
-            inputHandler.send(new Object[]{25.5747, 20.7608});
-            inputHandler.send(new Object[]{8.754, 1.2241});
-            inputHandler.send(new Object[]{26.456, 20.6499});
-            inputHandler.send(new Object[]{0.8198, 9.781});
-            inputHandler.send(new Object[]{4.1183, 0.8621});
-            inputHandler.send(new Object[]{6.958, 7.5884});
-            inputHandler.send(new Object[]{3.4493, 8.439});
-            inputHandler.send(new Object[]{2.5968, 6.3429});
-            inputHandler.send(new Object[]{7.8286, 5.2685});
-            inputHandler.send(new Object[]{2.4243, 4.1243});
-            inputHandler.send(new Object[]{26.456, 20.6499});
-            inputHandler.send(new Object[]{23.2788, 22.3803});
-            inputHandler.send(new Object[]{28.8094, 28.9228});
-            inputHandler.send(new Object[]{27.8196, 26.6149});
-            inputHandler.send(new Object[]{29.4436, 29.9092});
-            inputHandler.send(new Object[]{26.1052, 20.2606});
-            inputHandler.send(new Object[]{24.9995, 20.7213});
+            inputHandler.send(new Object[]{5.7905, 7.7499});
+            inputHandler.send(new Object[]{27.458, 23.8848});
+            inputHandler.send(new Object[]{3.078, 9.1072});
+            inputHandler.send(new Object[]{28.326, 26.7484});
+            inputHandler.send(new Object[]{2.2602, 4.6408});
+            inputHandler.send(new Object[]{27.3099, 26.1816});
+            inputHandler.send(new Object[]{0.9441, 0.6502});
+            inputHandler.send(new Object[]{23.9204, 27.6745});
+            inputHandler.send(new Object[]{2.0499, 9.9546});
+            inputHandler.send(new Object[]{23.7947, 20.8627});
+            inputHandler.send(new Object[]{5.8456, 6.8879});
+            inputHandler.send(new Object[]{26.7315, 25.5368});
+            inputHandler.send(new Object[]{5.8812, 5.9116});
+            inputHandler.send(new Object[]{24.5343, 26.77});
+            inputHandler.send(new Object[]{4.3866, 0.3132});
+            inputHandler.send(new Object[]{22.7654, 25.1381});
+            inputHandler.send(new Object[]{7.7824, 9.2299});
+            inputHandler.send(new Object[]{23.5167, 24.1244});
+            inputHandler.send(new Object[]{5.3086, 9.7503});
+            inputHandler.send(new Object[]{25.47, 25.8574});
             inputHandler.send(new Object[]{20.2568, 28.7882});
             inputHandler.send(new Object[]{2.9951, 3.9887});
         } catch (InterruptedException e) {
