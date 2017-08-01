@@ -32,9 +32,9 @@ import java.util.Map;
 @Extension(
         name = "cluster",
         namespace = "kmeans",
-        description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality should be passed as parameter" +
-                "All data points to be processed by an instance of class Clusterer should be of same dimensionality. The Euclidean distance is taken as the distance metric." +
-                "The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). Supports a given size window implementation." +
+        description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality should be passed as a parameter. " +
+                "All data points to be processed by an instance of class Clusterer should be of the same dimensionality. The Euclidean distance is taken as the distance metric. " +
+                "The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). Supports a given size window implementation. " +
                 "For example: #window.length(10)#kmeans:cluster(dimensionality, k, maxIterations, train, x1, x2, .... , xd)" +
                 "Model is trained for every specified number of events or when true is passed as train parameter. The training process initializes the first k distinct events in the window as" +
                 "initial centroids. The dataPoints are assigned to the respective closest centroid.",
@@ -69,6 +69,13 @@ import java.util.Map;
                         defaultValue = "false"
                 ),
                 @Parameter(
+                        name = "decay.rate",
+                        description = "this is the decay rate of old data compared to new data. " +
+                                "Value of this will be in [0,1]. 0 means only old data used and" +
+                                "1 will mean that only new data is used",
+                        type = {DataType.FLOAT}
+                ),
+                @Parameter(
                         name = "coordinate.values",
                         description = "This is a variable length argument. Depending on the dimensionality of data points we will receive coordinates along each axis.",
                         type = {DataType.DOUBLE}
@@ -89,14 +96,14 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        syntax = "from InputStream#window.length(5)#kmeans:cluster(dimensionality, k, maxIterations, numberOfEventsToRetrain, coordinateValue1, coordinateValue2)\"\n" +
+                        syntax = "from InputStream#window.length(5)#kmeans:cluster(dimensionality, k, maxIterations, numberOfEventsToRetrain, decayRate, coordinateValue1, coordinateValue2)\"\n" +
                                 "select coordinateValue1, coordinateValue2, euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, closestCentroidCoordinate2\"\n" +
                                 "insert into OutputStream",
                         description = "dimensionality =2, k=2, numberOfEventsToRetrain = 5, maxIterations=10. This will cluster the collected data points within the window for every 5 events" +
                                 "and give output after the first 5 events"
                 ),
                 @Example(
-                        syntax = "from InputStream#window.length(5)#kmeans:cluster(2, 2, 20, trainNow, coordinateValue1, coordinateValue2)\"\n" +
+                        syntax = "from InputStream#window.length(5)#kmeans:cluster(2, 2, 20, trainNow, decayRate, coordinateValue1, coordinateValue2)\"\n" +
                                 "select coordinateValue1, coordinateValue2, euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, closestCentroidCoordinate2\"\n" +
                                 "insert into OutputStream",
                         description = "This will cluster the collected data points within the window when true is received" +
@@ -107,6 +114,8 @@ import java.util.Map;
 public class KMeans extends StreamProcessor {
     private int k;
     private int maxIterations;
+    private float decayRate;
+
 
     private int numberOfEventsToRetrain;
     private int numberOfEventsReceived;
@@ -114,6 +123,7 @@ public class KMeans extends StreamProcessor {
 
     private boolean needToCheckTrainNow = false;
     private boolean modelTrained = false;
+    private boolean initialTrained = false;
     private Clusterer clusterer;
     private int dimensionality;
     private double[] coordinateValues;
@@ -129,10 +139,10 @@ public class KMeans extends StreamProcessor {
                 coordinateValues = new double[dimensionality];
 
                 //validating and getting coordinate values
-                for (int i=4; i<4+dimensionality; i++) {
+                for (int i=5; i<5+dimensionality; i++) {
                     Object content = attributeExpressionExecutors[i].execute(streamEvent);
                     if (content instanceof Double) {
-                        coordinateValues[i-4] = (Double) content;
+                        coordinateValues[i-5] = (Double) content;
                     } else {
                         throw new SiddhiAppValidationException("Coordinate values of data point should be " +
                                 "of type double but found " + attributeExpressionExecutors[i].getReturnType());
@@ -145,16 +155,37 @@ public class KMeans extends StreamProcessor {
                 dataPointsArray.add(currentDataPoint);
 
                 //handling the training
-                if (needToCheckTrainNow) {
-                    boolean trainNow = (Boolean) attributeExpressionExecutors[3].execute(streamEvent);
-                    if (trainNow) {
-                        clusterer.cluster(dataPointsArray);
-                        modelTrained = true;
+                if (!initialTrained) {
+                    if (needToCheckTrainNow) {
+                        boolean trainNow = (Boolean) attributeExpressionExecutors[3].execute(streamEvent);
+                        if (trainNow) {
+                            clusterer.cluster(dataPointsArray);
+                            dataPointsArray.clear();
+                            initialTrained = true;
+                            modelTrained = true;
+                        }
+                    } else if (numberOfEventsToRetrain > 0) {
+                        if (numberOfEventsReceived % numberOfEventsToRetrain == 0) {
+                            clusterer.cluster(dataPointsArray);
+                            dataPointsArray.clear();
+                            initialTrained = true;
+                            modelTrained = true;
+                        }
                     }
-                } else if (numberOfEventsToRetrain > 0) {
-                    if (numberOfEventsReceived % numberOfEventsToRetrain == 0) {
-                        clusterer.cluster(dataPointsArray);
-                        modelTrained = true;
+                } else {
+                    if (needToCheckTrainNow) {
+                        boolean trainNow = (Boolean) attributeExpressionExecutors[3].execute(streamEvent);
+                        if (trainNow) {
+                            clusterer.updateCluster(dataPointsArray, decayRate);
+                            dataPointsArray.clear();
+                            modelTrained = true;
+                        }
+                    } else if (numberOfEventsToRetrain > 0) {
+                        if (numberOfEventsReceived % numberOfEventsToRetrain == 0) {
+                            clusterer.updateCluster(dataPointsArray, decayRate);
+                            dataPointsArray.clear();
+                            modelTrained = true;
+                        }
                     }
                 }
 
@@ -226,10 +257,22 @@ public class KMeans extends StreamProcessor {
                     attributeExpressionExecutors[3].getReturnType());
         }
 
+        //expressionExecutors[4] --> decayRate
+        if (!(attributeExpressionExecutors[4] instanceof ConstantExpressionExecutor)) {
+            throw new SiddhiAppValidationException("Decay Rate has to be a constant.");
+        }
+        Object fourthContent = attributeExpressionExecutors[4].execute(null);
+        if (fourthContent instanceof Float) {
+            decayRate = (Float) fourthContent;
+        } else {
+            throw new SiddhiAppValidationException("Decay Rate should be of type float but found " +
+                    attributeExpressionExecutors[4].getReturnType());
+        }
+
         //validate the length of expressionExecutors[]
-        if (!(attributeExpressionExecutors.length == 4+dimensionality)) {
+        if (!(attributeExpressionExecutors.length == 5+dimensionality)) {
             throw new SiddhiAppValidationException("Clustering function should have exactly " +
-                    (4+dimensionality) +" parameters, currently " + attributeExpressionExecutors.length
+                    (5+dimensionality) +" parameters, currently " + attributeExpressionExecutors.length
             + " parameters provided");
         }
 

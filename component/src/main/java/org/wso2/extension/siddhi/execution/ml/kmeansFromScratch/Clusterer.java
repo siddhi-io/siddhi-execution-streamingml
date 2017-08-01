@@ -31,7 +31,7 @@ public class Clusterer {
      */
     public void initialize(ArrayList<DataPoint> dataPointsArray) {
         dimensionality = dataPointsArray.get(0).getDimensionality();
-        this.dataPointsArray = dataPointsArray;
+        this.dataPointsArray = new ArrayList(dataPointsArray);
         int distinctCount = 0;
         centroidList.clear();
         newCentroidList.clear();
@@ -60,7 +60,8 @@ public class Clusterer {
      * Perform clustering
      */
     public void cluster(ArrayList<DataPoint> batchDataPointsIn) {
-        dataPointsArray = batchDataPointsIn;
+        System.out.println("initial Clustering");
+        dataPointsArray = new ArrayList(batchDataPointsIn);
         initialize(dataPointsArray);
         int iter = 0;
         if (dataPointsArray.size() != 0) {
@@ -70,7 +71,7 @@ public class Clusterer {
                 calculateNewCentroids();
 
                 centroidShifted = !centroidList.equals(newCentroidList);
-                if (centroidShifted==false) {
+                if (!centroidShifted) {
                     break;
                 }
                 for (int i = 0; i<k; i++) {
@@ -79,6 +80,48 @@ public class Clusterer {
                 iter++;
             }
         }
+    }
+
+    /**
+     * After the first clustering this method can be used to incrementally update centroidList
+     * in real time. This method takes in the new set of datapoints and decayRate as inputs
+     * and calculates the centroids of the new set. Then new centroids are calculated using
+     * newAvg = oldAvg + decayRate * batchAvg
+     * @param batchDataPointsIn
+     * @param decayRate should be in [0,1]
+     */
+    public void updateCluster(ArrayList<DataPoint> batchDataPointsIn, float decayRate) {
+        System.out.println("Updating cluster");
+        ArrayList<Coordinates> oldCentroidList = new ArrayList(centroidList);
+
+        dataPointsArray = new ArrayList(batchDataPointsIn);
+
+        int iter = 0;
+        if (dataPointsArray.size() != 0) {
+            boolean centroidShifted = false;
+            while(iter < maximumIterations) {
+                assignToCluster(dataPointsArray);
+                calculateNewCentroids();
+
+                centroidShifted = !centroidList.equals(newCentroidList);
+                if (!centroidShifted) {
+                    break;
+                }
+                for (int i = 0; i<k; i++) {
+                    centroidList.get(i).setCoordinates(newCentroidList.get(i).getCoordinates());
+                }
+                iter++;
+            }
+        }
+
+        for (int i = 0; i<k; i++) {
+            double[] weightedCoordinates = new double[dimensionality];
+            double[] oldCoordinates = oldCentroidList.get(i).getCoordinates();
+            double[] newCoordinates = centroidList.get(i).getCoordinates();
+            Arrays.setAll(weightedCoordinates, j -> Math.round(((1-decayRate) * oldCoordinates[j] + decayRate * newCoordinates[j]) * 10000.0) / 10000.0);
+            centroidList.get(i).setCoordinates(weightedCoordinates);
+        }
+
     }
 
     /**
