@@ -31,7 +31,7 @@ public class KMeansTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                "from InputStream#window.length(5)#kmeans:cluster(2, 2, 10, 1, 0.2f, x, y) " +
+                "from InputStream#kmeans:cluster(2, 10, 20, x, y) " +
                 "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                 "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -87,6 +87,67 @@ public class KMeansTest {
         }
     }
 
+    //Test case for 3D data points
+    @Test
+    public void testClusteringLengthWindow2D3k() throws Exception {
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, timestamp long);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#kmeans:cluster(3, 10, 30, 0.2f, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2 " +
+                        "insert into OutputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                System.out.println("running receive method");
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            }
+        });
+
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
+        siddhiAppRuntime.start();
+        try {
+            inputHandler.send(new Object[]{8.6595, 9.2534});
+            inputHandler.send(new Object[]{26.91, 27.7194});
+            inputHandler.send(new Object[]{40.9496, 46.751});
+            inputHandler.send(new Object[]{3.0379, 9.381});
+            inputHandler.send(new Object[]{24.0843, 22.5933});
+            inputHandler.send(new Object[]{46.757, 44.8402});
+            inputHandler.send(new Object[]{6.0502, 4.7133});
+            inputHandler.send(new Object[]{23.9084, 29.9808});
+            inputHandler.send(new Object[]{44.3852, 45.5709});
+            inputHandler.send(new Object[]{2.2483, 4.592});
+            inputHandler.send(new Object[]{26.5544, 29.301});
+            inputHandler.send(new Object[]{49.4444, 43.9536});
+            inputHandler.send(new Object[]{4.6758, 5.1065});
+            inputHandler.send(new Object[]{28.7405, 29.5637});
+            inputHandler.send(new Object[]{41.1196, 45.267});
+            inputHandler.send(new Object[]{9.8962, 2.051});
+            inputHandler.send(new Object[]{20.8293, 26.0885});
+            inputHandler.send(new Object[]{49.3169, 41.8329});
+            inputHandler.send(new Object[]{1.3745, 8.1585});
+            inputHandler.send(new Object[]{27.303, 21.9864});
+            inputHandler.send(new Object[]{47.0754, 46.1605});
+            inputHandler.send(new Object[]{3.707, 7.4449});
+            inputHandler.send(new Object[]{22.264, 24.8863});
+            inputHandler.send(new Object[]{45.068, 40.2443});
+            inputHandler.send(new Object[]{5.9062, 7.9719});
+            inputHandler.send(new Object[]{29.9257, 25.5476});
+            inputHandler.send(new Object[]{49.2968, 44.2055});
+            inputHandler.send(new Object[]{0.9251, 2.2017});
+            inputHandler.send(new Object[]{22.4079, 27.0502});
+            inputHandler.send(new Object[]{46.1892, 46.0184});
+            inputHandler.send(new Object[]{8.6595, 9.2534});
+            inputHandler.send(new Object[]{26.91, 27.7194});
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     //Test case for 10D data points
     @Test
@@ -96,7 +157,7 @@ public class KMeansTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#window.length(5)#kmeans:cluster(10, 3, 10, 10, 0.3f, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) " +
+                        "from InputStream#window.length(5)#kmeans:cluster(3, 10, 10, 0.3f, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) " +
                         "select x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, closestCentroidCoordinate2,closestCentroidCoordinate3, closestCentroidCoordinate4, closestCentroidCoordinate5, closestCentroidCoordinate6, closestCentroidCoordinate7, closestCentroidCoordinate8, closestCentroidCoordinate9, closestCentroidCoordinate10 " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -106,14 +167,6 @@ public class KMeansTest {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 System.out.print("running receive method");
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
-
-                /*for (Event event: inEvents) {
-                    count++;
-
-                    switch (count) {
-
-                    }
-                }*/
             }
         });
 

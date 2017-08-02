@@ -35,7 +35,7 @@ public class Clusterer {
      */
     public void initialize(ArrayList<DataPoint> dataPointsArray) {
         dimensionality = dataPointsArray.get(0).getDimensionality();
-        this.dataPointsArray = new ArrayList(dataPointsArray);
+        this.dataPointsArray = dataPointsArray;
         int distinctCount = 0;
         centroidList.clear();
         newCentroidList.clear();
@@ -55,9 +55,6 @@ public class Clusterer {
                 distinctCount++;
             }
         }
-        /*if (distinctCount < k) {
-            k = distinctCount;
-        }*/
     }
 
     /**

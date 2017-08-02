@@ -124,6 +124,7 @@ public class KMeans extends StreamProcessor {
     private boolean needToCheckTrainNow = false;
     private boolean modelTrained = false;
     private boolean initialTrained = false;
+    private boolean decayRateGiven = false;
     private Clusterer clusterer;
     private int dimensionality;
     private double[] coordinateValues;
@@ -139,10 +140,16 @@ public class KMeans extends StreamProcessor {
                 coordinateValues = new double[dimensionality];
 
                 //validating and getting coordinate values
-                for (int i=5; i<5+dimensionality; i++) {
+                int coordinateStartIndex;
+                if (decayRateGiven) {
+                    coordinateStartIndex = 4;
+                } else {
+                    coordinateStartIndex = 3;
+                }
+                for (int i=coordinateStartIndex; i<coordinateStartIndex+dimensionality; i++) {
                     Object content = attributeExpressionExecutors[i].execute(streamEvent);
                     if (content instanceof Double) {
-                        coordinateValues[i-5] = (Double) content;
+                        coordinateValues[i-coordinateStartIndex] = (Double) content;
                     } else {
                         throw new SiddhiAppValidationException("Coordinate values of data point should be " +
                                 "of type double but found " + attributeExpressionExecutors[i].getReturnType());
@@ -157,7 +164,7 @@ public class KMeans extends StreamProcessor {
                 //handling the training
                 if (!initialTrained) {
                     if (needToCheckTrainNow) {
-                        boolean trainNow = (Boolean) attributeExpressionExecutors[3].execute(streamEvent);
+                        boolean trainNow = (Boolean) attributeExpressionExecutors[2].execute(streamEvent);
                         if (trainNow) {
                             clusterer.cluster(dataPointsArray);
                             dataPointsArray.clear();
@@ -174,7 +181,7 @@ public class KMeans extends StreamProcessor {
                     }
                 } else {
                     if (needToCheckTrainNow) {
-                        boolean trainNow = (Boolean) attributeExpressionExecutors[3].execute(streamEvent);
+                        boolean trainNow = (Boolean) attributeExpressionExecutors[2].execute(streamEvent);
                         if (trainNow) {
                             clusterer.updateCluster(dataPointsArray, decayRate);
                             dataPointsArray.clear();
@@ -204,76 +211,61 @@ public class KMeans extends StreamProcessor {
     @Override
     protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
 
-        //expressionExecutors[0] --> dimensionality
+        //expressionExecutors[0] --> k
         if (!(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("Dimensionality has to be a constant.");
+            throw new SiddhiAppValidationException("k has to be a constant.");
         }
         Object zerothContent = attributeExpressionExecutors[0].execute(null);
         if (zerothContent instanceof Integer) {
-            dimensionality = (Integer) zerothContent;
+            k = (Integer) zerothContent;
         } else {
-            throw new SiddhiAppValidationException("Dimensionality should be of type int but found " +
+            throw new SiddhiAppValidationException("k should be of type int but found " +
                     attributeExpressionExecutors[0].getReturnType());
         }
 
-        //expressionExecutors[1] --> k
+        //expressionExecutors[1] --> maxIterations
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("k has to be a constant.");
+            throw new SiddhiAppValidationException("Maximum iterations has to be a constant.");
         }
         Object firstContent = attributeExpressionExecutors[1].execute(null);
         if (firstContent instanceof Integer) {
-            k = (Integer) firstContent;
+            maxIterations = (Integer) firstContent;
         } else {
-            throw new SiddhiAppValidationException("k should be of type int but found " +
+            throw new SiddhiAppValidationException("Maximum iterations should be of type int but found " +
                     attributeExpressionExecutors[1].getReturnType());
         }
 
-        //expressionExecutors[2] --> maxIterations
-        if (!(attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("Maximum iterations has to be a constant.");
-        }
-        Object secondContent = attributeExpressionExecutors[2].execute(null);
-        if (secondContent instanceof Integer) {
-            maxIterations = (Integer) secondContent;
-        } else {
-            throw new SiddhiAppValidationException("Maximum iterations should be of type int but found " +
-                    attributeExpressionExecutors[2].getReturnType());
-        }
-
-        //expressionExecutors[3] --> trainModel or numberOfEventsToRetrain
-        if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.BOOL) {
+        //expressionExecutors[2] --> trainModel or numberOfEventsToRetrain
+        if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.BOOL) {
             needToCheckTrainNow = true;
-        } else if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
+        } else if (attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor) {
             needToCheckTrainNow = false;
-            Object thirdContent = attributeExpressionExecutors[3].execute(null);
-            if (thirdContent instanceof Integer) {
-                numberOfEventsToRetrain = (Integer) thirdContent;
+            Object secondContent = attributeExpressionExecutors[2].execute(null);
+            if (secondContent instanceof Integer) {
+                numberOfEventsToRetrain = (Integer) secondContent;
             } else {
                 throw new SiddhiAppValidationException("Number of events to trigger retraining" +
-                        "should be of type int but found " +attributeExpressionExecutors[3].getReturnType());
+                        "should be of type int but found " +attributeExpressionExecutors[2].getReturnType());
             }
         } else {
             throw new SiddhiAppValidationException("The 4th parameter should either be boolean or int but found" +
-                    attributeExpressionExecutors[3].getReturnType());
+                    attributeExpressionExecutors[2].getReturnType());
         }
 
-        //expressionExecutors[4] --> decayRate
-        if (!(attributeExpressionExecutors[4] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("Decay Rate has to be a constant.");
-        }
-        Object fourthContent = attributeExpressionExecutors[4].execute(null);
-        if (fourthContent instanceof Float) {
-            decayRate = (Float) fourthContent;
-        } else {
-            throw new SiddhiAppValidationException("Decay Rate should be of type float but found " +
-                    attributeExpressionExecutors[4].getReturnType());
-        }
-
-        //validate the length of expressionExecutors[]
-        if (!(attributeExpressionExecutors.length == 5+dimensionality)) {
-            throw new SiddhiAppValidationException("Clustering function should have exactly " +
-                    (5+dimensionality) +" parameters, currently " + attributeExpressionExecutors.length
-            + " parameters provided");
+        //expressionExecutors[3] --> decayRate or first dim of datapoint
+        if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.FLOAT) {
+            Object thirdContent = attributeExpressionExecutors[3].execute(null);
+            if (thirdContent instanceof Float) {
+                System.out.println("decay rate specified");
+                decayRateGiven = true;
+                decayRate = (Float) thirdContent;
+                dimensionality = attributeExpressionExecutors.length - 4;
+            }
+        } else if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.DOUBLE) {
+            System.out.println("decay rate not specified");
+            decayRateGiven = false;
+            decayRate = 0.001f; // default value for online approach. should tune
+            dimensionality = attributeExpressionExecutors.length - 3;
         }
 
         clusterer = new Clusterer(k,maxIterations);
