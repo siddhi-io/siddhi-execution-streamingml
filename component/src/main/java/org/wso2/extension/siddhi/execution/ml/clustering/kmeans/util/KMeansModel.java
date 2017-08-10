@@ -17,43 +17,43 @@ public class KMeansModel implements Serializable {
         this.centroidList = centroidList;
     }
 
-    public ArrayList<Coordinates> getCentroidList() {
+    public synchronized ArrayList<Coordinates> getCentroidList() {
         return centroidList;
     }
 
-    public void setCentroidList(ArrayList<Coordinates> centroidList) {
+    public synchronized void setCentroidList(ArrayList<Coordinates> centroidList) {
         this.centroidList = centroidList;
     }
 
-    public void clear() {
+    public synchronized void clear() {
         centroidList.clear();
     }
 
-    public boolean contains(Coordinates x) {
+    public synchronized boolean contains(Coordinates x) {
         return centroidList.contains(x);
     }
 
-    public void add(Coordinates x) {
+    public synchronized void add(Coordinates x) {
         centroidList.add(x);
     }
 
-    public void update(int index, double[] x) {
+    public synchronized void update(int index, double[] x) {
         centroidList.get(index).setCoordinates(x);
     }
 
-    public int size() {
+    public synchronized int size() {
         return centroidList.size();
     }
 
-    public double[] getCoordinatesOfCentroid(int index) {
+    public synchronized double[] getCoordinatesOfCentroid(int index) {
         return centroidList.get(index).getCoordinates();
     }
 
-    public Coordinates getCentroid(int index) {
+    public synchronized Coordinates getCentroid(int index) {
         return centroidList.get(index);
     }
 
-    public int indexOf(Coordinates x) {
+    public synchronized int indexOf(Coordinates x) {
         return centroidList.indexOf(x);
     }
 }

@@ -24,11 +24,11 @@ public class KMeansStreamProcessorExtensionTest {
     @Test
     public void testClusteringLengthWindow2D() throws Exception {
         SiddhiManager siddhiManager = new SiddhiManager();
-        String inputStream = "define stream InputStream (x double, y double, timestamp long);";
+        String inputStream = "define stream InputStream (x double, y double);";
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#kmeans:cluster('model1', 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kmeans('model1', 2, 10, 20, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -96,7 +96,7 @@ public class KMeansStreamProcessorExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#kmeans:cluster('model2', 5, 10, 50, x, y, z) " +
+                        "from InputStream#streamingml:kmeans('model2', 5, 10, 20, x, y, z) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, closestCentroidCoordinate3 " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -196,7 +196,7 @@ public class KMeansStreamProcessorExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#kmeans:cluster('model1', 3, 10, 30, 0.2f, x, y) " +
+                        "from InputStream#streamingml:kmeans('model1', 3, 10, 30, 0.2f, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2 " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -273,7 +273,7 @@ public class KMeansStreamProcessorExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#window.length(5)#kmeans:cluster('model4', 3, 10, 30, 0.3f, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) " +
+                        "from InputStream#window.length(5)#streamingml:kmeans('model4', 3, 10, 30, 0.3f, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2,closestCentroidCoordinate3, closestCentroidCoordinate4, closestCentroidCoordinate5, closestCentroidCoordinate6, closestCentroidCoordinate7, closestCentroidCoordinate8, closestCentroidCoordinate9, closestCentroidCoordinate10 " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);

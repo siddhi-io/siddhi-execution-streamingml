@@ -102,7 +102,9 @@ public class Clusterer {
     public void updateCluster(ArrayList<DataPoint> batchDataPointsIn, float decayRate) {
         System.out.println("Updating cluster");
 
-        dataPointsArray = batchDataPointsIn;
+        ArrayList<Coordinates> intermediateCentroidList = new ArrayList<>();
+
+        dataPointsArray = new ArrayList(batchDataPointsIn);
 
         int iter = 0;
         if (dataPointsArray.size() != 0) {
@@ -127,8 +129,11 @@ public class Clusterer {
                 ArrayList<Coordinates> oldCentroidList = new ArrayList<>(k);
                 for (int i = 0; i<k; i++) {
                     Coordinates c = new Coordinates(dimensionality);
+                    Coordinates c1 = new Coordinates(dimensionality);
                     c.setCoordinates(model.getCoordinatesOfCentroid(i));
+                    c1.setCoordinates(model.getCoordinatesOfCentroid(i));
                     oldCentroidList.add(c);
+                    intermediateCentroidList.add(c1);
                 }
                 boolean centroidShifted = false;
                 while (iter < maximumIterations) {
@@ -140,7 +145,7 @@ public class Clusterer {
                     System.out.println();
                     calculateNewCentroids();
 
-                    centroidShifted = !model.getCentroidList().equals(newCentroidList);
+                    centroidShifted = !intermediateCentroidList.equals(newCentroidList);
                     //System.out.println(Arrays.toString(centroidList.get(0).getCoordinates()));
                     //System.out.println(Arrays.toString(newCentroidList.get(0).getCoordinates()) + Arrays.toString(newCentroidList.get(1).getCoordinates()));
 
@@ -160,7 +165,7 @@ public class Clusterer {
                         break;
                     }
                     for (int i = 0; i < k; i++) {
-                        model.update(i, newCentroidList.get(i).getCoordinates());
+                        intermediateCentroidList.get(i).setCoordinates(newCentroidList.get(i).getCoordinates());
                     }
                     iter++;
                 }
@@ -173,14 +178,17 @@ public class Clusterer {
                     if (count[i] > 0) {
                         double[] weightedCoordinates = new double[dimensionality];
                         double[] oldCoordinates = oldCentroidList.get(i).getCoordinates();
-                        double[] newCoordinates = model.getCoordinatesOfCentroid(i);
+                        double[] newCoordinates = intermediateCentroidList.get(i).getCoordinates();
                         Arrays.setAll(weightedCoordinates, j -> Math.round(((1 - decayRate) * oldCoordinates[j] + decayRate * newCoordinates[j]) * 10000.0) / 10000.0);
                         System.out.println("weighted" + Arrays.toString(weightedCoordinates));
-                        model.update(i, weightedCoordinates);
+                        intermediateCentroidList.get(i).setCoordinates(weightedCoordinates);
+                        //model.update(i, weightedCoordinates);
                     } else {
-                        model.update(i, oldCentroidList.get(i).getCoordinates());
+                        intermediateCentroidList.get(i).setCoordinates(oldCentroidList.get(i).getCoordinates());
+                        //model.update(i, );
                     }
                 }
+                model.setCentroidList(intermediateCentroidList);
                 System.out.println("weighted centroid list");
                 for (Coordinates c: model.getCentroidList()) {
                     System.out.print(Arrays.toString(c.getCoordinates()));

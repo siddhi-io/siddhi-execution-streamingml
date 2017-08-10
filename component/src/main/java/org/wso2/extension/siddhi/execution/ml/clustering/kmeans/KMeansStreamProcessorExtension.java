@@ -4,6 +4,7 @@ import org.wso2.extension.siddhi.execution.ml.clustering.kmeans.util.Clusterer;
 import org.wso2.extension.siddhi.execution.ml.clustering.kmeans.util.DataPoint;
 import org.wso2.extension.siddhi.execution.ml.clustering.kmeans.util.KMeansModel;
 import org.wso2.extension.siddhi.execution.ml.clustering.kmeans.util.KMeansModelHolder;
+import org.wso2.extension.siddhi.execution.ml.clustering.kmeans.util.Trainer;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -31,8 +32,8 @@ import java.util.Map;
 
 
 @Extension(
-        name = "cluster",
-        namespace = "kmeans",
+        name = "kmeans",
+        namespace = "streamingml",
         description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality should be passed as a parameter. " +
                 "All data points to be processed by an instance of class Clusterer should be of the same dimensionality. The Euclidean distance is taken as the distance metric. " +
                 "The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). Supports a given size window implementation. " +
@@ -130,16 +131,19 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
     private Clusterer clusterer;
     private int dimensionality;
     private double[] coordinateValues;
+    private int numberOfEventsToTriggerSeperateThread = 10;
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor processor,
                            StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+
         while (streamEventChunk.hasNext()) {
             StreamEvent streamEvent = streamEventChunk.next();
 
             if (streamEvent.getType() == ComplexEvent.Type.CURRENT) {
                 numberOfEventsReceived++;
                 coordinateValues = new double[dimensionality];
+
 
                 //validating and getting coordinate values
                 int coordinateStartIndex;
@@ -185,15 +189,11 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
                     if (needToCheckTrainNow) {
                         boolean trainNow = (Boolean) attributeExpressionExecutors[2].execute(streamEvent);
                         if (trainNow) {
-                            clusterer.updateCluster(dataPointsArray, decayRate);
-                            dataPointsArray.clear();
-                            modelTrained = true;
+                            periodicTraining();
                         }
                     } else if (numberOfEventsToRetrain > 0) {
                         if (numberOfEventsReceived % numberOfEventsToRetrain == 0) {
-                            clusterer.updateCluster(dataPointsArray, decayRate);
-                            dataPointsArray.clear();
-                            modelTrained = true;
+                            periodicTraining();
                         }
                     }
                 }
@@ -209,6 +209,22 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
         }
         nextProcessor.process(streamEventChunk);
     }
+
+    private void periodicTraining() {
+        if (numberOfEventsToRetrain<numberOfEventsToTriggerSeperateThread) {
+            System.out.println("Traditional training");
+            clusterer.updateCluster(dataPointsArray, decayRate);
+            dataPointsArray.clear();
+            modelTrained = true;
+        } else {
+            System.out.println("Seperate thread training");
+            Trainer trainer = new Trainer(clusterer, dataPointsArray, decayRate);
+            Thread t = new Thread(trainer);
+            t.start();
+        }
+    }
+
+
 
     @Override
     protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
@@ -306,7 +322,7 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
     }
 
     @Override
-    public Map<String, Object> currentState() { //TODO: clone the objects and pass to hashmap
+    public Map<String, Object> currentState() {
         Map<String, Object> map = new HashMap();
         map.put("data", dataPointsArray);
         map.put("modelTrained", modelTrained);
