@@ -101,19 +101,12 @@ import java.util.logging.Logger;
         },
         examples = {
                 @Example(
-                        syntax = "from InputStream#window.length(5)#kmeans:cluster(dimensionality, k, maxIterations, numberOfEventsToRetrain, decayRate, coordinateValue1, coordinateValue2)\"\n" +
+                        syntax = "from InputStream#kmeans:cluster(dimensionality, k, maxIterations, numberOfEventsToRetrain, decayRate, coordinateValue1, coordinateValue2)\"\n" +
                                 "select coordinateValue1, coordinateValue2, euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, closestCentroidCoordinate2\"\n" +
                                 "insert into OutputStream",
                         description = "dimensionality =2, k=2, numberOfEventsToRetrain = 5, maxIterations=10. This will cluster the collected data points within the window for every 5 events" +
                                 "and give output after the first 5 events"
                 ),
-                @Example(
-                        syntax = "from InputStream#window.length(5)#kmeans:cluster(2, 2, 20, trainNow, decayRate, coordinateValue1, coordinateValue2)\"\n" +
-                                "select coordinateValue1, coordinateValue2, euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, closestCentroidCoordinate2\"\n" +
-                                "insert into OutputStream",
-                        description = "This will cluster the collected data points within the window when true is received" +
-                                "in the event stream, for any event trainNow should be a boolean"
-                )
         }
 )
 public class KMeansStreamProcessorExtension extends StreamProcessor {
@@ -125,9 +118,9 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
 
     private int numberOfEventsToRetrain;
     private int numberOfEventsReceived;
+    private int coordinateStartIndex;
     private ArrayList<DataPoint> dataPointsArray = new ArrayList<>();
 
-    private boolean needToCheckTrainNow = false;
     private boolean modelTrained = false;
     private boolean initialTrained = false;
     private boolean decayRateGiven = false;
@@ -151,12 +144,6 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
 
 
                 //validating and getting coordinate values
-                int coordinateStartIndex;
-                if (decayRateGiven) {
-                    coordinateStartIndex = 5;
-                } else {
-                    coordinateStartIndex = 4;
-                }
                 for (int i=coordinateStartIndex; i<coordinateStartIndex+dimensionality; i++) {
                     Object content = attributeExpressionExecutors[i].execute(streamEvent);
                     if (content instanceof Double) {
@@ -173,34 +160,14 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
                 dataPointsArray.add(currentDataPoint);
 
                 //handling the training
-                if (!initialTrained) {
-                    if (needToCheckTrainNow) {
-                        boolean trainNow = (Boolean) attributeExpressionExecutors[2].execute(streamEvent);
-                        if (trainNow) {
-                            clusterer.cluster(dataPointsArray);
-                            dataPointsArray.clear();
-                            initialTrained = true;
-                            modelTrained = true;
-                        }
-                    } else if (numberOfEventsToRetrain > 0) {
-                        if (numberOfEventsReceived % numberOfEventsToRetrain == 0) {
-                            clusterer.cluster(dataPointsArray);
-                            dataPointsArray.clear();
-                            initialTrained = true;
-                            modelTrained = true;
-                        }
-                    }
-                } else {
-                    if (needToCheckTrainNow) {
-                        boolean trainNow = (Boolean) attributeExpressionExecutors[2].execute(streamEvent);
-                        if (trainNow) {
-                            periodicTraining();
-                        }
-                    } else if (numberOfEventsToRetrain > 0) {
-                        if (numberOfEventsReceived % numberOfEventsToRetrain == 0) {
-                            periodicTraining();
-                        }
-                    }
+                if ((!initialTrained) && (numberOfEventsToRetrain > 0) && (numberOfEventsReceived % numberOfEventsToRetrain == 0)) {
+                    clusterer.cluster(dataPointsArray);
+                    dataPointsArray.clear();
+                    initialTrained = true;
+                    modelTrained = true;
+                } else if (numberOfEventsToRetrain > 0 && (numberOfEventsReceived % numberOfEventsToRetrain == 0)){
+                    periodicTraining();
+
                 }
 
                 if (modelTrained) {
@@ -234,7 +201,7 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
 
     @Override
     protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
-
+        logger.setLevel(Level.ALL);
         //expressionExecutors[0] --> modelName
         if (!(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
             throw new SiddhiAppValidationException("modelName has to be a constant.");
@@ -271,21 +238,63 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
                     attributeExpressionExecutors[2].getReturnType());
         }
 
-        //expressionExecutors[3] --> trainModel or numberOfEventsToRetrain
-        if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.BOOL) {
-            needToCheckTrainNow = true;
-        } else if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
-            needToCheckTrainNow = false;
-            Object thirdContent = attributeExpressionExecutors[3].execute(null);
-            if (thirdContent instanceof Integer) {
+        //new start
+
+        numberOfEventsToRetrain = 1; //incremental mode by default
+        decayRate = 0.001f; //default value
+
+        if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor){
+            //logger.("HIIIIIIIIIIIII");
+            if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
+                Object thirdContent = attributeExpressionExecutors[3].execute(null);
                 numberOfEventsToRetrain = (Integer) thirdContent;
+                logger.info("numberOfEventsToRetrain is specified");
+                if (attributeExpressionExecutors[4] instanceof ConstantExpressionExecutor) {
+                    if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.FLOAT) {
+                        Object fourthContent = attributeExpressionExecutors[4].execute(null);
+                        decayRate = (Float) fourthContent;
+                        logger.info("decay rate is specified");
+                        coordinateStartIndex = 5;
+                    } else {
+                        throw new SiddhiAppValidationException("Decay rate should be of type float but found " +attributeExpressionExecutors[3].getReturnType());
+                    }
+                } else {
+                    logger.info("decay rate not specified. using default");
+                    coordinateStartIndex = 4;
+                }
+
+            } else if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.FLOAT) {
+                logger.info("numberOfEventsToRetrain not specified.using default");
+                Object thirdContent = attributeExpressionExecutors[3].execute(null);
+                decayRate = (Float) thirdContent;
+                logger.info("decay rate is specified");
+                coordinateStartIndex = 4;
             } else {
-                throw new SiddhiAppValidationException("Number of events to trigger retraining" +
-                        "should be of type int but found " +attributeExpressionExecutors[2].getReturnType());
+                throw new SiddhiAppValidationException("Since fourth query parameter is constant it should be either" +
+                        "numberOfEventsToRetrain or decayRate i.e int or float but found " +attributeExpressionExecutors[3].getReturnType());
+
             }
+
         } else {
-            throw new SiddhiAppValidationException("The 4th parameter should either be boolean or int but found" +
-                    attributeExpressionExecutors[3].getReturnType());
+            logger.info("numberOfEventsToRetrain and decay rate not specified.using default");
+            coordinateStartIndex = 3;
+        }
+
+        dimensionality = attributeExpressionExecutors.length - coordinateStartIndex;
+
+
+        //new end
+
+        /*//expressionExecutors[3] --> numberOfEventsToRetrain
+        if (!(attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor)) {
+            throw new SiddhiAppValidationException("numberOfEventsToRetrain has to be a constant.");
+        }
+        Object thirdContent = attributeExpressionExecutors[3].execute(null);
+        if (thirdContent instanceof Integer) {
+            numberOfEventsToRetrain = (Integer) thirdContent;
+        } else {
+            throw new SiddhiAppValidationException("Number of events to trigger retraining" +
+                    "should be of type int but found " +attributeExpressionExecutors[3].getReturnType());
         }
 
         //expressionExecutors[4] --> decayRate or first dim of datapoint
@@ -302,7 +311,7 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
             decayRateGiven = false;
             decayRate = 0.001f; // default value for online approach. should tune
             dimensionality = attributeExpressionExecutors.length - 4;
-        }
+        }*/
         String siddhiAppName = siddhiAppContext.getName();
         modelName = modelName+"."+siddhiAppName;
         logger.info(modelName);
