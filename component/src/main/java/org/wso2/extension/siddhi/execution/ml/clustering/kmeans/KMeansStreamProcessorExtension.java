@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 @Extension(
@@ -131,7 +134,9 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
     private Clusterer clusterer;
     private int dimensionality;
     private double[] coordinateValues;
-    private int numberOfEventsToTriggerSeperateThread = 10;
+    private int minBatchSizeToTriggerSeparateThread = 10;
+    private ExecutorService executorService;
+    private final static Logger logger = Logger.getLogger(KMeansStreamProcessorExtension.class.getName());
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor processor,
@@ -211,16 +216,17 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
     }
 
     private void periodicTraining() {
-        if (numberOfEventsToRetrain<numberOfEventsToTriggerSeperateThread) {
-            System.out.println("Traditional training");
+        if (numberOfEventsToRetrain< minBatchSizeToTriggerSeparateThread) {
+            logger.config("Traditional training");
             clusterer.updateCluster(dataPointsArray, decayRate);
             dataPointsArray.clear();
             modelTrained = true;
         } else {
-            System.out.println("Seperate thread training");
+            logger.config("Seperate thread training");
             Trainer trainer = new Trainer(clusterer, dataPointsArray, decayRate);
-            Thread t = new Thread(trainer);
-            t.start();
+            executorService.submit(trainer);
+            /*Thread t = new Thread(trainer);
+            t.start();*/
         }
     }
 
@@ -286,21 +292,24 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
         if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.FLOAT) {
             Object fourthContent = attributeExpressionExecutors[4].execute(null);
             if (fourthContent instanceof Float) {
-                System.out.println("decay rate specified");
+                logger.config("decay rate specified");
                 decayRateGiven = true;
                 decayRate = (Float) fourthContent;
                 dimensionality = attributeExpressionExecutors.length - 5;
             }
         } else if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.DOUBLE) {
-            System.out.println("decay rate not specified");
+            logger.config("decay rate not specified");
             decayRateGiven = false;
             decayRate = 0.001f; // default value for online approach. should tune
             dimensionality = attributeExpressionExecutors.length - 4;
         }
         String siddhiAppName = siddhiAppContext.getName();
         modelName = modelName+"."+siddhiAppName;
-        System.out.println(modelName);
+        logger.info(modelName);
         clusterer = new Clusterer(k,maxIterations, modelName);
+
+        executorService = siddhiAppContext.getExecutorService();
+        logger.setLevel(Level.ALL);
 
         List<Attribute> attributeList = new ArrayList<>(1+dimensionality);
         attributeList.add(new Attribute("euclideanDistanceToClosestCentroid", Attribute.Type.DOUBLE));
