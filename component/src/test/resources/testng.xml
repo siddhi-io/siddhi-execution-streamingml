@@ -22,10 +22,9 @@
 <suite name="Execution-ML-Test-Suite">
     <test name="execution-ml-tests" enabled="true" preserve-order="true">
         <classes>
-            <class name="org.wso2.extension.siddhi.execution.ml.ClassificationTestCase"/>
-            <class name="org.wso2.extension.siddhi.execution.ml.ClusteringTestCase"/>
-            <class name="org.wso2.extension.siddhi.execution.ml.PredictStreamProcessorTestCase"/>
-            <class name="org.wso2.extension.siddhi.execution.ml.RegressionTestCase"/>
+            <class name="org.wso2.extension.siddhi.execution.ml.classification.perceptron.util.PerceptronModelTest"/>
+            <class name="org.wso2.extension.siddhi.execution.ml.classification.perceptron.PerceptronClassifierUpdaterStreamProcessorExtensionTestCase"/>
+            <class name="org.wso2.extension.siddhi.execution.ml.classification.perceptron.PerceptronClassifierStreamProcessorExtensionTestCase"/>
         </classes>
     </test>
 </suite>

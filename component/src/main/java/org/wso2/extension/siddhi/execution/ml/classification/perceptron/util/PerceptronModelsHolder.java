@@ -60,6 +60,10 @@ public class PerceptronModelsHolder {
         return perceptronModelMap.get(name);
     }
 
+    public void deletePerceptronModel(String name) {
+        perceptronModelMap.remove(name);
+    }
+
     public void addPerceptronModel(String name, PerceptronModel model) {
         perceptronModelMap.put(name, model);
     }
