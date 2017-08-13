@@ -20,11 +20,13 @@ package org.wso2.extension.siddhi.execution.ml.classification.perceptron.util;
 import org.wso2.extension.siddhi.execution.ml.util.MathUtil;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Represents a linear Perceptron Model
  */
 public class PerceptronModel implements Serializable {
+    private static final long serialVersionUID = -5179648194841293764L;
     private double[] weights;
     private double bias = 0.0;
     private double threshold = 0.5;
@@ -41,62 +43,52 @@ public class PerceptronModel implements Serializable {
     }
 
     public double[] update(Boolean label, double[] features) {
-        Boolean predictedLabel = this.classify(features);
+        boolean predictedLabel = this.classifyToClass(features);
 
         if (!label.equals(predictedLabel)) {
-            Double error = Boolean.TRUE.equals(label) ? 1.0 : -1.0;
+            double error = Boolean.TRUE.equals(label) ? 1.0 : -1.0;
 
             // Get correction
-            Double correction;
+            double correction;
             for (int i = 0; i < features.length; i++) {
                 correction = features[i] * error * this.learningRate;
                 this.weights[i] = this.weights[i] + correction;
             }
         }
-        return weights;
+        return Arrays.copyOf(weights, weights.length);
     }
 
-    public Boolean classify(double[] features) {
+    public double classify(double[] features) {
         if (this.weights == null) {
             this.initWeights(features.length);
         }
+        double evaluation = MathUtil.dot(features, weights) + this.bias;
+        return evaluation;
+    }
 
-        Double evaluation = MathUtil.dot(features, weights) + this.bias;
-
-        Boolean prediction = evaluation > this.threshold ? Boolean.TRUE : Boolean.FALSE;
+    public boolean classifyToClass(double[] features) {
+        double evaluation = classify(features);
+        boolean prediction = evaluation > this.threshold ? true : false;
         return prediction;
     }
 
-    private void initWeights(int size) {
+    public void initWeights(int size) {
         this.weights = new double[size];
     }
 
-    public double[] getWeights() {
-        return weights;
-    }
-
-    public void setWeights(double[] weights) {
-        this.weights = weights;
-    }
-
-    public double getBias() {
-        return bias;
+    public int getFeatureSize() {
+        if (weights == null) {
+            return -1;
+        }
+        return weights.length;
     }
 
     public void setBias(double bias) {
         this.bias = bias;
     }
 
-    public double getThreshold() {
-        return threshold;
-    }
-
     public void setThreshold(double threshold) {
         this.threshold = threshold;
-    }
-
-    public double getLearningRate() {
-        return learningRate;
     }
 
     public void setLearningRate(double learningRate) {

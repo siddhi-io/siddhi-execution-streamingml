@@ -22,7 +22,7 @@ package org.wso2.extension.siddhi.execution.ml.util;
  */
 public class MathUtil {
     /**
-     * Dot product of two double vectors.
+     * Dot product of two 'double' vectors.
      * @param vector1 vector 1
      * @param vector2 vector 2
      * @return the dot product.
