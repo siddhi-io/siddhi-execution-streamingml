@@ -145,12 +145,20 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
 
                 //validating and getting coordinate values
                 for (int i=coordinateStartIndex; i<coordinateStartIndex+dimensionality; i++) {
-                    Object content = attributeExpressionExecutors[i].execute(streamEvent);
-                    if (content instanceof Double) {
-                        coordinateValues[i-coordinateStartIndex] = (Double) content;
-                    } else {
-                        throw new SiddhiAppValidationException("Coordinate values of data point should be " +
-                                "of type double but found " + attributeExpressionExecutors[i].getReturnType());
+                    //Object content = ;
+                    try {
+                        coordinateValues[i-coordinateStartIndex] = (Integer) attributeExpressionExecutors[i].execute(streamEvent);
+                    } catch (ClassCastException e1) {
+                        try {
+                            coordinateValues[i-coordinateStartIndex] = (Double) attributeExpressionExecutors[i].execute(streamEvent);
+                        } catch (ClassCastException e2) {
+                            try {
+                                coordinateValues[i-coordinateStartIndex] = (Float) attributeExpressionExecutors[i].execute(streamEvent);
+                            } catch (ClassCastException e3) {
+                                throw new SiddhiAppValidationException("coordinate values should be int/float/double but found " +
+                                        attributeExpressionExecutors[i].execute(streamEvent).getClass());
+                            }
+                        }
                     }
                 }
 

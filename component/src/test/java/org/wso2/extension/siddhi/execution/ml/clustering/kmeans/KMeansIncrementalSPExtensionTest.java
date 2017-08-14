@@ -196,4 +196,39 @@ public class KMeansIncrementalSPExtensionTest {
         }
     }
 
+    //Test case for 2D data points of type other than double
+    @Test
+    public void testClusteringLengthWindow2D_3() throws Exception {
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kmeansincremental('model1', 0.2f, 2, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                System.out.println("running receive method");
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            }
+        });
+
+
+        siddhiAppRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
+        try {
+            inputHandler.send(new Object[]{5, 7});
+            inputHandler.send(new Object[]{27.458f, 23.8848f});
+            inputHandler.send(new Object[]{3.078, 9.1072});
+            inputHandler.send(new Object[]{"hi", 26.7484});
+            inputHandler.send(new Object[]{2.2602, 4.6408});
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
