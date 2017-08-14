@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 
 
 @Extension(
-        name = "kmeans",
+        name = "kmeansminibatch",
         namespace = "streamingml",
         description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality should be passed as a parameter. " +
                 "All data points to be processed by an instance of class Clusterer should be of the same dimensionality. The Euclidean distance is taken as the distance metric. " +
@@ -109,7 +109,7 @@ import java.util.logging.Logger;
                 ),
         }
 )
-public class KMeansStreamProcessorExtension extends StreamProcessor {
+public class KMeansMiniBatchSPExtension extends StreamProcessor {
     private int k;
     private int maxIterations;
     private float decayRate;
@@ -214,112 +214,66 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
                     attributeExpressionExecutors[0].getReturnType());
         }
 
-        //expressionExecutors[1] --> k
+        //new
+        //expressionExecutors[1] --> decayRate or k
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("k has to be a constant.");
+            throw new SiddhiAppValidationException("4th parameter can be decayRate/k. Both has to be a constant.");
         }
         Object firstContent = attributeExpressionExecutors[1].execute(null);
-        if (firstContent instanceof Integer) {
+        if (firstContent instanceof Float) {
+            logger.info("Decay rate is specified.");
+            decayRate = (Float) firstContent;
+            coordinateStartIndex = 5;
+
+            //expressionExecutors[2] --> k
+            if (!(attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
+                throw new SiddhiAppValidationException("k has to be a constant.");
+            }
+            Object secondContent = attributeExpressionExecutors[2].execute(null);
+            if (secondContent instanceof Integer) {
+                k = (Integer) secondContent;
+            } else {
+                throw new SiddhiAppValidationException("k should be of type int but found " +
+                        attributeExpressionExecutors[2].getReturnType());
+            }
+
+        } else if (firstContent instanceof Integer){
+            logger.info("Decay rate is not specified. using default");
+            decayRate = 0.01f;
+            coordinateStartIndex = 4;
             k = (Integer) firstContent;
-        } else {
-            throw new SiddhiAppValidationException("k should be of type int but found " +
+        }else {
+            throw new SiddhiAppValidationException("decayRate/k should be of type float/int but found " +
                     attributeExpressionExecutors[1].getReturnType());
         }
+        //new end
 
-        //expressionExecutors[2] --> maxIterations
-        if (!(attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
+        //expressionExecutors[coordinateStartIndex-2] --> maxIterations
+        if (!(attributeExpressionExecutors[coordinateStartIndex-2] instanceof ConstantExpressionExecutor)) {
             throw new SiddhiAppValidationException("Maximum iterations has to be a constant.");
         }
-        Object secondContent = attributeExpressionExecutors[2].execute(null);
-        if (secondContent instanceof Integer) {
-            maxIterations = (Integer) secondContent;
+        Object Content_2 = attributeExpressionExecutors[coordinateStartIndex-2].execute(null);
+        if (Content_2 instanceof Integer) {
+            maxIterations = (Integer) Content_2;
         } else {
             throw new SiddhiAppValidationException("Maximum iterations should be of type int but found " +
-                    attributeExpressionExecutors[2].getReturnType());
+                    attributeExpressionExecutors[coordinateStartIndex-2].getReturnType());
         }
 
-        //new start
-
-        numberOfEventsToRetrain = 1; //incremental mode by default
-        decayRate = 0.001f; //default value
-        coordinateStartIndex = 3;
-
-        if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT){
-            //logger.("HIIIIIIIIIIIII");
-            if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
-                Object thirdContent = attributeExpressionExecutors[3].execute(null);
-                numberOfEventsToRetrain = (Integer) thirdContent;
-                logger.info("numberOfEventsToRetrain is specified");
-                if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.FLOAT) {
-                    if (attributeExpressionExecutors[4] instanceof ConstantExpressionExecutor) {
-                        Object fourthContent = attributeExpressionExecutors[4].execute(null);
-                        decayRate = (Float) fourthContent;
-                        logger.info("decay rate is specified");
-                        coordinateStartIndex = 5;
-                    } else {
-                        throw new SiddhiAppValidationException("Decay rate has to be a constant");
-                    }
-                } else {
-                    logger.info("decay rate not specified. using default");
-                    coordinateStartIndex = 4;
-                }
-            } else {
-                throw new SiddhiAppValidationException("numberOfEventsToRetrain has to be a constant");
-            }
-
-        } else if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.FLOAT) {
-            if (attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor) {
-                logger.info("numberOfEventsToRetrain not specified. using default");
-                Object thirdContent = attributeExpressionExecutors[3].execute(null);
-                decayRate = (Float) thirdContent;
-                logger.info("decay rate is specified");
-                coordinateStartIndex = 4;
-            } else {
-                throw new SiddhiAppValidationException("decayRate has to be a constant");
-            }
-        } else if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.DOUBLE){
-            logger.info("numberOfEventsToRetrain and decayRate both not specified. using default");
+        //expressionExecutors[coordinateStartIndex-1] --> numberOfEventsToRetrain
+        if (!(attributeExpressionExecutors[coordinateStartIndex-1] instanceof ConstantExpressionExecutor)) {
+            throw new SiddhiAppValidationException("numberOfEventsToRetrain has to be a constant.");
+        }
+        Object Content_1 = attributeExpressionExecutors[coordinateStartIndex-1].execute(null);
+        if (Content_1 instanceof Integer) {
+            numberOfEventsToRetrain = (Integer) Content_1;
         } else {
-            throw new SiddhiAppValidationException("Since fourth query parameter is constant it should be either" +
-                    "numberOfEventsToRetrain or decayRate or the first coordinate of data point i.e int or float or double but found " +attributeExpressionExecutors[3].getReturnType());
+            throw new SiddhiAppValidationException("numberOfEventsToRetrain should be of type int but found " +
+                    attributeExpressionExecutors[coordinateStartIndex-1].getReturnType());
         }
-        /*else {
-            logger.info("numberOfEventsToRetrain and decay rate not specified.using default");
-            coordinateStartIndex = 3;
-        }*/
 
         dimensionality = attributeExpressionExecutors.length - coordinateStartIndex;
 
-
-        //new end
-
-        /*//expressionExecutors[3] --> numberOfEventsToRetrain
-        if (!(attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("numberOfEventsToRetrain has to be a constant.");
-        }
-        Object thirdContent = attributeExpressionExecutors[3].execute(null);
-        if (thirdContent instanceof Integer) {
-            numberOfEventsToRetrain = (Integer) thirdContent;
-        } else {
-            throw new SiddhiAppValidationException("Number of events to trigger retraining" +
-                    "should be of type int but found " +attributeExpressionExecutors[3].getReturnType());
-        }
-
-        //expressionExecutors[4] --> decayRate or first dim of datapoint
-        if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.FLOAT) {
-            Object fourthContent = attributeExpressionExecutors[4].execute(null);
-            if (fourthContent instanceof Float) {
-                logger.config("decay rate specified");
-                decayRateGiven = true;
-                decayRate = (Float) fourthContent;
-                dimensionality = attributeExpressionExecutors.length - 5;
-            }
-        } else if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.DOUBLE) {
-            logger.config("decay rate not specified");
-            decayRateGiven = false;
-            decayRate = 0.001f; // default value for online approach. should tune
-            dimensionality = attributeExpressionExecutors.length - 4;
-        }*/
         String siddhiAppName = siddhiAppContext.getName();
         modelName = modelName+"."+siddhiAppName;
         logger.info(modelName);

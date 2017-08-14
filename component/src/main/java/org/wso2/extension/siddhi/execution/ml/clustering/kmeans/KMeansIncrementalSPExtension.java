@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 
 
 @Extension(
-        name = "kmeans",
+        name = "kmeansincremental",
         namespace = "streamingml",
         description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality should be passed as a parameter. " +
                 "All data points to be processed by an instance of class Clusterer should be of the same dimensionality. The Euclidean distance is taken as the distance metric. " +
@@ -109,14 +109,14 @@ import java.util.logging.Logger;
                 ),
         }
 )
-public class KMeansStreamProcessorExtension extends StreamProcessor {
+public class KMeansIncrementalSPExtension extends StreamProcessor {
     private int k;
-    private int maxIterations;
+    private int maxIterations=2;
     private float decayRate;
     private String modelName;
 
 
-    private int numberOfEventsToRetrain;
+    private int numberOfEventsToRetrain=1;
     private int numberOfEventsReceived;
     private int coordinateStartIndex;
     private ArrayList<DataPoint> dataPointsArray = new ArrayList<>();
@@ -183,18 +183,10 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
     }
 
     private void periodicTraining() {
-        if (numberOfEventsToRetrain< minBatchSizeToTriggerSeparateThread) {
-            logger.config("Traditional training");
-            clusterer.updateCluster(dataPointsArray, decayRate);
-            dataPointsArray.clear();
-            modelTrained = true;
-        } else {
-            logger.config("Seperate thread training");
-            Trainer trainer = new Trainer(clusterer, dataPointsArray, decayRate);
-            executorService.submit(trainer);
-            /*Thread t = new Thread(trainer);
-            t.start();*/
-        }
+        logger.config("Traditional training");
+        clusterer.updateCluster(dataPointsArray, decayRate);
+        dataPointsArray.clear();
+        modelTrained = true;
     }
 
 
@@ -214,31 +206,48 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
                     attributeExpressionExecutors[0].getReturnType());
         }
 
-        //expressionExecutors[1] --> k
-        if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("k has to be a constant.");
-        }
-        Object firstContent = attributeExpressionExecutors[1].execute(null);
-        if (firstContent instanceof Integer) {
-            k = (Integer) firstContent;
+        //expressionExecutors[1] --> k or decayRate
+        if (attributeExpressionExecutors[1].getReturnType() ==  Attribute.Type.INT) {
+            if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
+                Object firstContent = attributeExpressionExecutors[1].execute(null);
+                logger.info("decayRate not specified. using default");
+                decayRate=0.01f;
+                coordinateStartIndex = 2;
+                k = (Integer) firstContent;
+            } else {
+                throw new SiddhiAppValidationException("k has to be a constant.");
+            }
+        } else if (attributeExpressionExecutors[1].getReturnType() ==  Attribute.Type.FLOAT) {
+            if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
+                logger.info("decayRate is specified.");
+                Object firstContent = attributeExpressionExecutors[1].execute(null);
+                decayRate = (Float) firstContent;
+
+                //expressionExecutors[2] --> k
+                if (!(attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
+                    throw new SiddhiAppValidationException("k has to be a constant.");
+                }
+                Object secondContent = attributeExpressionExecutors[2].execute(null);
+                if (secondContent instanceof Integer) {
+                    coordinateStartIndex = 3;
+                    k = (Integer) secondContent;
+                } else {
+                    throw new SiddhiAppValidationException("k should be of type int but found " +
+                            attributeExpressionExecutors[2].getReturnType());
+                }
+            } else {
+                throw new SiddhiAppValidationException("decayRate has to be a constant.");
+            }
         } else {
-            throw new SiddhiAppValidationException("k should be of type int but found " +
+            throw new SiddhiAppValidationException("k/decayRate should be of type int/float but found " +
                     attributeExpressionExecutors[1].getReturnType());
         }
 
-        //expressionExecutors[2] --> maxIterations
-        if (!(attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("Maximum iterations has to be a constant.");
-        }
-        Object secondContent = attributeExpressionExecutors[2].execute(null);
-        if (secondContent instanceof Integer) {
-            maxIterations = (Integer) secondContent;
-        } else {
-            throw new SiddhiAppValidationException("Maximum iterations should be of type int but found " +
-                    attributeExpressionExecutors[2].getReturnType());
-        }
+        dimensionality = attributeExpressionExecutors.length - coordinateStartIndex;
 
-        //new start
+
+
+        /*//new start
 
         numberOfEventsToRetrain = 1; //incremental mode by default
         decayRate = 0.001f; //default value
@@ -283,12 +292,12 @@ public class KMeansStreamProcessorExtension extends StreamProcessor {
             throw new SiddhiAppValidationException("Since fourth query parameter is constant it should be either" +
                     "numberOfEventsToRetrain or decayRate or the first coordinate of data point i.e int or float or double but found " +attributeExpressionExecutors[3].getReturnType());
         }
-        /*else {
+        *//*else {
             logger.info("numberOfEventsToRetrain and decay rate not specified.using default");
             coordinateStartIndex = 3;
-        }*/
+        }*//*
 
-        dimensionality = attributeExpressionExecutors.length - coordinateStartIndex;
+        dimensionality = attributeExpressionExecutors.length - coordinateStartIndex;*/
 
 
         //new end

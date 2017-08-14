@@ -1,19 +1,23 @@
 package org.wso2.extension.siddhi.execution.ml.clustering.kmeans;
 
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.testng.AssertJUnit;
+import org.wso2.extension.siddhi.execution.ml.classification.perceptron.PerceptronClassifierUpdaterStreamProcessorExtensionTestCase;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 
 public class KMeansStreamProcessorExtensionTest {
 
+    private static final Logger logger = Logger.getLogger(KMeansStreamProcessorExtensionTest.class);
     private volatile int count;
     @Before
     public void init() {
@@ -508,6 +512,112 @@ public class KMeansStreamProcessorExtensionTest {
             inputHandler.send(new Object[]{25.1833, 26.2168, 23.5599, 29.7557, 29.9423, 25.1303, 26.6528, 21.2207, 21.0566, 28.8507});
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    //Acceptance Criteria for mini batch
+    //System should validate that in the InputStream except for attribute_0 and attribute_1 others should be constant throughout the stream
+    @Test
+    public void testAC0() throws Exception {
+        logger.info("KMeansStreamProcessorExtension Test case - model name is variable");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, z String);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kmeans(z, 2, 10, 20, 0.2f, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+                AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+                AssertJUnit.assertTrue(e.getMessage().contains("modelName has to be a constant., when creating query query1 in siddhi app"));
+        }
+    }
+
+    @Test
+    public void testAC1() throws Exception {
+        logger.info("KMeansStreamProcessorExtension Test case - numberOfClusters(k) is variable");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, numberOfClusters int);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kmeans('model_1', numberOfClusters, 10, 20, 0.2f, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            //e.printStackTrace();
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("k has to be a constant., when creating query query1 in siddhi app"));
+        }
+    }
+
+    @Test
+    public void testAC2() throws Exception {
+        logger.info("KMeansStreamProcessorExtension Test case - maxIterations is variable");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, maxIterations int);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kmeans('model_1', 2, maxIterations, 20, 0.2f, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            //e.printStackTrace();
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("Maximum iterations has to be a constant., when creating query query1 in siddhi app"));
+        }
+    }
+
+    @Test
+    public void testAC3() throws Exception {
+        logger.info("KMeansStreamProcessorExtension Test case - numberOfEventsToRetrain is variable");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, numberOfEventsToRetrain int);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kmeans('model_1', 2, 10, numberOfEventsToRetrain, 0.2f, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            //e.printStackTrace();
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("numberOfEventsToRetrain has to be a constant, when creating query query1 in siddhi app"));
+        }
+    }
+
+    @Test
+    public void testAC4() throws Exception {
+        logger.info("KMeansStreamProcessorExtension Test case - decayRate is variable");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, decayRate float);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kmeans('model_1', 2, 10, 20, decayRate, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            //e.printStackTrace();
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("Decay rate has to be a constant, when creating query query1 in siddhi app"));
         }
     }
 
