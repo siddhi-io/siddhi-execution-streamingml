@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -67,13 +67,13 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 count++;
                 if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001}, inEvents[0].getData());
                 } else if (count == 2) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144}, inEvents[0].getData());
                 } else if (count == 3) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, false}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, false, 0.333926}, inEvents[0].getData());
                 } else if (count == 4) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, true}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, true, 0.5128304}, inEvents[0].getData());
                 }
             }
         });
@@ -109,6 +109,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             inputHandler1.send(new Object[]{0.8, 0.67, 0.1, 0.03});
             inputHandler1.send(new Object[]{0.33, 0.23, 0.632, 0.992});
 
+            AssertJUnit.assertEquals(4, count);
             Thread.sleep(1100);
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -263,10 +264,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 EventPrinter.print(inEvents);
                 // should emit probabilities
                 if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, 0.5263760000000001}, inEvents[0]
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001}, inEvents[0]
                             .getData());
                 } else if (count == 2) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, 0.2779144}, inEvents[0]
+                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144}, inEvents[0]
                             .getData());
                 }
             }
@@ -288,7 +289,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             // send some unseen data for prediction
             inputHandler1.send(new Object[]{0.8, 0.67, 0.1, 0.03});
             inputHandler1.send(new Object[]{0.33, 0.23, 0.632, 0.992});
-
+            AssertJUnit.assertEquals(2, count);
             Thread.sleep(1100);
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -401,10 +402,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 EventPrinter.print(inEvents);
                 // should emit probabilities
                 if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, 0.5263760000000001}, inEvents[0]
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001}, inEvents[0]
                             .getData());
                 } else if (count == 2) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, 0.2779144}, inEvents[0]
+                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144}, inEvents[0]
                             .getData());
                 }
             }
@@ -426,7 +427,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             // send some unseen data for prediction
             inputHandler1.send(new Object[]{0.8, 0.67, 0.1, 0.03});
             inputHandler1.send(new Object[]{0.33, 0.23, 0.632, 0.992});
-
+            AssertJUnit.assertEquals(2, count);
             Thread.sleep(1100);
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -456,10 +457,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 EventPrinter.print(inEvents);
                 // should emit probabilities
                 if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, 0.5263760000000001}, inEvents[0]
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001}, inEvents[0]
                             .getData());
                 } else if (count == 2) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, 0.2779144}, inEvents[0]
+                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144}, inEvents[0]
                             .getData());
                 }
             }
@@ -481,7 +482,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             // send some unseen data for prediction
             inputHandler1.send(new Object[]{0.8, 0.67, 0.1, 0.03});
             inputHandler1.send(new Object[]{0.33, 0.23, 0.632, 0.992});
-
+            AssertJUnit.assertEquals(2, count);
             Thread.sleep(1100);
         } catch (Exception e) {
             logger.error(e.getMessage());

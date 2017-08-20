@@ -43,7 +43,7 @@ public class PerceptronModel implements Serializable {
     }
 
     public double[] update(Boolean label, double[] features) {
-        boolean predictedLabel = this.classifyToClass(features);
+        boolean predictedLabel = this.classify(this.getPredictionProbability(features));
 
         if (!label.equals(predictedLabel)) {
             double error = Boolean.TRUE.equals(label) ? 1.0 : -1.0;
@@ -58,18 +58,22 @@ public class PerceptronModel implements Serializable {
         return Arrays.copyOf(weights, weights.length);
     }
 
-    public double classify(double[] features) {
+    private double getPredictionProbability(double[] features) {
         if (this.weights == null) {
             this.initWeights(features.length);
         }
-        double evaluation = MathUtil.dot(features, weights) + this.bias;
-        return evaluation;
+        return MathUtil.dot(features, weights) + this.bias;
     }
 
-    public boolean classifyToClass(double[] features) {
-        double evaluation = classify(features);
-        boolean prediction = evaluation > this.threshold ? true : false;
-        return prediction;
+    private boolean classify(double evaluation) {
+        return evaluation > this.threshold ? true : false;
+    }
+
+
+    public Object[] classify(double[] features) {
+        double evaluation = getPredictionProbability(features);
+        boolean prediction = classify(evaluation);
+        return new Object[]{prediction, evaluation};
     }
 
     public void initWeights(int size) {

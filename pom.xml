@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c)  2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -54,7 +54,6 @@
         <fommil.netlib.version>1.1.2.wso2v1</fommil.netlib.version>
         <arpack.combined.version>0.1.wso2v1</arpack.combined.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
-        <samoa.version>0.4.0-incubating</samoa.version>
         <javacliparser.version>0.5.0</javacliparser.version>
         <slf4j-version>1.7.5</slf4j-version>
         <apache.cassandra.version>0.8.1</apache.cassandra.version>
@@ -82,23 +81,6 @@
                 <artifactId>siddhi-query-api</artifactId>
                 <version>${siddhi.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.apache.samoa</groupId>
-                <artifactId>samoa-api</artifactId>
-                <version>${samoa.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.samoa</groupId>
-                <artifactId>samoa-instances</artifactId>
-                <version>${samoa.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.samoa</groupId>
-                <artifactId>samoa-local</artifactId>
-                <version>${samoa.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.github.javacliparser</groupId>
                 <artifactId>javacliparser</artifactId>

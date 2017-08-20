@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -48,6 +48,7 @@ import java.util.Map;
 
 /**
  * Predict using a linear binary classification Perceptron model built via
+ *
  * @{@link PerceptronClassifierUpdaterStreamProcessorExtension}
  */
 @Extension(
@@ -69,8 +70,13 @@ import java.util.Map;
                         type = {DataType.DOUBLE})
         },
         returnAttributes = {
-                @ReturnAttribute(name = "prediction", description = "predicted value", type = {DataType.DOUBLE,
-                        DataType.BOOL})},
+                @ReturnAttribute(name = "prediction",
+                        description = "Predicted value (true/false)",
+                        type = {DataType.BOOL}),
+                @ReturnAttribute(name = "confidenceLevel",
+                        description = "Probability of the prediction",
+                        type = {DataType.DOUBLE})
+        },
         examples = {
                 @Example(
                         syntax = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, " +
@@ -82,9 +88,11 @@ import java.util.Map;
                         description = "A Perceptron model with the name 'model1' will be used with a 0.0 bias and a " +
                                 "0.5 threshold learning rate to predict the label of the feature vector represented " +
                                 "by attribute_0, attribute_1, attribute_2, attribute_3. Predicted label (true/false) " +
-                                "along with the feature vector will be emitted to the outputStream. The outputStream " +
-                                "will have following definition; (attribute_0 double, attribute_1 double, attribute_2" +
-                                " double, attribute_3 double, prediction bool)."
+                                "along with the Prediction Confidence Level(probability) and the feature vector " +
+                                "will be emitted to the outputStream. " +
+                                "The outputStream will have following definition; " +
+                                "(attribute_0 double, attribute_1 double, attribute_2" +
+                                " double, attribute_3 double, prediction bool, confidenceLevel double)."
                 ),
                 @Example(
                         syntax = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, " +
@@ -95,10 +103,11 @@ import java.util.Map;
                                 "insert all events into outputStream;",
                         description = "A Perceptron model with the name 'model1' will be used with a 0.0 bias to " +
                                 "predict the label of the feature vector represented by attribute_0, attribute_1, " +
-                                "attribute_2, attribute_3. Predicted probability along with the feature vector will " +
-                                "be emitted to the outputStream. The outputStream will have following definition; " +
+                                "attribute_2, attribute_3. Prediction(true/false) along with the Prediction Confidence Level(probability) " +
+                                "feature vector will be emitted to the outputStream. " +
+                                "The outputStream will have following definition; " +
                                 "(attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, " +
-                                "prediction double)."
+                                "prediction bool, confidenceLevel double)."
                 ),
                 @Example(
                         syntax = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, " +
@@ -112,7 +121,7 @@ import java.util.Map;
                                 " attribute_2. Predicted probability along with the feature vector will " +
                                 "be emitted to the outputStream. The outputStream will have following definition; " +
                                 "(attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, " +
-                                "prediction double)."
+                                "prediction bool, confidenceLevel double)."
                 )
         }
 )
@@ -121,7 +130,6 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
     private static Logger logger = Logger.getLogger(PerceptronClassifierStreamProcessorExtension.class);
     private String modelName;
     private int numberOfFeatures;
-    private boolean isThresholdSet;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
 
     @Override
@@ -176,7 +184,6 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                             throw new SiddhiAppValidationException("Invalid parameter value found for the model" + "" +
                                     ".threshold argument. Expected a value between 0 & 1, but found: " + threshold);
                         }
-                        isThresholdSet = true;
                     } else {
                         throw new SiddhiAppValidationException("Invalid parameter type found for the model.threshold " +
                                 "" + "argument. Expected: " + Attribute.Type.DOUBLE + " but found: " +
@@ -229,20 +236,16 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                 // clean the model
                 PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
                 throw new SiddhiAppValidationException(String.format("Model [%s] expects %s features, but the " +
-                        "streamingml:perceptronClassifier specifies %s features", modelPrefix, model.getFeatureSize()
+                                "streamingml:perceptronClassifier specifies %s features", modelPrefix, model.getFeatureSize()
                         , numberOfFeatures));
             }
         } else {
             model.initWeights(numberOfFeatures);
         }
 
-        String attrName = "prediction";
         List<Attribute> attributes = new ArrayList<>();
-        if (isThresholdSet) {
-            attributes.add(new Attribute(attrName, Attribute.Type.BOOL));
-        } else {
-            attributes.add(new Attribute(attrName, Attribute.Type.DOUBLE));
-        }
+        attributes.add(new Attribute("prediction", Attribute.Type.BOOL));
+        attributes.add(new Attribute("confidenceLevel", Attribute.Type.DOUBLE));
 
         return attributes;
     }
@@ -296,15 +299,14 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                     features[i] = (double) featureVariableExpressionExecutors.get(i).execute(event);
                 }
 
-                Object[] data = new Object[1];
-                if (isThresholdSet) {
-                    data[0] = PerceptronModelsHolder.getInstance().getPerceptronModel(modelName).classifyToClass
-                            (features);
-                } else {
-                    data[0] = PerceptronModelsHolder.getInstance().getPerceptronModel(modelName).classify(features);
-                }
+                Object[] data = PerceptronModelsHolder.getInstance().getPerceptronModel(modelName).classify(features);
 
-                complexEventPopulater.populateComplexEvent(event, data);
+                if (data == null) {
+                    streamEventChunk.remove();
+                } else {
+                    // If output has values, then add those values to output stream
+                    complexEventPopulater.populateComplexEvent(event, data);
+                }
             }
         }
         nextProcessor.process(streamEventChunk);
