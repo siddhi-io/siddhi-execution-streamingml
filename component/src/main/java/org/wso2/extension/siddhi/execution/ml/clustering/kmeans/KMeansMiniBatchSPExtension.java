@@ -37,21 +37,30 @@ import java.util.logging.Logger;
 @Extension(
         name = "KMeansMiniBatch",
         namespace = "streamingML",
-        description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality should be passed as a parameter. " +
+        description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. " +
                 "All data points to be processed by an instance of class Clusterer should be of the same dimensionality. The Euclidean distance is taken as the distance metric. " +
-                "The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). Supports a given size window implementation. " +
-                "For example: #window.length(10)#kmeans:cluster(dimensionality, k, maxIterations, train, x1, x2, .... , xd)" +
-                "Model is trained for every specified number of events or when true is passed as train parameter. The training process initializes the first k distinct events in the window as" +
+                "The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). " +
+                "For example: #streamingML:KMeansMiniBatch(dimensionality, k, maxIterations, train, x1, x2, .... , xd)" +
+                "Model is trained for every specified number of events . The training process initializes the first k distinct events in the window as" +
                 "initial centroids. The dataPoints are assigned to the respective closest centroid.",
         parameters = {
                 @Parameter(
-                        name = "dimensionality",
-                        description = "The number of dimensions need to represent dataPoint. Needs to be constant for all events in a single stream.",
-                        type = {DataType.INT}
+                        name = "model.name",
+                        description = "The name for the model that is going to be created/reused for prediction",
+                        type = {DataType.STRING}
                 ),
                 @Parameter(
-                        name = "k",
-                        description = "The assumed number of natural clusters in the data set.",
+                        name = "decay.rate",
+                        description = "this is the decay rate of old data compared to new data. " +
+                                "Value of this will be in [0,1]. 0 means only old data used and" +
+                                "1 will mean that only new data is used",
+                        optional = true,
+                        type = {DataType.FLOAT},
+                        defaultValue = "0.01f"
+                ),
+                @Parameter(
+                        name = "number.of.clusters",
+                        description = "The assumed number of natural clusters (k) in the data set.",
                         type = {DataType.INT}
                 ),
                 @Parameter(
@@ -62,28 +71,12 @@ import java.util.logging.Logger;
                 @Parameter(
                         name = "number.of.events.to.retrain",
                         description = "New cluster centers are found for given number of events",
-                        optional = true,
-                        type = DataType.INT,
-                        defaultValue = "5"
-                ),
-                @Parameter(
-                        name = "train",
-                        optional = true,
-                        description = "train the model for available amount of data",
-                        type = DataType.BOOL,
-                        defaultValue = "false"
-                ),
-                @Parameter(
-                        name = "decay.rate",
-                        description = "this is the decay rate of old data compared to new data. " +
-                                "Value of this will be in [0,1]. 0 means only old data used and" +
-                                "1 will mean that only new data is used",
-                        type = {DataType.FLOAT}
+                        type = DataType.INT
                 ),
                 @Parameter(
                         name = "coordinate.values",
                         description = "This is a variable length argument. Depending on the dimensionality of data points we will receive coordinates along each axis.",
-                        type = {DataType.DOUBLE}
+                        type = {DataType.DOUBLE} //how to give multiple types?
                 )
 
         },
@@ -128,7 +121,7 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
     private double[] coordinateValues;
     private int minBatchSizeToTriggerSeparateThread = 10;
     private ExecutorService executorService;
-    private final static Logger logger = Logger.getLogger(KMeansStreamProcessorExtension.class.getName());
+    private final static Logger logger = Logger.getLogger(KMeansMiniBatchSPExtension.class.getName());
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor processor,
