@@ -40,4 +40,21 @@ public class MathUtil {
         return sum;
     }
 
+    /**
+     * finds the euclidean distance between two input points of equal dimension
+     * @param point1 input point one
+     * @param point2 input point two
+     * @return euclidean distance between point1 and point2
+     */
+    public static double euclideanDistance(double[] point1, double[] point2) {
+        double sum = 0.0;
+        int dimensionality = point1.length;
+        for (int i=0; i<dimensionality; i++) {
+            sum += Math.pow((point1[i] - point2[i]),2);
+        }
+        double dist = Math.sqrt(sum);
+        dist = Math.round(dist * 10000.0) / 10000.0;
+        return dist;
+    }
+
 }
