@@ -35,8 +35,8 @@ import java.util.logging.Logger;
 
 
 @Extension(
-        name = "kmeansincremental",
-        namespace = "streamingml",
+        name = "KMeansIncremental",
+        namespace = "streamingML",
         description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality should be passed as a parameter. " +
                 "All data points to be processed by an instance of class Clusterer should be of the same dimensionality. The Euclidean distance is taken as the distance metric. " +
                 "The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). Supports a given size window implementation. " +
@@ -143,20 +143,12 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
 
                 //validating and getting coordinate values
                 for (int i=coordinateStartIndex; i<coordinateStartIndex+dimensionality; i++) {
-                    //Object content = ;
                     try {
-                        coordinateValues[i-coordinateStartIndex] = (Integer) attributeExpressionExecutors[i].execute(streamEvent);
-                    } catch (ClassCastException e1) {
-                        try {
-                            coordinateValues[i-coordinateStartIndex] = (Double) attributeExpressionExecutors[i].execute(streamEvent);
-                        } catch (ClassCastException e2) {
-                            try {
-                                coordinateValues[i-coordinateStartIndex] = (Float) attributeExpressionExecutors[i].execute(streamEvent);
-                            } catch (ClassCastException e3) {
-                                throw new SiddhiAppValidationException("coordinate values should be int/float/double but found " +
-                                        attributeExpressionExecutors[i].execute(streamEvent).getClass());
-                            }
-                        }
+                        Number content = (Number) attributeExpressionExecutors[i].execute(streamEvent);
+                        coordinateValues[i-coordinateStartIndex] = content.doubleValue();
+                    } catch (ClassCastException e) {
+                        throw new SiddhiAppValidationException("coordinate values should be int/float/double/long but found " +
+                                attributeExpressionExecutors[i].execute(streamEvent).getClass());
                     }
                 }
 

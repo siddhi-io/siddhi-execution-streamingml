@@ -33,7 +33,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kmeansincremental('model1', 0.2f, 2, x, y) " +
+                        "from InputStream#streamingML:KMeansIncremental('model1', 0.2f, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -101,7 +101,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kmeansincremental('model1', 2, x, y) " +
+                        "from InputStream#streamingML:KMeansIncremental('model1', 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -169,7 +169,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kmeansincremental('model1', 0.2f, 2, x, y) " +
+                        "from InputStream#streamingML:KMeansIncremental('model1', 0.2f, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -204,7 +204,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kmeansincremental('model1', 0.2f, 2, x, y) " +
+                        "from InputStream#streamingML:KMeansIncremental('model1', 0.2f, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
