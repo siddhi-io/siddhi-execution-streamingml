@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c)  2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -74,20 +74,12 @@
             <classifier>runtime</classifier>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.samoa</groupId>
-            <artifactId>samoa-api</artifactId>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.agent</artifactId>
+            <classifier>runtime</classifier>
+            <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.samoa</groupId>
-            <artifactId>samoa-instances</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.samoa</groupId>
-            <artifactId>samoa-local</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.github.javacliparser</groupId>
             <artifactId>javacliparser</artifactId>
@@ -120,8 +112,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-
-
     </dependencies>
 
     <build>
@@ -157,7 +147,6 @@
                             org.wso2.extension.siddhi.execution.ml.*,
                         </Export-Package>
                         <Private-Package>
-                            org.apache.samoa.*,
                             com.github.javacliparser.*,
                             com.google.common.*,
                             scala.*,
