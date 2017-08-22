@@ -35,11 +35,8 @@ public class PerceptronModelTest {
         model.update(true, new double[]{0.93, 0.71, 0.02, 0.122});
         model.update(false, new double[]{0.29, 0.24, 0.98, 0.65});
 
-        AssertJUnit.assertEquals(false, model.classify(new double[]
-                {0.0, 0.0, 0.90, 0.62})[0]);
-        AssertJUnit.assertEquals(false, model.classify(new double[]
-                {0.0, 0.0, 0.77, 1.0})[0]);
-        AssertJUnit.assertEquals(true, model.classify(new double[]
-                {0.990, 0.807, 0.12, 0.15})[0]);
+        AssertJUnit.assertEquals(false, model.classify(new double[]{0.0, 0.0, 0.90, 0.62})[0]);
+        AssertJUnit.assertEquals(false, model.classify(new double[]{0.0, 0.0, 0.77, 1.0})[0]);
+        AssertJUnit.assertEquals(true, model.classify(new double[]{0.990, 0.807, 0.12, 0.15})[0]);
     }
 }

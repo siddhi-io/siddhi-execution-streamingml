@@ -48,8 +48,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Build or update a linear binary classification Perceptron model and emit the weights of the
- * features in the order of the attributes.
+ * Build or update a linear binary classification Perceptron model and emit the weights of the features in the order of
+ * the attributes.
  */
 @Extension(
         name = "updatePerceptronClassifier",
@@ -66,42 +66,35 @@ import java.util.Map;
                         description = "The learning rate of the Perceptron algorithm.",
                         type = {DataType.DOUBLE}, optional = true, defaultValue = "0.1"),
                 @Parameter(name = "model.features",
-                        description = "Features of the model which should be attributes " +
-                                "of the stream.",
+                        description = "Features of the model which should be attributes of the stream.",
                         type = {DataType.DOUBLE, DataType.INT})},
         returnAttributes = {
                 @ReturnAttribute(name = "featureWeight", description = "Weight of the <feature" +
-                        ".name> of the " + "model.", type = {DataType.DOUBLE})},
+                ".name> of the " + "model.", type = {DataType.DOUBLE})},
         examples = {
-                @Example(syntax = "define stream StreamA (attribute_0 double, " +
-                        "attribute_1 double, attribute_2 double," +
+                @Example(syntax = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double," +
                         " attribute_3 double, attribute_4 " + "string );\n\n" +
-                        "from StreamA#streamingml:updatePerceptronClassifier('model1', " +
-                        "attribute_4, 0.01, attribute_0, attribute_1, attribute_2, " +
-                        "attribute_3) \n" +
+                        "from StreamA#streamingml:updatePerceptronClassifier('model1', attribute_4, 0.01, " +
+                        "attribute_0, attribute_1, attribute_2, attribute_3) \n" +
                         "insert all events into outputStream;",
-                        description = "A Perceptron model with the name 'model1' will be " +
-                                "built/updated with a 0.01 learning rate using attribute_0, " +
-                                "attribute_1, attribute_2, attribute_3 as features and " +
-                                "attribute_4 as the label. Updated weights of the model will " +
-                                "be emitted to the outputStream."),
-                @Example(syntax = "define stream StreamA (attribute_0 double, " +
-                        "attribute_1 double, attribute_2 double," +
+                        description = "A Perceptron model with the name 'model1' will be built/updated with a 0.01 " +
+                                "learning rate using attribute_0, attribute_1, attribute_2, attribute_3 as features " +
+                                "and attribute_4 as the label. Updated weights of the model will be emitted to the " +
+                                "outputStream."),
+                @Example(syntax = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double," +
                         "attribute_3 double, attribute_4 string );\n\n " +
-                        "from StreamA#streamingml:updatePerceptronClassifier('model1', " +
-                        "attribute_4, attribute_0, attribute_1, attribute_2, attribute_3) \n" +
+                        "from StreamA#streamingml:updatePerceptronClassifier('model1', attribute_4, attribute_0, " +
+                        "attribute_1, attribute_2, attribute_3) \n" +
                         "insert all events into outputStream;",
-                        description = "A Perceptron model with the name 'model1' will be " +
-                                "built/updated with a default 0.1 learning rate using attribute_0, " +
-                                "attribute_1, attribute_2, attribute_3 as features and " +
-                                "attribute_4 as the label. Updated weights of the model " +
-                                "will be appended to the outputStream.")
+                        description = "A Perceptron model with the name 'model1' will be built/updated with a default" +
+                                " 0.1 learning rate using attribute_0, attribute_1, attribute_2, attribute_3 as " +
+                                "features and attribute_4 as the label. Updated weights of the model will be appended" +
+                                " to the outputStream.")
         }
 )
 public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamProcessor {
 
-    private static Logger logger = Logger
-            .getLogger(PerceptronClassifierUpdaterStreamProcessorExtension.class);
+    private static Logger logger = Logger.getLogger(PerceptronClassifierUpdaterStreamProcessorExtension.class);
     private String modelName;
     private int numberOfFeatures;
     private VariableExpressionExecutor labelVariableExpressionExecutor;
@@ -109,8 +102,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ConfigReader configReader,
-                                   SiddhiAppContext siddhiAppContext) {
+            attributeExpressionExecutors, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         String siddhiAppName = siddhiAppContext.getName();
         PerceptronModel model;
         String modelPrefix;
@@ -120,83 +112,70 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
 
         if (attributeExpressionLength >= 3) {
             if (attributeExpressionLength > 3 + maxNumberOfFeatures) {
-                throw new SiddhiAppValidationException(String.format("Invalid number of " +
-                        "parameters for streamingml:updatePerceptronClassifier. " +
-                        "This Stream Processor requires at most %s parameters, namely, " +
-                        "model.name, model.label, learning.rate, model.features but found %s " +
+                throw new SiddhiAppValidationException(String.format("Invalid number of parameters for " +
+                        "streamingml:updatePerceptronClassifier. This Stream Processor requires at most %s " +
+                        "parameters, namely, model.name, model.label, learning.rate, model.features but found %s " +
                         "parameters", 3 + maxNumberOfFeatures, attributeExpressionLength));
             }
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
-                    modelPrefix = (String) ((ConstantExpressionExecutor)
-                            attributeExpressionExecutors[0]).getValue();
+                    modelPrefix = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
                     // model name = user given name + siddhi app name
                     modelName = modelPrefix + "." + siddhiAppName;
                 } else {
-                    throw new SiddhiAppValidationException("Invalid parameter type found " +
-                            "for the model.name argument, required " + Attribute.Type.STRING
-                            + " but found "
-                            + attributeExpressionExecutors[0].getReturnType().toString());
+                    throw new SiddhiAppValidationException("Invalid parameter type found for the model.name argument," +
+                            " required " + Attribute.Type.STRING + " but found " + attributeExpressionExecutors[0].
+                            getReturnType().toString());
                 }
             } else {
-                throw new SiddhiAppValidationException("Parameter model.name must be a constant"
-                        + " but found " +
+                throw new SiddhiAppValidationException("Parameter model.name must be a constant" + " but found " +
                         attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
 
             if (this.attributeExpressionExecutors[1] instanceof VariableExpressionExecutor) {
-                labelVariableExpressionExecutor = (VariableExpressionExecutor)
-                        this.attributeExpressionExecutors[1];
+                labelVariableExpressionExecutor = (VariableExpressionExecutor) this.attributeExpressionExecutors[1];
                 // label attribute should be bool or string types
-                Attribute.Type labelAttributeType = inputDefinition
-                        .getAttributeType(labelVariableExpressionExecutor.getAttribute().getName());
-                if (!(labelAttributeType == Attribute.Type.BOOL ||
-                        labelAttributeType == Attribute.Type.STRING)) {
+                Attribute.Type labelAttributeType = inputDefinition.getAttributeType(labelVariableExpressionExecutor
+                        .getAttribute().getName());
+                if (!(labelAttributeType == Attribute.Type.BOOL || labelAttributeType == Attribute.Type.STRING)) {
                     throw new SiddhiAppValidationException(String.format("[model.label] %s in " +
-                                    "updatePerceptronClassifier should be either a %s or a %s " +
-                                    "(true/false). But found %s", labelVariableExpressionExecutor.
-                                    getAttribute().getName(), Attribute.Type.BOOL,
+                            "updatePerceptronClassifier should be either a %s or a %s (true/false). But found" + " "
+                            + "%s", labelVariableExpressionExecutor.getAttribute().getName(), Attribute.Type.BOOL,
                             Attribute.Type.STRING, labelAttributeType.name()));
                 }
             } else {
-                throw new SiddhiAppValidationException("model.label attribute in " +
-                        "updatePerceptronClassifier should be a variable, but found a "
-                        + this.attributeExpressionExecutors[1].getClass()
+                throw new SiddhiAppValidationException("model.label attribute in updatePerceptronClassifier should "
+                        + "be a variable, but found a " + this.attributeExpressionExecutors[1].getClass()
                         .getCanonicalName());
             }
 
             if (attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor) {
                 // learning rate
                 if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.DOUBLE) {
-                    learningRate = (double) ((ConstantExpressionExecutor)
-                            attributeExpressionExecutors[2]).getValue();
+                    learningRate = (double) ((ConstantExpressionExecutor) attributeExpressionExecutors[2])
+                            .getValue();
                 } else {
-                    throw new SiddhiAppValidationException("Invalid parameter type found for" +
-                            " the learning.rate argument. Expected: "
-                            + Attribute.Type.DOUBLE + " but found: " +
+                    throw new SiddhiAppValidationException("Invalid parameter type found for the learning.rate " +
+                            "argument. Expected: " + Attribute.Type.DOUBLE + " but found: " +
                             attributeExpressionExecutors[2].getReturnType().toString());
                 }
 
                 // set number of features
                 numberOfFeatures = attributeExpressionLength - 3;
                 // feature values
-                extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors,
-                        3);
+                extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 3);
             } else if (attributeExpressionExecutors[2] instanceof VariableExpressionExecutor) {
                 // set number of features
                 numberOfFeatures = attributeExpressionLength - 2;
                 // feature values
-                extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors,
-                        2);
+                extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 2);
             } else {
-                throw new SiddhiAppValidationException("3rd Parameter must either be a constant " +
-                        "(learning.rate) or an attribute of the stream " +
-                        "(model" + ".features), but found a " +
+                throw new SiddhiAppValidationException("3rd Parameter must either be a constant (learning.rate) or "
+                        + "an attribute of the stream (model" + ".features), but found a " +
                         attributeExpressionExecutors[2].getClass().getCanonicalName());
             }
         } else {
-            throw new SiddhiAppValidationException(String.format("Invalid number of parameters " +
-                    "[%s] for " +
+            throw new SiddhiAppValidationException(String.format("Invalid number of parameters [%s] for " +
                     "streamingml:updatePerceptronClassifier", attributeExpressionLength));
         }
 
@@ -212,9 +191,8 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
             // validate the model
             if (numberOfFeatures != model.getFeatureSize()) {
                 PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
-                throw new SiddhiAppValidationException(String.format("Model [%s] expects %s " +
-                        "features, but the streamingml:updatePerceptronClassifier " +
-                        "specifies %s features", modelPrefix, model
+                throw new SiddhiAppValidationException(String.format("Model [%s] expects %s features, but the " +
+                        "streamingml:updatePerceptronClassifier specifies %s features", modelPrefix, model
                         .getFeatureSize(), numberOfFeatures));
             }
         } else {
@@ -223,8 +201,8 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
 
         List<Attribute> attributes = new ArrayList<>();
         for (int i = 0; i < numberOfFeatures; i++) {
-            attributes.add(new Attribute(featureVariableExpressionExecutors.get(i).
-                    getAttribute().getName() + ".weight", Attribute.Type.DOUBLE));
+            attributes.add(new Attribute(featureVariableExpressionExecutors.get(i).getAttribute().getName() +
+                    ".weight", Attribute.Type.DOUBLE));
         }
 
         return attributes;
@@ -235,27 +213,20 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
         // feature values start
         for (int i = startIndex; i < attributeExpressionLength; i++) {
             if (attributeExpressionExecutors[i] instanceof VariableExpressionExecutor) {
-                featureVariableExpressionExecutors.add((VariableExpressionExecutor)
-                        attributeExpressionExecutors[i]);
+                featureVariableExpressionExecutors.add((VariableExpressionExecutor) attributeExpressionExecutors[i]);
                 // other attributes should be double type.
-                String attributeName = ((VariableExpressionExecutor)
-                        attributeExpressionExecutors[i]).getAttribute()
+                String attributeName = ((VariableExpressionExecutor) attributeExpressionExecutors[i]).getAttribute()
                         .getName();
-                Attribute.Type featureAttributeType =
-                        inputDefinition.getAttributeType(attributeName);
-
-                if (!(featureAttributeType == Attribute.Type.DOUBLE ||
-                        featureAttributeType == Attribute.Type.INT)) {
+                Attribute.Type featureAttributeType = inputDefinition.getAttributeType(attributeName);
+                if (!(featureAttributeType == Attribute.Type.DOUBLE || featureAttributeType == Attribute.Type.INT)) {
                     throw new SiddhiAppValidationException(String.format("model.features in " +
-                                    "updatePerceptronClassifier should be of type %s or %s. " +
-                                    "But there's an " + "attribute called " + "%s of type %s",
-                            Attribute.Type.DOUBLE, Attribute.Type.INT, attributeName,
+                            "updatePerceptronClassifier should be of type %s or %s. But there's an " + "attribute" +
+                            " called " + "%s of type %s", Attribute.Type.DOUBLE, Attribute.Type.INT, attributeName,
                             featureAttributeType.name()));
                 }
             } else {
-                throw new SiddhiAppValidationException("Parameter[" + (i + 1) + "] of " +
-                        "updatePerceptronClassifier must be an attribute present in the stream, " +
-                        "but found a " + attributeExpressionExecutors[i]
+                throw new SiddhiAppValidationException("Parameter[" + (i + 1) + "] of updatePerceptronClassifier must" +
+                        " be an attribute present in the stream, but found a " + attributeExpressionExecutors[i]
                         .getClass().getCanonicalName());
             }
         }
@@ -265,36 +236,29 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
      * Process events received by PerceptronClassifierUpdaterStreamProcessorExtension
      *
      * @param streamEventChunk      the event chunk that need to be processed
-     * @param nextProcessor         the next processor to which the success events need
-     *                              to be passed
-     * @param streamEventCloner     helps to clone the incoming event for local storage
-     *                              or modification
+     * @param nextProcessor         the next processor to which the success events need to be passed
+     * @param streamEventCloner     helps to clone the incoming event for local storage or modification
      * @param complexEventPopulater helps to populate the events with the resultant attributes
      */
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
-                           StreamEventCloner streamEventCloner,
-                           ComplexEventPopulater complexEventPopulater) {
+                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
 
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("Event received; Model name: %s Event:%s",
-                            modelName, event));
+                    logger.debug(String.format("Event received; Model name: %s Event:%s", modelName, event));
                 }
 
                 Object labelObj = labelVariableExpressionExecutor.execute(event);
                 String label;
                 if (labelObj instanceof String) {
                     label = (String) labelObj;
-                    if (!(label.equalsIgnoreCase("true") ||
-                            label.equalsIgnoreCase("false"))) {
-                        throw new SiddhiAppRuntimeException(String.format("Detected attribute " +
-                                "type of the label is String, but the value is not " +
-                                "either true or false but %s. Note: Perceptron " +
-                                "classifier can be used only for " +
-                                "binary classification problems.", label));
+                    if (!(label.equalsIgnoreCase("true") || label.equalsIgnoreCase("false"))) {
+                        throw new SiddhiAppRuntimeException(String.format("Detected attribute type of the label " +
+                                "is String, but the value is not either true or false but %s. Note: Perceptron " +
+                                "classifier can be used only for binary classification problems.", label));
                     }
                 } else {
                     // should be a boolean as validated at init
@@ -303,13 +267,11 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
 
                 double[] features = new double[numberOfFeatures];
                 for (int i = 0; i < numberOfFeatures; i++) {
-                    // attributes cannot ever be any other type than int or double as we've
-                    // validated the query at init
+                    // attributes cannot ever be any other type than int or double as we've validated the query at init
                     features[i] = (double) featureVariableExpressionExecutors.get(i).execute(event);
                 }
 
-                double[] weights = PerceptronModelsHolder.getInstance().
-                        getPerceptronModel(modelName).update(Boolean
+                double[] weights = PerceptronModelsHolder.getInstance().getPerceptronModel(modelName).update(Boolean
                         .parseBoolean(label), features);
                 // convert weights to object[]
                 Object[] data = new Object[weights.length];
@@ -335,15 +297,13 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> currentState = new HashMap<>();
-        currentState.put("PerceptronModelsMap", PerceptronModelsHolder.
-                getInstance().getClonedPerceptronModelMap());
+        currentState.put("PerceptronModelsMap", PerceptronModelsHolder.getInstance().getClonedPerceptronModelMap());
         return currentState;
     }
 
     @Override
     public void restoreState(Map<String, Object> state) {
-        PerceptronModelsHolder.getInstance().
-                setPerceptronModelMap((Map<String, PerceptronModel>) state.get
-                        ("PerceptronModelsMap"));
+        PerceptronModelsHolder.getInstance().setPerceptronModelMap((Map<String, PerceptronModel>) state.get
+                ("PerceptronModelsMap"));
     }
 }
