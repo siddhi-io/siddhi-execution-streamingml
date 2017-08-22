@@ -51,7 +51,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension1() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - Assert predictions and evolution");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - Assert predictions and evolution");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -124,7 +124,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension2() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - Features are not of type double");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - Features are not of type double");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -145,7 +145,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension3() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - bias is not double");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - bias is not double");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -166,7 +166,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension4() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - threshold is not double");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - threshold is not double");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -187,7 +187,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension5() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - threshold is greater than 1");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - threshold is greater than 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -208,7 +208,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension6() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - invalid model name");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - invalid model name");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -229,7 +229,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension7() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - incorrect initialization");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - incorrect initialization");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -250,7 +250,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension8() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - default threshold");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - default threshold");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -304,7 +304,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension9() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - Incompatible model");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - Incompatible model");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -326,7 +326,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension10() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - invalid model name type");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - invalid model name type");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -346,7 +346,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension11() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - incorrect order of parameters");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - incorrect order of parameters");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -367,7 +367,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension12() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - more parameters than needed");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - more parameters than needed");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -388,7 +388,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension13() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - default bias, threshold");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - default bias, threshold");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -442,7 +442,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension14() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - init predict first and then " +
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - init predict first and then " +
                 "update model");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -497,7 +497,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension15() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - Incompatible model (reverse)");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - Incompatible model (reverse)");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -519,7 +519,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension16() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - threshold is less than 0");
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - threshold is less than 0");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -536,6 +536,29 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter value found for the model.threshold " +
                     "argument. Expected a value between 0 & 1, but found: -0.1"));
+        }
+    }
+
+    @Test
+    public void testClassificationStreamProcessorExtension17() throws InterruptedException {
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - model is visible only within the " +
+                "SiddhiApp");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "@App:name('PerceptronTestApp2') \ndefine stream StreamA (attribute_0 double, " +
+                "attribute_1 double, attribute_2 " + "double, attribute_3 double, attribute_4 string );";
+        String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0," +
+                "0.6, attribute_0, attribute_1, attribute_2) \n" + "insert all events into " + "outputStream;");
+
+        try {
+            SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager.createSiddhiAppRuntime(trainingStream + trainingQuery);
+            // should be successful even though both the apps are using the same model name with different feature
+            // values
+            SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+
+        } catch (Exception e) {
+            logger.error(e);
+            AssertJUnit.fail("Model is visible across Siddhi Apps which is wrong!");
         }
     }
 
