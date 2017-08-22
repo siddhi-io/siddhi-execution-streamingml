@@ -535,7 +535,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter value found for the model.threshold " +
-                    "argument. Expected a value between 0 & 1, but found: 1.1"));
+                    "argument. Expected a value between 0 & 1, but found: -0.1"));
         }
     }
 
