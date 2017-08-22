@@ -618,4 +618,77 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         }
     }
 
+    @Test
+    public void testClassificationStreamProcessorExtension18() throws InterruptedException {
+        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - Restore from a restart");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setPersistenceStore(new InMemoryPersistenceStore());
+
+        String inStreamDefinition = "@App:name('PerceptronTestApp') \ndefine stream StreamA (attribute_0 double, " +
+                "attribute_1 double, attribute_2 " +
+                "double, attribute_3 double, attribute_4 bool );";
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier('model1'," +
+                "attribute_4, 0.01, attribute_0, attribute_1, attribute_2, attribute_3)" +
+                "\ninsert all events into outputStream;");
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                count++;
+                if (count == 1) {
+                    AssertJUnit.assertArrayEquals(new Object[]{0.1, 0.8, 0.2, 0.03, "true", 0.001, 0.008, 0.002,
+                            3.0E-4}, inEvents[0].getData());
+                }
+                if (count == 3) {
+                    AssertJUnit.assertArrayEquals(new Object[]{0.2, 0.95, 0.22, 0.1, "true", 0.003, 0.0175,
+                            0.004200000000000001, 0.0013}, inEvents[0].getData());
+                }
+            }
+        });
+        try {
+            InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
+            siddhiAppRuntime.start();
+            inputHandler.send(new Object[]{0.1, 0.8, 0.2, 0.03, "true"});
+            // persist
+            siddhiManager.persist();
+            Thread.sleep(5000);
+            // send few more events to change the weights
+            inputHandler.send(new Object[]{0.8, 0.1, 0.65, 0.92, "false"});
+            inputHandler.send(new Object[]{0.2, 0.95, 0.22, 0.1, "true"});
+            inputHandler.send(new Object[]{0.75, 0.1, 0.58, 0.71, "false"});
+            Thread.sleep(1000);
+            // shutdown the app
+            siddhiAppRuntime.shutdown();
+
+            // recreate the same app
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    count++;
+                    if (count == 5) {
+                        // as the model is new, we should see the same result as count==1
+                        AssertJUnit.assertArrayEquals(new Object[]{0.1, 0.8, 0.2, 0.03, "true", 0.001, 0.008, 0.002,
+                                3.0E-4}, inEvents[0].getData());
+                    }
+
+                }
+            });
+            // start the app
+            siddhiAppRuntime.start();
+            inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
+            // send a new event
+            inputHandler.send(new Object[]{0.1, 0.8, 0.2, 0.03, "true"});
+
+            Thread.sleep(1100);
+            AssertJUnit.assertEquals(5, count);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }
 }

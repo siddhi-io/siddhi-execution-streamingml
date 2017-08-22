@@ -187,7 +187,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @Test
     public void testClassificationStreamProcessorExtension5() throws InterruptedException {
-        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - threshold is not between 0 & 1");
+        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - threshold is greater than 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
@@ -517,5 +517,26 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         }
     }
 
+    @Test
+    public void testClassificationStreamProcessorExtension16() throws InterruptedException {
+        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - threshold is less than 0");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
+                "double, attribute_3 double, attribute_4 string );";
+        String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0," +
+                "-0.1, attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into " +
+                "outputStream;");
+
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            AssertJUnit.fail();
+        } catch (Exception e) {
+            logger.error(e);
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter value found for the model.threshold " +
+                    "argument. Expected a value between 0 & 1, but found: 1.1"));
+        }
+    }
 
 }
