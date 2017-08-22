@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.extension.siddhi.execution.ml.classification.perceptron;
+package org.wso2.extension.siddhi.execution.streamingml.classification.perceptron;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.execution.ml.classification.perceptron.util.PerceptronModel;
-import org.wso2.extension.siddhi.execution.ml.classification.perceptron.util.PerceptronModelsHolder;
+import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModel;
+import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModelsHolder;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -103,8 +103,8 @@ import java.util.Map;
                                 "insert all events into outputStream;",
                         description = "A Perceptron model with the name 'model1' will be used with a 0.0 bias to " +
                                 "predict the label of the feature vector represented by attribute_0, attribute_1, " +
-                                "attribute_2, attribute_3. Prediction(true/false) along with the Prediction Confidence Level(probability) " +
-                                "feature vector will be emitted to the outputStream. " +
+                                "attribute_2, attribute_3. Prediction(true/false) along with the Prediction " +
+                                "Confidence Level(probability) feature vector will be emitted to the outputStream. " +
                                 "The outputStream will have following definition; " +
                                 "(attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, " +
                                 "prediction bool, confidenceLevel double)."
@@ -236,7 +236,7 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                 // clean the model
                 PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
                 throw new SiddhiAppValidationException(String.format("Model [%s] expects %s features, but the " +
-                                "streamingml:perceptronClassifier specifies %s features", modelPrefix, model.getFeatureSize()
+                        "streamingml:perceptronClassifier specifies %s features", modelPrefix, model.getFeatureSize()
                         , numberOfFeatures));
             }
         } else {
@@ -300,13 +300,8 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                 }
 
                 Object[] data = PerceptronModelsHolder.getInstance().getPerceptronModel(modelName).classify(features);
-
-                if (data == null) {
-                    streamEventChunk.remove();
-                } else {
-                    // If output has values, then add those values to output stream
-                    complexEventPopulater.populateComplexEvent(event, data);
-                }
+                // If output has values, then add those values to output stream
+                complexEventPopulater.populateComplexEvent(event, data);
             }
         }
         nextProcessor.process(streamEventChunk);

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.extension.siddhi.execution.ml.classification.perceptron;
+package org.wso2.extension.siddhi.execution.streamingml.classification.perceptron;
 
 import org.apache.log4j.Logger;
 import org.testng.AssertJUnit;
@@ -58,8 +58,8 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double, attribute_3 double, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier('model1', " +
-                "attribute_4, 0.01, attribute_0, attribute_1, attribute_2, attribute_3) \n" +
-                "insert all events into outputStream;");
+                "attribute_4, 0.01, attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into" +
+                " outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
@@ -70,8 +70,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
                 EventPrinter.print(inEvents);
                 if (count == 1) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.1, 0.8, 0.2, 0.03, "true", 0.001, 0.008, 0.002,
-                            3.0E-4}, inEvents[0]
-                            .getData());
+                            3.0E-4}, inEvents[0].getData());
                 }
                 if (count == 3) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.1, 0.65, 0.92, "false", 0.003, 0.0175,
@@ -91,8 +90,8 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             while (scanner.hasNext()) {
                 String eventStr = scanner.nextLine();
                 String[] event = eventStr.split(",");
-                inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]),
-                        Double.valueOf(event[2]), Double.valueOf(event[3]), event[4]});
+                inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]), Double.valueOf
+                        (event[2]), Double.valueOf(event[3]), event[4]});
 
                 try {
                     Thread.sleep(1);

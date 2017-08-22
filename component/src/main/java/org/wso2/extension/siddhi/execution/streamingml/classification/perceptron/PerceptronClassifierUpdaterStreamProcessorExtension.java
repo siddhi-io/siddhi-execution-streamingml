@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.extension.siddhi.execution.ml.classification.perceptron;
+package org.wso2.extension.siddhi.execution.streamingml.classification.perceptron;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.execution.ml.classification.perceptron.util.PerceptronModel;
-import org.wso2.extension.siddhi.execution.ml.classification.perceptron.util.PerceptronModelsHolder;
+import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModel;
+import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModelsHolder;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;

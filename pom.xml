@@ -27,11 +27,11 @@
         <version>5</version>
     </parent>
 
-    <groupId>org.wso2.extension.siddhi.execution.ml</groupId>
-    <artifactId>siddhi-execution-ml-parent</artifactId>
+    <groupId>org.wso2.extension.siddhi.execution.streamingml</groupId>
+    <artifactId>siddhi-execution-streamingml-parent</artifactId>
     <version>1.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Siddhi Execution ML Extension Parent</name>
+    <name>Siddhi Execution Streaming ML Extension Parent</name>
     <url>http://wso2.org</url>
 
     <profiles>
@@ -47,24 +47,18 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-M13</siddhi.version>
+        <siddhi.version>4.0.0-M48</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
-        <ml.version>1.2.2</ml.version>
-        <breeze.version>0.11.2.wso2v1</breeze.version>
-        <fommil.netlib.version>1.1.2.wso2v1</fommil.netlib.version>
-        <arpack.combined.version>0.1.wso2v1</arpack.combined.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
-        <javacliparser.version>0.5.0</javacliparser.version>
         <slf4j-version>1.7.5</slf4j-version>
-        <apache.cassandra.version>0.8.1</apache.cassandra.version>
         <testng.version>6.8</testng.version>
         <jacoco.version>0.7.9</jacoco.version>
     </properties>
 
     <scm>
-        <connection>scm:git:https://github.com/wso2-extensions/siddhi-execution-ml.git</connection>
-        <url>https://github.com/wso2-extensions/siddhi-execution-ml.git</url>
-        <developerConnection>scm:git:https://github.com/wso2-extensions/siddhi-execution-ml.git
+        <connection>scm:git:https://github.com/wso2-extensions/siddhi-execution-streamingml.git</connection>
+        <url>https://github.com/wso2-extensions/siddhi-execution-streamingml.git</url>
+        <developerConnection>scm:git:https://github.com/wso2-extensions/siddhi-execution-streamingml.git
         </developerConnection>
         <tag>HEAD</tag>
     </scm>
@@ -76,17 +70,6 @@
                 <artifactId>siddhi-core</artifactId>
                 <version>${siddhi.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.siddhi</groupId>
-                <artifactId>siddhi-query-api</artifactId>
-                <version>${siddhi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.javacliparser</groupId>
-                <artifactId>javacliparser</artifactId>
-                <version>${javacliparser.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
@@ -102,22 +85,6 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j-version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.cassandra</groupId>
-                <artifactId>cassandra-all</artifactId>
-                <version>${apache.cassandra.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
             <dependency>
                 <groupId>org.apache.log4j.wso2</groupId>
                 <artifactId>log4j</artifactId>
@@ -153,37 +120,10 @@
                 <classifier>runtime</classifier>
                 <version>${jacoco.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.wso2.carbon.ml</groupId>
-                <artifactId>org.wso2.carbon.ml.core</artifactId>
-                <version>${ml.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.testng</groupId>
-                        <artifactId>testng</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.org.scalanlp</groupId>
-                <artifactId>breeze_2.10</artifactId>
-                <version>${breeze.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.github.fommil.netlib</groupId>
-                <artifactId>core</artifactId>
-                <version>${fommil.netlib.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.sourceforge.f2j</groupId>
-                <artifactId>arpack_combined</artifactId>
-                <version>${arpack.combined.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

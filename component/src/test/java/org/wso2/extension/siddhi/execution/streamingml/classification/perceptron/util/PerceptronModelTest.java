@@ -1,4 +1,4 @@
-package org.wso2.extension.siddhi.execution.ml.classification.perceptron.util;
+package org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;

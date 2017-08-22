@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.extension.siddhi.execution.ml.classification.perceptron;
+package org.wso2.extension.siddhi.execution.streamingml.classification.perceptron;
 
 import org.apache.log4j.Logger;
 import org.testng.AssertJUnit;
@@ -67,13 +67,17 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 count++;
                 if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001},
+                            inEvents[0].getData());
                 } else if (count == 2) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144},
+                            inEvents[0].getData());
                 } else if (count == 3) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, false, 0.333926}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, false, 0.333926}, inEvents[0]
+                            .getData());
                 } else if (count == 4) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, true, 0.5128304}, inEvents[0].getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, true, 0.5128304},
+                            inEvents[0].getData());
                 }
             }
         });
@@ -264,11 +268,11 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 EventPrinter.print(inEvents);
                 // should emit probabilities
                 if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001}, inEvents[0]
-                            .getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001},
+                            inEvents[0].getData());
                 } else if (count == 2) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144}, inEvents[0]
-                            .getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144},
+                            inEvents[0].getData());
                 }
             }
         });
@@ -402,11 +406,11 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 EventPrinter.print(inEvents);
                 // should emit probabilities
                 if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001}, inEvents[0]
-                            .getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001},
+                            inEvents[0].getData());
                 } else if (count == 2) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144}, inEvents[0]
-                            .getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144},
+                            inEvents[0].getData());
                 }
             }
         });
@@ -457,11 +461,11 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 EventPrinter.print(inEvents);
                 // should emit probabilities
                 if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001}, inEvents[0]
-                            .getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001},
+                            inEvents[0].getData());
                 } else if (count == 2) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144}, inEvents[0]
-                            .getData());
+                    AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144},
+                            inEvents[0].getData());
                 }
             }
         });
