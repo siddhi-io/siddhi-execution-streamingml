@@ -54,7 +54,7 @@ import java.util.Map;
 @Extension(
         name = "perceptronClassifier",
         namespace = "streamingml",
-        description = "Predict using a linear binary classification Perceptron model.",
+        description = "This extension predicts using a linear binary classification Perceptron model.",
         parameters = {
                 @Parameter(name = "model.name",
                         description = "The name of the model to be used.",
@@ -63,18 +63,19 @@ import java.util.Map;
                         description = "The bias of the Perceptron algorithm.",
                         type = {DataType.DOUBLE}, defaultValue = "0.0"),
                 @Parameter(name = "model.threshold",
-                        description = "The threshold which separates the two classes. A value between 0 and 1.",
-                        type = {DataType.DOUBLE}, defaultValue = "Output will be a probability."),
+                        description = "The threshold that separates the two classes. The value specified must be " +
+                                "between zero and one.",
+                        type = {DataType.DOUBLE}, defaultValue = " The output is a probability."),
                 @Parameter(name = "model.features",
-                        description = "Features of the model which should be attributes of the stream.",
+                        description = "The features of the model that need to be attributes of the stream.",
                         type = {DataType.DOUBLE})
         },
         returnAttributes = {
                 @ReturnAttribute(name = "prediction",
-                        description = "Predicted value (true/false)",
+                        description = "The predicted value (`true/false`)",
                         type = {DataType.BOOL}),
                 @ReturnAttribute(name = "confidenceLevel",
-                        description = "Probability of the prediction",
+                        description = "The probability of the prediction",
                         type = {DataType.DOUBLE})
         },
         examples = {
@@ -84,13 +85,13 @@ import java.util.Map;
                                 "\n" +
                                 "from StreamA#streamingml:perceptronClassifier('model1',0.0,0.5, attribute_0, " +
                                 "attribute_1, attribute_2, attribute_3) \n" +
-                                "insert all events into outputStream;",
-                        description = "A Perceptron model with the name 'model1' will be used with a 0.0 bias and a " +
-                                "0.5 threshold learning rate to predict the label of the feature vector represented " +
-                                "by attribute_0, attribute_1, attribute_2, attribute_3. Predicted label (true/false) " +
-                                "along with the Prediction Confidence Level(probability) and the feature vector " +
-                                "will be emitted to the outputStream. " +
-                                "The outputStream will have following definition; " +
+                                "insert all events into OutputStream;",
+                        description = "This query uses a Perceptron model named `model1` with a `0.0` bias and a " +
+                                "`0.5` threshold learning rate to predict the label of the feature vector " +
+                                "represented by `attribute_0`, `attribute_1`, `attribute_2`, and `attribute_3`. " +
+                                "The predicted label (`true/false`) is emitted to the `OutputStream` stream" +
+                                "along with the prediction confidence level(probability) and the feature vector. " +
+                                "As a result, the OutputStream stream is defined as follows: " +
                                 "(attribute_0 double, attribute_1 double, attribute_2" +
                                 " double, attribute_3 double, prediction bool, confidenceLevel double)."
                 ),
@@ -100,12 +101,13 @@ import java.util.Map;
                                 "\n" +
                                 "from StreamA#streamingml:perceptronClassifier('model1',0.0, attribute_0, " +
                                 "attribute_1, attribute_2, attribute_3) \n" +
-                                "insert all events into outputStream;",
-                        description = "A Perceptron model with the name 'model1' will be used with a 0.0 bias to " +
-                                "predict the label of the feature vector represented by attribute_0, attribute_1, " +
-                                "attribute_2, attribute_3. Prediction(true/false) along with the Prediction " +
-                                "Confidence Level(probability) feature vector will be emitted to the outputStream. " +
-                                "The outputStream will have following definition; " +
+                                "insert all events into OutputStream;",
+                        description = "This query uses a Perceptron model named `model1` with a `0.0` bias to predict" +
+                                " the label of the feature vector represented by `attribute_0`, `attribute_1`, " +
+                                "`attribute_2`, and `attribute_3`. The prediction(`true/false`) is emitted to the " +
+                                "`OutputStream`stream along with the prediction confidence level(probability) and " +
+                                "the feature. " +
+                                "As a result, the OutputStream stream is defined as follows: " +
                                 "(attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, " +
                                 "prediction bool, confidenceLevel double)."
                 ),
@@ -113,13 +115,14 @@ import java.util.Map;
                         syntax = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, " +
                                 "attribute_3 double);\n" +
                                 "\n" +
-                                "from StreamA#streamingml:perceptronClassifier('model1', attribute_0, attribute_1, " +
+                                "from StreamA#streamingml:perceptronClassifier(`model1`, attribute_0, attribute_1, " +
                                 "attribute_2) \n" +
-                                "insert all events into outputStream;",
-                        description = "A Perceptron model with the name 'model1' will be used with a default 0.0 bias" +
-                                " to predict the label of the feature vector represented by attribute_0, attribute_1," +
-                                " attribute_2. Predicted probability along with the feature vector will " +
-                                "be emitted to the outputStream. The outputStream will have following definition; " +
+                                "insert all events into OutputStream;",
+                        description = "This query uses a Perceptron model named `model1` with a default 0.0 bias" +
+                                " to predict the label of the feature vector represented by `attribute_0`, " +
+                                "`attribute_1`, and `attribute_2`. The predicted probability is emitted to the " +
+                                "OutputStream stream along with the feature vector. As a result, the OutputStream is " +
+                                "defined as follows: " +
                                 "(attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, " +
                                 "prediction bool, confidenceLevel double)."
                 )
