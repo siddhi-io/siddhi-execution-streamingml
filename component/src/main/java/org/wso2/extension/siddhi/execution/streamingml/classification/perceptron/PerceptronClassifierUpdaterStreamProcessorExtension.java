@@ -54,7 +54,7 @@ import java.util.Map;
 @Extension(
         name = "updatePerceptronClassifier",
         namespace = "streamingml",
-        description = "Build/update a linear binary classification Perceptron model.",
+        description = "This extension builds/updates a linear binary classification Perceptron model.",
         parameters = {
                 @Parameter(name = "model.name",
                         description = "The name of the model to be built/updated.",
@@ -66,7 +66,7 @@ import java.util.Map;
                         description = "The learning rate of the Perceptron algorithm.",
                         type = {DataType.DOUBLE}, optional = true, defaultValue = "0.1"),
                 @Parameter(name = "model.features",
-                        description = "Features of the model which should be attributes of the stream.",
+                        description = "Features of the model that need to be attributes of the stream.",
                         type = {DataType.DOUBLE, DataType.INT})},
         returnAttributes = {
                 @ReturnAttribute(name = "featureWeight", description = "Weight of the <feature" +
@@ -77,19 +77,19 @@ import java.util.Map;
                         "from StreamA#streamingml:updatePerceptronClassifier('model1', attribute_4, 0.01, " +
                         "attribute_0, attribute_1, attribute_2, attribute_3) \n" +
                         "insert all events into outputStream;",
-                        description = "A Perceptron model with the name 'model1' will be built/updated with a 0.01 " +
-                                "learning rate using attribute_0, attribute_1, attribute_2, attribute_3 as features " +
-                                "and attribute_4 as the label. Updated weights of the model will be emitted to the " +
-                                "outputStream."),
+                        description = "This query builds/updates a Perceptron model named `model1` with a `0.01` " +
+                                "learning rate using `attribute_0`, `attribute_1`, `attribute_2`, and `attribute_3` " +
+                                "as features, and `attribute_4` as the label. Updated weights of the model " +
+                                "are emitted to the OutputStream stream."),
                 @Example(syntax = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double," +
                         "attribute_3 double, attribute_4 string );\n\n " +
                         "from StreamA#streamingml:updatePerceptronClassifier('model1', attribute_4, attribute_0, " +
                         "attribute_1, attribute_2, attribute_3) \n" +
                         "insert all events into outputStream;",
-                        description = "A Perceptron model with the name 'model1' will be built/updated with a default" +
-                                " 0.1 learning rate using attribute_0, attribute_1, attribute_2, attribute_3 as " +
-                                "features and attribute_4 as the label. Updated weights of the model will be appended" +
-                                " to the outputStream.")
+                        description = "This query builds/updates a Perceptron model named `model1` with a default" +
+                                " `0.1` learning rate using `attribute_0`, `attribute_1`, `attribute_2`, and " +
+                                "`attribute_3` as features, and `attribute_4` as the label. The updated weights of " +
+                                "the model are appended to the outputStream.")
         }
 )
 public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamProcessor {
