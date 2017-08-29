@@ -33,7 +33,10 @@ import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Scanner;
 
 /**
@@ -81,7 +84,8 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         Scanner scanner = null;
         try {
             File file = new File("src/test/resources/perceptron.csv");
-            FileReader fileReader = new FileReader(file);
+            InputStream inputStream = new FileInputStream(file);
+            Reader fileReader = new InputStreamReader(inputStream, "UTF-8");
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             scanner = new Scanner(bufferedReader);
 
@@ -105,7 +109,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
-            scanner.close();
+            if (scanner != null) {
+                scanner.close();
+            }
             siddhiAppRuntime.shutdown();
         }
     }
