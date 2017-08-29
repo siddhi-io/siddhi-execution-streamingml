@@ -4,7 +4,7 @@ The **siddhi-execution-streamingml** is an extension to <a target="_blank" href=
 Find some useful links below:
 
 * <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml">Source code</a>
-* <a target="_blank" href="https://https://github.com/wso2-extensions/siddhi-execution-streamingml/releases">Releases</a>
+* <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml/releases">Releases</a>
 * <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml/issues">Issue tracker</a>
 
 
