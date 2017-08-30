@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.extension.siddhi.execution.ml.clustering.kmeans;
 
 import org.apache.log4j.Logger;
@@ -11,11 +29,7 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-import static org.junit.Assert.*;
-
-/**
- * Created by niruhan on 8/14/17.
- */
+//TODO: put licensing header - done
 public class KMeansMiniBatchSPExtensionTest {
 
     private static final Logger logger = Logger.getLogger(KMeansStreamProcessorExtensionTest.class);
@@ -33,7 +47,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingML:KMeansMiniBatch('model1', 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:KMeansMiniBatch('model1', 0.2f, 2, 10, 20, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -41,7 +55,7 @@ public class KMeansMiniBatchSPExtensionTest {
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                System.out.println("running receive method");
+                System.out.println("running receive method"); //use logger
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
 
                 for (Event event: inEvents) {
@@ -89,7 +103,9 @@ public class KMeansMiniBatchSPExtensionTest {
             inputHandler.send(new Object[]{20.2568, 28.7882});
             inputHandler.send(new Object[]{2.9951, 3.9887});
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //use logger e.message
+            logger.info(e.getMessage(),e);
+            //TODO:assert count. shutdown the system
         }
     }
 
@@ -101,7 +117,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingML:KMeansMiniBatch('model1', 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:KMeansMiniBatch('model1', 2, 10, 20, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -169,7 +185,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingML:KMeansMiniBatch('model2', 5, 10, 20, x, y, z) " +
+                        "from InputStream#streamingml:KMeansMiniBatch('model2', 5, 10, 20, x, y, z) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, closestCentroidCoordinate3 " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -269,7 +285,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingML:KMeansMiniBatch('model1', 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:KMeansMiniBatch('model1', 0.2f, 2, 10, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);

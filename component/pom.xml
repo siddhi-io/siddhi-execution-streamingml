@@ -36,6 +36,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>nz.ac.waikato.cms.moa</groupId>
+            <artifactId>moa</artifactId>
+            <version>2016.04</version>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.siddhi</groupId>
             <artifactId>siddhi-core</artifactId>
         </dependency>
@@ -75,7 +80,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>org.apache.samoa</groupId>
             <artifactId>samoa-api</artifactId>
         </dependency>
@@ -86,7 +91,7 @@
         <dependency>
             <groupId>org.apache.samoa</groupId>
             <artifactId>samoa-local</artifactId>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>com.github.javacliparser</groupId>

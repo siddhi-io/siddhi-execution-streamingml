@@ -54,7 +54,7 @@
         <fommil.netlib.version>1.1.2.wso2v1</fommil.netlib.version>
         <arpack.combined.version>0.1.wso2v1</arpack.combined.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
-        <samoa.version>0.4.0-incubating</samoa.version>
+        <!--<samoa.version>0.4.0-incubating</samoa.version>-->
         <javacliparser.version>0.5.0</javacliparser.version>
         <slf4j-version>1.7.5</slf4j-version>
         <apache.cassandra.version>0.8.1</apache.cassandra.version>
@@ -72,6 +72,9 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.moa/moa -->
+
+
             <dependency>
                 <groupId>org.wso2.siddhi</groupId>
                 <artifactId>siddhi-core</artifactId>
@@ -83,12 +86,12 @@
                 <version>${siddhi.version}</version>
             </dependency>
 
-            <dependency>
+            <!--<dependency>
                 <groupId>org.apache.samoa</groupId>
                 <artifactId>samoa-api</artifactId>
                 <version>${samoa.version}</version>
-            </dependency>
-            <dependency>
+            </dependency>-->
+            <!--<dependency>
                 <groupId>org.apache.samoa</groupId>
                 <artifactId>samoa-instances</artifactId>
                 <version>${samoa.version}</version>
@@ -97,7 +100,7 @@
                 <groupId>org.apache.samoa</groupId>
                 <artifactId>samoa-local</artifactId>
                 <version>${samoa.version}</version>
-            </dependency>
+            </dependency>-->
 
             <dependency>
                 <groupId>com.github.javacliparser</groupId>
