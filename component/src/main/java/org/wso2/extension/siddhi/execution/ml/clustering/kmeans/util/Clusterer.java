@@ -123,12 +123,8 @@ public class Clusterer {
     public void cluster(List<DataPoint> dataPointsArray) {
         logger.info("initial Clustering");
         //dataPointsArray = batchDataPointsIn; //TODO: make dataPointsArray local - done
-
-
-
         //initialize(dataPointsArray);
         buildModel(dataPointsArray);
-
 
         int iter = 0;
         if (dataPointsArray.size() != 0 && (model.size() == k)) {

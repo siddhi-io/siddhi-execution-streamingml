@@ -55,10 +55,7 @@ import java.util.Map;
         namespace = "streamingML",
         description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. " +
                 "All data points to be processed by an instance of class Clusterer should be of the same dimensionality. The Euclidean distance is taken as the distance metric. " +
-                "The algorithm resembles Sequential numberOfClusters-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm " +
-                "For example: #streamingML:KMeansIncremental(modelName, numberOfClusters, x1, x2, .... , xd)" +
-                "Model is trained for every event. The training process initializes the first numberOfClusters distinct events in the window as" +
-                "initial centroids. The dataPoints are assigned to the respective closest centroid.",
+                "The algorithm resembles Sequential K-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm ",
         parameters = {
                 @Parameter(
                         name = "model.name",
