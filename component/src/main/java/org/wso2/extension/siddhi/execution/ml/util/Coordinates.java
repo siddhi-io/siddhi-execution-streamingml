@@ -18,6 +18,8 @@
 
 package org.wso2.extension.siddhi.execution.ml.util;
 
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -31,20 +33,18 @@ public class Coordinates implements Serializable {
 
 
     private double[] coordinates;
-    private int dimensionality; //TODO:remove
+    //private int dimensionality; //TODO:remove - done
 
     /**
      * construct with the required dimensionality of the dataPoint
-     * @param dimensionality the number of dimensions required to represent
-     *                       a single dataPoint
      */
-    public Coordinates(int dimensionality) {
-        this.dimensionality = dimensionality;
-        coordinates = new double[dimensionality]; //TODO:dont create null
-    }
+    /*public Coordinates(int dimensionality) {
+        //this.dimensionality = dimensionality;
+        //coordinates = new double[dimensionality]; //TODO:dont create null - done
+    }*/
 
     public int getDimensionality() {
-        return dimensionality;
+        return coordinates.length;
     }
 
     public double[] getCoordinates() {
@@ -52,7 +52,16 @@ public class Coordinates implements Serializable {
     }
 
     public void setCoordinates(double[] coordinates) {
-        this.coordinates = coordinates; //TODO: validation for dimensionality
+        if (this.coordinates != null) {
+            if (this.coordinates.length == coordinates.length) {
+                this.coordinates = coordinates; //TODO: validation for dimensionality - done
+            } else {
+                throw new SiddhiAppValidationException("The dimensionality of the coordinate is " + this.coordinates.length + " but the dimensionality of the received array is " + coordinates.length);
+            }
+        } else  {
+            this.coordinates = coordinates;
+        }
+
     }
 
     @Override

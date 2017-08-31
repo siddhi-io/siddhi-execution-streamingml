@@ -117,7 +117,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:KMeansMiniBatch('model1', 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:KMeansMiniBatch('model2', 2, 10, 20, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -185,7 +185,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:KMeansMiniBatch('model2', 5, 10, 20, x, y, z) " +
+                        "from InputStream#streamingml:KMeansMiniBatch('model3', 5, 10, 20, x, y, z) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, closestCentroidCoordinate3 " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -285,7 +285,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:KMeansMiniBatch('model1', 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:KMeansMiniBatch('model4', 0.2f, 2, 10, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);

@@ -34,29 +34,36 @@ public class Clusterer {
     private int maximumIterations;
     private boolean initialTrained = false;
     private boolean modelTrained = false;
+    private String siddhiAppName;
     private KMeansModel model;
-    private LinkedList<Coordinates> newCentroidList; //todo: use List super class - used linked list instead - done?
+    //private List<Coordinates> newCentroidList; //todo: use List super class - used linked list instead - done
     private int dimensionality;
-    private LinkedList<DataPoint> dataPointsArray;
+    //private List<DataPoint> dataPointsArray;
     private int[] countOfDataPointsAssignedToEachCentroid; //toDO:put proper name - done
     private final static Logger logger = Logger.getLogger(Clusterer.class.getName());
 
     /**
      * Initialize no. of cluster centers, no. of iterations
      */
-    public Clusterer(int k, int maximumIterations, String modelName) {
+    public Clusterer(int numberOfClusters, int maximumIterations, String modelName, String siddhiAppName, int dimensionality) {
         model = KMeansModelHolder.getInstance().getKMeansModel(modelName);
-        if (model == null) { //TODO:debug log if we r using existing or new model
+        if (model == null) { //TODO:debug log if we r using existing or new model - done
             model = new KMeansModel();
             KMeansModelHolder.getInstance().addKMeansModel(modelName, model);
+            if (logger.isDebugEnabled()) {
+                logger.debug("New model is created with name " + modelName);
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Reusing an existing model with name " + modelName);
+            }
         }
-        this.k = k;
+        this.k = numberOfClusters;
         this.maximumIterations = maximumIterations;
-        countOfDataPointsAssignedToEachCentroid = new int[k]; //TODO:put this. to everything
-        newCentroidList = new LinkedList<>(); //TODO:initialize inside the clustering method
-        //initialTrained = true;
-        //modelTrained = true;
-
+        this.siddhiAppName = siddhiAppName;
+        this.dimensionality = dimensionality;
+        this.countOfDataPointsAssignedToEachCentroid = new int[numberOfClusters]; //TODO:put this. to everything - done
+        //this.newCentroidList = new LinkedList<>(); //TODO:initialize inside the clustering method - done
     }
 
     public boolean isInitialTrained() {
@@ -74,24 +81,23 @@ public class Clusterer {
             initialTrained = true; //tODO: these booleans shud be part of cluster - done
             modelTrained = true;
         } else {
-            periodicTraining(numberOfEventsToRetrain, decayRate, executorService); //TODO: shud be handled by clusterer - done
+            periodicTraining(numberOfEventsToRetrain, decayRate, executorService, dataPointsArray); //TODO: shud be handled by clusterer - done
 
         }
     }
 
-    private void periodicTraining(int numberOfEventsToRetrain, float decayRate, ExecutorService executorService) {
+
+    private void periodicTraining(int numberOfEventsToRetrain, float decayRate, ExecutorService executorService, LinkedList<DataPoint> dataPointsArray) {
         int minBatchSizeToTriggerSeparateThread = 10; //TODO: test and tune to optimum value
         if (numberOfEventsToRetrain< minBatchSizeToTriggerSeparateThread) {
-            logger.debug("Traditional training");
+            logger.debug("Traditional training in " + siddhiAppName);
             updateCluster(dataPointsArray, decayRate);
             dataPointsArray.clear();
             modelTrained = true;
         } else {
-            logger.debug("Seperate thread training"); //toDo: use debug log. who(execution plan) triggered and modelname
+            logger.debug("Seperate thread training in " + siddhiAppName); //toDo: use debug log. who(execution plan) triggered and modelname - done
             Trainer trainer = new Trainer(this, dataPointsArray, decayRate);
             executorService.submit(trainer);
-            /*Thread t = new Thread(trainer);
-            t.start();*/
         }
     }
 
@@ -103,43 +109,33 @@ public class Clusterer {
      * initializing cluster centers
      * @param dataPointsArray arraylist containing the input batch datapoints
      */
-    public void initialize(LinkedList<DataPoint> dataPointsArray) {
-        dimensionality = dataPointsArray.get(0).getDimensionality(); //TODO:pass dimensionality as param
-        this.dataPointsArray = dataPointsArray; //no need
-        int distinctCount = 0;
-        model.clear(); //TODO: reusing the model? use same method for initial clustering as well as retraining
-        newCentroidList.clear(); //todo: make local. reduce clear usage
-        for (int i = 0; i<k; i++) {
-            Coordinates c = new Coordinates(dimensionality);
-            newCentroidList.add(c);
-        } //TODO:dont use two iterations
+    /*public void initialize(List<DataPoint> dataPointsArray) {
+        //dimensionality = dataPointsArray.get(0).getDimensionality(); //TODO:pass dimensionality as param - done
+        //this.dataPointsArray = dataPointsArray; //todo: no need - done
+        model.clear(); //TODO: reusing the model? use same method for initial clustering as well as retraining - done
 
-        for (DataPoint currentDataPoint : dataPointsArray) {
-            if (distinctCount >= k) {
-                break;
-            }
-            Coordinates coordinatesOfCurrentDataPoint = new Coordinates(currentDataPoint.getDimensionality());
-            coordinatesOfCurrentDataPoint.setCoordinates(currentDataPoint.getCoordinates());
-            if (!model.contains(coordinatesOfCurrentDataPoint)) {
-                model.add(coordinatesOfCurrentDataPoint);
-                distinctCount++;
-            }
-        }
-    }
+
+    }*/
 
     /**
      * Perform clustering
      */
-    public void cluster(LinkedList<DataPoint> batchDataPointsIn) {
+    public void cluster(List<DataPoint> dataPointsArray) {
         logger.info("initial Clustering");
-        dataPointsArray = batchDataPointsIn; //TODO: make dataPointsArray local
-        initialize(dataPointsArray);
+        //dataPointsArray = batchDataPointsIn; //TODO: make dataPointsArray local - done
+
+
+
+        //initialize(dataPointsArray);
+        buildModel(dataPointsArray);
+
+
         int iter = 0;
         if (dataPointsArray.size() != 0 && (model.size() == k)) {
             boolean centroidShifted = false;
             while(iter < maximumIterations) {
                 assignToCluster(dataPointsArray);
-                calculateNewCentroids();
+                List<Coordinates> newCentroidList = calculateNewCentroids(dataPointsArray);
 
                 centroidShifted = !model.getCentroidList().equals(newCentroidList);
                 if (!centroidShifted) {
@@ -153,46 +149,49 @@ public class Clusterer {
         }
     }
 
+    public void buildModel(List<DataPoint> dataPointsArray) {
+        int distinctCount = model.size();
+        for (DataPoint currentDataPoint : dataPointsArray) {
+            if (distinctCount >= k) {
+                break;
+            }
+            Coordinates coordinatesOfCurrentDataPoint = new Coordinates();
+            coordinatesOfCurrentDataPoint.setCoordinates(currentDataPoint.getCoordinates());
+            if (!model.contains(coordinatesOfCurrentDataPoint)) {
+                model.add(coordinatesOfCurrentDataPoint);
+                distinctCount++;
+            }
+        }
+    }
+
     /**
      * After the first clustering this method can be used to incrementally update centroidList
      * in real time. This method takes in the new set of datapoints and decayRate as inputs
      * and calculates the centroids of the new set. Then new centroids are calculated using
      * newAvg = oldAvg + decayRate * batchAvg
-     * @param batchDataPointsIn
+     * @param dataPointsArray
      * @param decayRate should be in [0,1]
      */
-    public void updateCluster(LinkedList<DataPoint> batchDataPointsIn, float decayRate) {
+    public void updateCluster(List<DataPoint> dataPointsArray, float decayRate) {
         logger.info("Updating cluster");
         StringBuilder s;
 
-        LinkedList<Coordinates> intermediateCentroidList = new LinkedList<>();
+        List<Coordinates> intermediateCentroidList = new LinkedList<>();
 
-        dataPointsArray = new LinkedList(batchDataPointsIn);
 
         int iter = 0;
         if (dataPointsArray.size() != 0) {
 
             //when number of elements in centroid list is less than k
-            if (model.size() < k) { //TODO: dont duplicate code to build model. when modelsize is less than k one method to handle it.
-                int distinctCount = model.size();
-                for (DataPoint currentDataPoint : dataPointsArray) {
-                    if (distinctCount >= k) {
-                        break;
-                    }
-                    Coordinates coordinatesOfCurrentDataPoint = new Coordinates(currentDataPoint.getDimensionality());
-                    coordinatesOfCurrentDataPoint.setCoordinates(currentDataPoint.getCoordinates());
-                    if (!model.contains(coordinatesOfCurrentDataPoint)) {
-                        model.add(coordinatesOfCurrentDataPoint);
-                        distinctCount++;
-                    }
-                }
+            if (model.size() < k) { //TODO: dont duplicate code to build model. when modelsize is less than k one method to handle it. - done
+                buildModel(dataPointsArray);
             }
 
             if (model.size() == k) {
                 ArrayList<Coordinates> oldCentroidList = new ArrayList<>(k);
                 for (int i = 0; i<k; i++) {
-                    Coordinates c = new Coordinates(dimensionality);
-                    Coordinates c1 = new Coordinates(dimensionality);
+                    Coordinates c = new Coordinates();
+                    Coordinates c1 = new Coordinates();
                     c.setCoordinates(model.getCoordinatesOfCentroid(i));
                     c1.setCoordinates(model.getCoordinatesOfCentroid(i));
                     oldCentroidList.add(c);
@@ -208,7 +207,7 @@ public class Clusterer {
 
                     }
                     logger.info(s.toString());
-                    calculateNewCentroids();
+                    List<Coordinates> newCentroidList = calculateNewCentroids(dataPointsArray);
 
                     centroidShifted = !intermediateCentroidList.equals(newCentroidList);
 
@@ -263,15 +262,13 @@ public class Clusterer {
                 logger.info(s.toString());
             }
         }
-        //modelTrained = true;
-
     }
 
     /**
      * finds the nearest centroid to each data point in the input array
      * @param dataPointsArray arraylist containing datapoints for which we need to assign centroids
      */
-    private void assignToCluster(LinkedList<DataPoint> dataPointsArray) {
+    private void assignToCluster(List<DataPoint> dataPointsArray) {
         for (DataPoint currentDataPoint : dataPointsArray) {
             Coordinates associatedCentroid = findAssociatedCentroid(currentDataPoint);
             currentDataPoint.setAssociatedCentroid(associatedCentroid);
@@ -320,26 +317,26 @@ public class Clusterer {
         return associatedCentroidInfo;
     }
 
-    /**
-     * returns the list of centroids
-     * @return centroids list
-     */
-    /*public ArrayList<Coordinates> getCentroidList() {
-        return centroidList;
-    }*/
 
     /**
      * after assigning data points to closest centroids this method calculates new centroids using
      * the assigned points
      * @return returns an array list of coordinate objects each representing a centroid
      */
-    private void calculateNewCentroids() { //TODO:pass dataPointsArray
+    private List<Coordinates> calculateNewCentroids(List<DataPoint> dataPointsArray) { //TODO:pass dataPointsArray - done
 
         ArrayList<double[]> total = new ArrayList<>();
+        List<Coordinates> newCentroidList = new LinkedList<>();
+
         for (int i=0; i<k; i++) {
             countOfDataPointsAssignedToEachCentroid[i] = 0;
             total.add(new double[dimensionality]);
+
+            Coordinates c = new Coordinates();
+            newCentroidList.add(c); //TODO:dont use two iterations - done
         }
+
+
 
 
         for (int y = 0; y<dataPointsArray.size(); y++) {
@@ -362,9 +359,6 @@ public class Clusterer {
                 newCentroidList.get(j).setCoordinates(total.get(j));
             }
         }
+        return newCentroidList;
     }
-
-
-
-
 }

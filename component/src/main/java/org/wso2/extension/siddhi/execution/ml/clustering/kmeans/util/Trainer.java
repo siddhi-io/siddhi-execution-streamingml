@@ -21,16 +21,17 @@ package org.wso2.extension.siddhi.execution.ml.clustering.kmeans.util;
 import org.apache.log4j.Logger;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class Trainer implements Runnable {
 
     private final static Logger logger = Logger.getLogger(Trainer.class.getName());
 
     private Clusterer clusterer;
-    private LinkedList<DataPoint> dataPointsArray;
+    private List<DataPoint> dataPointsArray;
     private float decayRate;
 
-    public Trainer(Clusterer clusterer, LinkedList<DataPoint> dataPointsArray, float decayRate) {
+    public Trainer(Clusterer clusterer, List<DataPoint> dataPointsArray, float decayRate) {
         this.clusterer=clusterer; //TODO: proper naming of params - done
         this.dataPointsArray=dataPointsArray;
         this.decayRate=decayRate;

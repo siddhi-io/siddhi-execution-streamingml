@@ -24,23 +24,24 @@ import org.wso2.extension.siddhi.execution.ml.util.Coordinates;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class KMeansModel implements Serializable {
-    private LinkedList<Coordinates> centroidList;
+    private List<Coordinates> centroidList;
 
     public KMeansModel() {
         centroidList = new LinkedList<>();
     }
 
-    public KMeansModel(LinkedList<Coordinates> centroidList) {
+    public KMeansModel(List<Coordinates> centroidList) {
         this.centroidList = centroidList;
     }
 
-    public synchronized LinkedList<Coordinates> getCentroidList() {
+    public synchronized List<Coordinates> getCentroidList() {
         return centroidList;
     }
 
-    public synchronized void setCentroidList(LinkedList<Coordinates> centroidList) {
+    public synchronized void setCentroidList(List<Coordinates> centroidList) {
         this.centroidList = centroidList;
     }
 

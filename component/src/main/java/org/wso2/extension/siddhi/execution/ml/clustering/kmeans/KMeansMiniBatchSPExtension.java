@@ -142,7 +142,6 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
-        //logger.setLevel(Level.ALL);
         //expressionExecutors[0] --> modelName
         dataPointsArray = new LinkedList<>();
         String modelName;
@@ -234,8 +233,8 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
 
         String siddhiAppName = siddhiAppContext.getName();
         modelName = modelName +"."+siddhiAppName;
-        logger.info(modelName); //TODO: add debug log to store if we reuse an existing model or creating new
-        clusterer = new Clusterer(numberOfClusters, maxIterations, modelName);
+        logger.debug("model name is " +modelName); //TODO: add debug log to store if we reuse an existing model or creating new - done in clusterer
+        clusterer = new Clusterer(numberOfClusters, maxIterations, modelName, siddhiAppName, dimensionality);
 
         executorService = siddhiAppContext.getExecutorService();
         //logger.setLevel(Level.ALL);
@@ -273,13 +272,14 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
                 }
 
                 //creating a dataPoint with the received coordinate values
-                DataPoint currentDataPoint = new DataPoint(dimensionality);
+                DataPoint currentDataPoint = new DataPoint();
                 currentDataPoint.setCoordinates(coordinateValuesOfCurrentDataPoint);
                 dataPointsArray.add(currentDataPoint);
 
                 //handling the training
                 if (numberOfEventsReceived % numberOfEventsToRetrain == 0) {
                     clusterer.train(dataPointsArray, numberOfEventsToRetrain, decayRate, executorService);
+                    dataPointsArray.clear();
                 }
                 //TODO: numberOfEventsToRetrain value validation in init - done
 

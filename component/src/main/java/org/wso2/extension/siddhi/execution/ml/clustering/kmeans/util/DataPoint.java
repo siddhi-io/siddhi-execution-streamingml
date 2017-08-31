@@ -31,15 +31,6 @@ public class DataPoint extends Coordinates implements Serializable {
 
     private Coordinates associatedCentroid;
 
-    /**
-     * construct with the required dimensionality of the dataPoint
-     * @param dimensionality the number of dimensions required to represent
-     *                       a single dataPoint
-     */
-    public DataPoint(int dimensionality) {
-        super(dimensionality);
-    }
-
 
     public Coordinates getAssociatedCentroid() {
         return associatedCentroid;
