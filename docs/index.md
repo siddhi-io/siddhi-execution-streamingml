@@ -1,10 +1,10 @@
 # siddhi-execution-streamingml
-The **siddhi-execution-streamingml** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a>  that performs streaming machine learning on event streams.
+The **siddhi-execution-streamingml** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a>  that performs streaming machine learning on streams.
 
 Find some useful links below:
 
 * <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml">Source code</a>
-* <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml/releases">Releases</a>
+* <a target="_blank" href="https://https://github.com/wso2-extensions/siddhi-execution-streamingml/releases">Releases</a>
 * <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml/issues">Issue tracker</a>
 
 

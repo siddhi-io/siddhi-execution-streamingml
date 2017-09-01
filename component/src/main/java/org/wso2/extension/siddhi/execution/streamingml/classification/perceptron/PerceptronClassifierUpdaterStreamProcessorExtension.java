@@ -50,6 +50,7 @@ import java.util.Map;
 /**
  * Build or update a linear binary classification Perceptron model and emit the weights of the features in the order of
  * the attributes.
+ * {@link PerceptronClassifierUpdaterStreamProcessorExtension}
  */
 @Extension(
         name = "updatePerceptronClassifier",
