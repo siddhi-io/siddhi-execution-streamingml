@@ -95,7 +95,10 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.extension.siddhi.execution.streamingml.*,
+                            !org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util,
+			                org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.*,
+                            !org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util,
+                            org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.*,
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
