@@ -17,7 +17,6 @@
  */
 package org.wso2.extension.siddhi.execution.streamingml.classification.hoeffdingtree;
 
-import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.classification.hoeffdingtree.util.AdaptiveHoeffdingModelsHolder;
 import org.wso2.extension.siddhi.execution.streamingml.classification.hoeffdingtree.util.AdaptiveHoeffdingTreeModel;
 import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
@@ -46,14 +45,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 /**
  * Predict using a Hoeffding Adaptive Tree model.
  * built via @{@link HoeffdingClassifierStreamProcessorExtension}
  */
 @Extension(
-        name = "hoeffdingPredict",
+        name = "hoeffdingTreeClassifier",
         namespace = "streamingml",
         description = "Performs classification with Hoeffiding Adaptive Tree monitoring " +
                 "Concept drift with ADWIN ",
@@ -75,7 +73,7 @@ import java.util.concurrent.ExecutorService;
                         syntax = "define stream StreamA (attribute_0 double, attribute_1 double, " +
                                 "attribute_2 double, attribute_3 double);\n" +
                                 "\n" +
-                                "from StreamA#streamingml:hoeffdingPredict('model1', " +
+                                "from StreamA#streamingml:hoeffdingTreeClassifier('model1', " +
                                 " attribute_0, attribute_1, attribute_2, attribute_3) \n" +
                                 "select attribute_0, attribute_1, attribute_2, attribute_3, " +
                                 "prediction, predictionConfidence insert into outputStream;",
@@ -92,29 +90,35 @@ import java.util.concurrent.ExecutorService;
         }
 )
 public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor {
-    private static final Logger logger = Logger
-            .getLogger(HoeffdingClassifierStreamProcessorExtension.class);
-    private int numberOfAttributes;
-    private int parameterPosition = 1;
-    private ExecutorService executorService;
-    private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
-    private String modelName;
+    private static final int minNoOfFeatures = 2;
+    private static final int minNoOfParameters = 1;
 
+    private String modelName;
+    private int noOfFeatures;
+    private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
+    private double[] cepEvent;
 
     @Override
     protected List<Attribute> init(AbstractDefinition abstractDefinition,
                                    ExpressionExecutor[] expressionExecutors,
                                    ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
-        executorService = siddhiAppContext.getExecutorService();
         String siddhiAppName = siddhiAppContext.getName();
         String modelPrefix;
-        int maxNumberOfFeatures = inputDefinition.getAttributeList().size();
-        if (attributeExpressionExecutors.length >= 3) {
-            if (attributeExpressionLength > 1 + maxNumberOfFeatures) {
-                throw new SiddhiAppValidationException(String.format("Invalid number of parameters for " +
-                        "streamingml:hoeffdingClassifier. This Stream Processor requires at most %s " + "parameters," +
-                        " namely, model.name, model.features but found %s " +
-                        "parameters", 1 + maxNumberOfFeatures, attributeExpressionLength));
+        noOfFeatures = inputDefinition.getAttributeList().size();
+
+        if (attributeExpressionExecutors.length >= (minNoOfFeatures + minNoOfParameters)) {
+            if (noOfFeatures < minNoOfFeatures) {
+                throw new SiddhiAppValidationException(String.format("Invalid number of feature attributes for " +
+                                "streamingml:hoeffdingTreeClassifier. This Stream Processor requires at least %s " +
+                                "feature attributes, but found %s feature attributes",
+                        minNoOfFeatures, noOfFeatures));
+            }
+            if (noOfFeatures != (attributeExpressionLength - minNoOfParameters)) {
+                throw new SiddhiAppValidationException(String.format("Invalid number of feature attributes for " +
+                                "streamingml:hoeffdingTreeClassifier. This Stream Processor is defined with %s " +
+                                "features, but found %s feature attributes",
+                        noOfFeatures, (attributeExpressionLength - minNoOfParameters)));
+
             }
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
@@ -122,7 +126,7 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
                             attributeExpressionExecutors[0])
                             .getValue();
                     // model name = user given name + siddhi app name
-                    modelName = modelPrefix + "." + siddhiAppName;
+                    modelName = siddhiAppName + "." + modelPrefix;
                 } else {
                     throw new SiddhiAppValidationException(
                             "Invalid parameter type found for the model.name argument, "
@@ -130,44 +134,32 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
                                     + " but found " + attributeExpressionExecutors[0].
                                     getReturnType().toString());
                 }
-                //numberOfAttributes = attributeExpressionLength - 1;
-                numberOfAttributes = maxNumberOfFeatures;
-
-                featureVariableExpressionExecutors = CoreUtils
-                        .extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors,
-                                parameterPosition, numberOfAttributes + 1);
-
-                AdaptiveHoeffdingTreeModel model = AdaptiveHoeffdingModelsHolder.getInstance()
-                        .getHoeffdingModel(modelName);
-                if (model == null) {
-                    logger.debug("Creating new model Hoeffding Adaptive Tree model with the name, " + modelName);
-                    model = new AdaptiveHoeffdingTreeModel();
-                    AdaptiveHoeffdingModelsHolder.getInstance().addHoeffdingModel(modelName, model);
-                }
-                if (model.getStreamHeader() != null) {
-                    // validate the model
-                    if (numberOfAttributes != model.getNumberOfAttributes() - 1) {
-                        // clean the model
-                        logger.debug("Deleting the model " + modelName);
-                        AdaptiveHoeffdingModelsHolder.getInstance().deleteHoeffdingModel(modelName);
-                        throw new SiddhiAppValidationException(String.format("Model [%s] " +
-                                        "expects %s features, but the " +
-                                        "streamingml:hoeffdingClassifier specifies %s features"
-                                , modelPrefix, model.getNumberOfAttributes()
-                                , numberOfAttributes));
-                    }
-                } else {
-                    model.init(numberOfAttributes);
-                }
             } else {
                 throw new SiddhiAppValidationException("Parameter model.name must be a constant but found " +
                         attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
+
+            featureVariableExpressionExecutors = CoreUtils
+                    .extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors,
+                            (attributeExpressionLength - noOfFeatures), noOfFeatures);
+
+            cepEvent = new double[noOfFeatures];
+
+            AdaptiveHoeffdingTreeModel model
+                    = AdaptiveHoeffdingModelsHolder.getInstance().getHoeffdingModel(modelName);
+
+            if (!CoreUtils.isInitialized(model, (noOfFeatures + 1))) {
+                throw new SiddhiAppValidationException(String.format("Model [%s] " +
+                        "needs to initialized prior to be used with streamingml:hoeffdingTreeClassifier. " +
+                        "Perform streamingml:updateHoeffdingTree process first.", modelName));
+            }
+
         } else {
             throw new SiddhiAppValidationException(String.format("Invalid number of " +
-                    "parameters for ml:hoeffdingPredict. This Stream Processor requires " +
-                    "at least 3 parameters, namely, model.name and at least 2 feature_attributes," +
-                    " but found %s parameters", attributeExpressionExecutors.length));
+                            "parameters for streamingml:hoeffdingTreeClassifier. This Stream Processor requires " +
+                            "at least %s parameters, namely, model.name and at least %s feature_attributes," +
+                            " but found %s parameters", (minNoOfParameters + minNoOfFeatures), minNoOfFeatures,
+                    attributeExpressionExecutors.length));
         }
 
         //set attributes for Output Stream
@@ -184,22 +176,18 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 ComplexEvent complexEvent = streamEventChunk.next();
-                if (complexEvent.getType() != ComplexEvent.Type.TIMER) {
-                    double[] cepEvent = new double[numberOfAttributes];
 
-                    // Set feature_attributes
-                    for (int i = 0; i < numberOfAttributes; i++) {
-                        cepEvent[i] = ((Number) featureVariableExpressionExecutors.get(i)
-                                .execute(complexEvent)).doubleValue();
-                    }
-
-                    AdaptiveHoeffdingTreeModel model = AdaptiveHoeffdingModelsHolder.getInstance()
-                            .getHoeffdingModel(modelName);
-                    Object[] outputData = model.getPrediction(cepEvent);
-                    int indexPredict = (int) outputData[0];
-                    outputData[0] = model.getClasses().get(indexPredict);
-                    complexEventPopulater.populateComplexEvent(complexEvent, outputData);
+                // Set feature_attributes
+                for (int i = 0; i < noOfFeatures; i++) {
+                    cepEvent[i] = ((Number) featureVariableExpressionExecutors.get(i)
+                            .execute(complexEvent)).doubleValue();
                 }
+                AdaptiveHoeffdingTreeModel model = AdaptiveHoeffdingModelsHolder.getInstance()
+                        .getHoeffdingModel(modelName);
+                Object[] outputData = model.getPrediction(cepEvent);
+                int indexPredict = (int) outputData[0];
+                outputData[0] = model.getClasses().get(indexPredict);
+                complexEventPopulater.populateComplexEvent(complexEvent, outputData);
             }
             nextProcessor.process(streamEventChunk);
         }

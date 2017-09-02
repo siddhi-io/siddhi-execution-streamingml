@@ -31,8 +31,10 @@ import moa.tasks.TaskMonitor;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
 import org.wso2.extension.siddhi.execution.streamingml.util.MathUtil;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,17 +45,23 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(AdaptiveHoeffdingTreeModel.class);
 
+    private String modelName;
     private InstancesHeader streamHeader;
-    private int numberOfAttributes;
+    private int noOfFeatures;
+    private int noOfClasses;
     private HoeffdingAdaptiveTree hoeffdingAdaptiveTree;
     private List<String> classes = new ArrayList<String>();
 
-    public AdaptiveHoeffdingTreeModel() {
+
+    public AdaptiveHoeffdingTreeModel(String modelName) {
+        this.modelName = modelName;
     }
 
     public AdaptiveHoeffdingTreeModel(AdaptiveHoeffdingTreeModel model) {
+        this.modelName = model.modelName;
         this.streamHeader = model.streamHeader;
-        this.numberOfAttributes = model.numberOfAttributes;
+        this.noOfFeatures = model.noOfFeatures;
+        this.noOfClasses = model.noOfClasses;
         this.hoeffdingAdaptiveTree = model.hoeffdingAdaptiveTree;
         this.classes = model.classes;
     }
@@ -63,16 +71,20 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
         logger.info("Hoeffding AdaptiveTree Model with ADWIN concept drift detection");
     }
 
-
     /**
      * Initialize the model with input stream definition.
      *
-     * @param numberOfAttributes number of feature attributes
+     * @param noOfAttributes number of feature attributes
+     * @param noOfClasses    number of classes
      */
-    public void init(int numberOfAttributes) {
+    public void init(int noOfAttributes, int noOfClasses) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("Model [%s] is being initialized.", this.modelName));
+        }
         hoeffdingAdaptiveTree = new HoeffdingAdaptiveTree();
-        this.numberOfAttributes = numberOfAttributes;
-        streamHeader = setStreamHeader(this.numberOfAttributes);
+        this.noOfFeatures = noOfAttributes;
+        this.noOfClasses = noOfClasses;
+        streamHeader = createMOAInstanceHeader(this.noOfFeatures);
         hoeffdingAdaptiveTree.setModelContext(streamHeader);
         hoeffdingAdaptiveTree.prepareForUse();
     }
@@ -91,6 +103,9 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
                                   double allowableSplitError, double breakTieThreshold,
                                   boolean binarySplitOption, boolean disablePrePruning,
                                   int leafpredictionStrategy) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("Model [%s] is being manually configured.", this.modelName));
+        }
         hoeffdingAdaptiveTree.gracePeriodOption.setValue(gracePeriod);
         if (splittingCriteria == 0) {
             hoeffdingAdaptiveTree.splitCriterionOption
@@ -109,14 +124,14 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
 
 
     /**
-     * @param cepEvent event data
-     * @param classes  class  label list
+     * @param cepEvent   event data
+     * @param classLabel class  label of the cepEvent
      * @return
      */
-    public void trainOnEvent(double[] cepEvent, List<String> classes) {
-        this.classes = classes;
-        Instance trainInstance = createInstance(cepEvent);
-        trainInstance.setClassValue(cepEvent[numberOfAttributes - 1]);
+    public void trainOnEvent(double[] cepEvent, String classLabel) {
+        cepEvent[noOfFeatures - 1] = addClass(classLabel);
+        Instance trainInstance = createMOAInstance(cepEvent);
+        trainInstance.setClassValue(cepEvent[noOfFeatures - 1]);
         //training on the event instance
         hoeffdingAdaptiveTree.trainOnInstanceImpl(trainInstance);
     }
@@ -124,19 +139,26 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
 
     /**
      * @param modelEvaluation Prequential Model Evaluator.
-     * @param cepEvent        Event data.
-     * @param classes         Class label list.
+     * @param cepEvent        event data
+     * @param classValue      class label of the cepEvent
      * @return
      */
-    public double testThenTrainOnEvent(PrequentialModelEvaluation modelEvaluation,
-                                       double[] cepEvent, List<String> classes) {
-        this.classes = classes;
-        Instance instance = createInstance(cepEvent);
-        instance.setClassValue(cepEvent[numberOfAttributes - 1]);
-        double[] votes = hoeffdingAdaptiveTree.getVotesForInstance(instance);
-        hoeffdingAdaptiveTree.trainOnInstanceImpl(instance);
-        modelEvaluation.addResult(instance, votes);
-        return modelEvaluation.getFractionCorrectlyClassified();
+    public double evaluationTrainOnEvent(PrequentialModelEvaluation modelEvaluation,
+                                         double[] cepEvent, String classValue) {
+        int classIndex = cepEvent.length - 1;
+
+        //create instance with only the feature attributes
+        double[] test = Arrays.copyOfRange(cepEvent, 0, classIndex);
+        Instance testInstance = createMOAInstance(test);
+
+        double[] votes = hoeffdingAdaptiveTree.getVotesForInstance(testInstance);
+
+        cepEvent[classIndex] = getClasses().indexOf(classValue);
+        Instance trainInstance = createMOAInstance(cepEvent);
+
+        hoeffdingAdaptiveTree.trainOnInstanceImpl(trainInstance);
+        modelEvaluation.addResult(trainInstance, votes);
+        return MathUtil.roundOff(modelEvaluation.getFractionCorrectlyClassified(), 3);
     }
 
 
@@ -145,7 +167,7 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
      * @return predicted class index, probability of the prediction.
      */
     public Object[] getPrediction(double[] cepEvent) {
-        Instance testInstance = createInstance(cepEvent);
+        Instance testInstance = createMOAInstance(cepEvent);
         double[] votes = hoeffdingAdaptiveTree.getVotesForInstance(testInstance);
         int classIndex = CoreUtils.argMaxIndex(votes);
         double confidenceLevel = getPredictionConfidence(votes);
@@ -156,7 +178,7 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
      * @param cepEvent Event Data
      * @return represents a single Event
      */
-    private Instance createInstance(double[] cepEvent) {
+    private Instance createMOAInstance(double[] cepEvent) {
         Instance instance = new DenseInstance(1.0D, cepEvent);
         //set schema header for the instance
         instance.setDataset(streamHeader);
@@ -168,7 +190,7 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
      * @param numberOfAttributes
      * @return represents stream definition
      */
-    private InstancesHeader setStreamHeader(int numberOfAttributes) {
+    private InstancesHeader createMOAInstanceHeader(int numberOfAttributes) {
         FastVector headerAttributes = new FastVector();
         for (int i = 0; i < numberOfAttributes - 1; i++) {
             headerAttributes.addElement(
@@ -179,6 +201,12 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
         streamHeader.setClassIndex(streamHeader.numAttributes());
         return streamHeader;
     }
+
+
+    public String getModelName() {
+        return modelName;
+    }
+
 
     /**
      * @return
@@ -191,7 +219,7 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
      * @return
      */
     public List<String> getClasses() {
-        return classes;
+        return this.classes;
     }
 
     /**
@@ -199,17 +227,32 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
      * @return
      */
     private double getPredictionConfidence(double[] votes) {
-        return (CoreUtils.argMax(votes) / MathUtil.sum(votes));
-
+        return MathUtil.roundOff((CoreUtils.argMax(votes) / MathUtil.sum(votes)), 3);
     }
 
     /**
      * @return
      */
-    public int getNumberOfAttributes() {
-        return numberOfAttributes;
+    public int getNoOfFeatures() {
+        return this.noOfFeatures;
     }
 
+    private int addClass(String label) {
+        // Set class value
+        if (classes.contains(label)) {
+            return classes.indexOf(label);
+        } else {
+            if (classes.size() < noOfClasses) {
+                classes.add(label);
+                return classes.indexOf(label);
+            } else {
+                throw new SiddhiAppRuntimeException(
+                        "Number of classes " + noOfClasses + " is expected from the model "
+                                + modelName + " but found " + classes.size());
+            }
+        }
+
+    }
 
     @Override
     protected void prepareForUseImpl(TaskMonitor taskMonitor, ObjectRepository objectRepository) {

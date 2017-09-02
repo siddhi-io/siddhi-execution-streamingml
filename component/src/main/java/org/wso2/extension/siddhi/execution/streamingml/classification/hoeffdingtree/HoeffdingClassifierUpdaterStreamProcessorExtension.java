@@ -33,7 +33,6 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -48,14 +47,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 /**
  * Build/update using a Hoeffding Adaptive Tree Model.
  * {@link HoeffdingClassifierUpdaterStreamProcessorExtension}
  */
 @Extension(
-        name = "hoeffdingLearn",
+        name = "updateHoeffdingTree",
         namespace = "streamingml",
         description = "Performs classification with Hoeffiding Adaptive Tree monitoring " +
                 "Concept drift with ADWIN ",
@@ -63,56 +61,65 @@ import java.util.concurrent.ExecutorService;
                 @Parameter(name = "model.name",
                         description = "The name of the model to be build/updated.",
                         type = {DataType.STRING}),
-                @Parameter(name = "number.ofclasses",
+                @Parameter(name = "no.of.classes",
                         description = "The number of Class labels in the datastream.",
                         type = {DataType.INT}),
                 @Parameter(name = "grace.period",
                         description = "The number of instances a leaf should observe between split attempts. " +
                                 "default:200, min:0, max:2147483647",
-                        type = {DataType.INT}),
+                        type = {DataType.INT},
+                        optional = true,
+                        defaultValue = "200"),
                 @Parameter(name = "split.criterion",
                         description = "Split criterion to use. 0:InfoGainSplitCriterion, 1:GiniSplitCriterion",
-                        type = {DataType.INT}),
+                        type = {DataType.INT},
+                        optional = true,
+                        defaultValue = "InfoGainSplitCriterion"),
                 @Parameter(name = "split.confidence",
                         description = "The allowable error in split decision, values closer to 0 will take " +
-                                "longer to decide. default:1e-7",
-                        type = {DataType.DOUBLE}),
-                @Parameter(name = "breaktie.threshold",
+                                "longer to decide.",
+                        type = {DataType.DOUBLE},
+                        optional = true,
+                        defaultValue = "1e-7"),
+                @Parameter(name = "tie.break.threshold",
                         description = "Threshold below which a split will be forced to break ties. " +
-                                "default:0.05D, min:0.0D, max:1.0D",
-                        type = {DataType.DOUBLE}),
-                @Parameter(name = "binarysplit.flag",
-                        description = "Only allow binary splits. default:false",
-                        type = {DataType.BOOL}),
-                @Parameter(name = "disable.prepruning.flag",
+                                "min:0.0D, max:1.0D",
+                        type = {DataType.DOUBLE},
+                        optional = true,
+                        defaultValue = "0.05D"),
+                @Parameter(name = "binary.split",
+                        description = "Only allow binary splits.",
+                        type = {DataType.BOOL},
+                        optional = true,
+                        defaultValue = "false"),
+                @Parameter(name = "pre.prune",
                         description = "Disable pre-pruning",
-                        type = {DataType.BOOL}),
-                @Parameter(name = "leafprediction.strategy",
+                        type = {DataType.BOOL},
+                        optional = true,
+                        defaultValue = "false"),
+                @Parameter(name = "leaf.prediction.strategy",
                         description = "Leaf prediction to use. " +
-                                "0:Majority class, 1:Naive Bayes, 2:Naive Bayes Adaptive. default:2",
-                        type = {DataType.INT}),
+                                "0:Majority class, 1:Naive Bayes, 2:Naive Bayes Adaptive.",
+                        type = {DataType.INT},
+                        optional = true,
+                        defaultValue = "Naive Bayes Adaptive"),
                 @Parameter(name = "model.features",
                         description = "Features of the model which should be attributes of the stream.",
                         type = {DataType.DOUBLE, DataType.INT})
         },
-        //todo:
         returnAttributes = {
-                @ReturnAttribute(name = "prediction",
-                        description = "The predicted value (`true/false`)",
-                        type = {DataType.BOOL}),
-                @ReturnAttribute(name = "prequentialEvaluation",
-                        description = "The probability of the prediction",
+                @ReturnAttribute(name = "accuracy",
+                        description = "The accuracy evaluation of the model(Prequnetial Evaluation)",
                         type = {DataType.DOUBLE})
         },
-        //todo: do examples
         examples = {
                 @Example(
                         syntax = "define stream StreamA (attribute_0 double, attribute_1 double, " +
                                 "attribute_2 double, attribute_3 double, attribute_4 string );\n" +
                                 "\n" +
-                                "from StreamA#ml:hoeffdingLearn('model1', 3) \n" +
+                                "from StreamA#streamingml:hoeffdingLearn('model1', 3) \n" +
                                 "select attribute_0, attribute_1, attribute_2, attribute_3, " +
-                                "accuracy insert into outputStream;",
+                                "prequencialEvaluation insert into outputStream;",
                         description = "A HoeffdingTree model with the name 'model1' will be built/updated under " +
                                 "3 number of classes using attribute_0, attribute_1, attribute_2, attribute_3 " +
                                 "as features and attribute_4 as the label."
@@ -121,9 +128,10 @@ import java.util.concurrent.ExecutorService;
                         syntax = "define stream StreamA (attribute_0 double, attribute_1 double, " +
                                 "attribute_2 double, attribute_3 double, attribute_4 string );\n" +
                                 "\n" +
-                                "from StreamA#ml:hoeffdingLearn('model1', 3, 200, 0, 1e-7, 1.0D, true, true, 2) \n" +
+                                "from StreamA#streamingml:hoeffdingLearn('model1', 3, 200, 0, 1e-7, 1.0D, " +
+                                "true, true, 2) \n" +
                                 "select attribute_0, attribute_1, attribute_2, attribute_3, " +
-                                "accuracy insert into outputStream;",
+                                "prequencialEvaluation insert into outputStream;",
                         description = "A Hoeffding Tree model with the name 'model1' will be " +
                                 "built/updated with a grace period of 200, InformationGain Split criterion," +
                                 "1e-7 of allowable error in split decision, 1.0D of breaktie threshold, " +
@@ -137,111 +145,131 @@ import java.util.concurrent.ExecutorService;
 public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamProcessor {
 
     private static final Logger logger = Logger.getLogger(HoeffdingClassifierUpdaterStreamProcessorExtension.class);
-    private ExecutorService executorService;
+
+    private static final int minNoOfFeatures = 3;
+    private static final int minNoOfParameters = 2;
+    private static final int noOfHyperParameters = 7;
+
+    private int noOfFeatures;
+    private int noOfParameters;
+    private int noOfClasses;
+    private String modelName;
+
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
     private VariableExpressionExecutor classLabelVariableExecutor;
 
-    private int numberOfAttributes;
-    private int numberOfClasses;
-    private int parameterPosition = 2;
-    private String modelName;
-
-    // values of class attribute
-    private List<String> classes = new ArrayList<String>();
+    private double[] cepEvent;
     private PrequentialModelEvaluation evolutionModel;
 
     @Override
     protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] expressionExecutors,
                                    ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
-        executorService = siddhiAppContext.getExecutorService();
         String siddhiAppName = siddhiAppContext.getName();
         String modelPrefix;
-        int classIndex = attributeExpressionLength - 1;
-        int maxNumberOfFeatures = inputDefinition.getAttributeList().size();
 
-        if (maxNumberOfFeatures + parameterPosition >= 5) {
+        noOfFeatures = inputDefinition.getAttributeList().size();
+        noOfParameters = attributeExpressionLength - noOfFeatures;
+
+        int classIndex = attributeExpressionLength - 1;
+
+        if (attributeExpressionLength >= minNoOfParameters + minNoOfFeatures) {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
-                if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
-                    modelPrefix = (String) ((ConstantExpressionExecutor)
-                            attributeExpressionExecutors[0])
-                            .getValue();
+                ConstantExpressionExecutor modelNameExecutor =
+                        (ConstantExpressionExecutor) attributeExpressionExecutors[0];
+                if (modelNameExecutor.getReturnType() == Attribute.Type.STRING
+                        || modelNameExecutor.getReturnType() == Attribute.Type.BOOL) {
+                    modelPrefix = (String) modelNameExecutor.getValue();
                     // model name = user given name + siddhi app name
-                    modelName = modelPrefix + "." + siddhiAppName;
+                    modelName = siddhiAppName + "." + modelPrefix;
                 } else {
                     throw new SiddhiAppValidationException(
-                            "Invalid parameter type found for the model.name argument, " + "required "
-                                    + Attribute.Type.STRING
-                                    + " but found " + attributeExpressionExecutors[0].
-                                    getReturnType().toString());
+                            "Invalid parameter type found for the model.name argument, " +
+                                    "required " + Attribute.Type.STRING + " but found "
+                                    + modelNameExecutor.getReturnType().toString());
                 }
             } else {
-                throw new SiddhiAppValidationException(
-                        "Model.name must be"
-                                + " (ConstantExpressionExecutor) but found "
-                                + attributeExpressionExecutors[0].getClass().getCanonicalName());
+                throw new SiddhiAppValidationException("Model.name must be (ConstantExpressionExecutor) but found "
+                        + attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
 
             //2nd parameter
             if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
-                if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
-                    numberOfClasses = (Integer) ((ConstantExpressionExecutor)
-                            attributeExpressionExecutors[1])
-                            .getValue();
-                    if (numberOfClasses < 2) {
+                ConstantExpressionExecutor numberOfClassesExecutor =
+                        (ConstantExpressionExecutor) attributeExpressionExecutors[1];
+                if (numberOfClassesExecutor.getReturnType() == Attribute.Type.INT) {
+                    noOfClasses = (Integer) numberOfClassesExecutor.getValue();
+                    if (noOfClasses < 2) {
                         throw new SiddhiAppValidationException(
-                                "Number of classes must be greater than 1 but" + " found "
-                                        + numberOfClasses);
+                                "Number of classes must be greater than 1 but found " + noOfClasses);
                     }
                 } else {
                     throw new SiddhiAppValidationException(
-                            "Invalid parameter type found for the numberOfClasses argument, " + "required "
-                                    + Attribute.Type.INT
-                                    + " but found " + attributeExpressionExecutors[1].
-                                    getReturnType().toString());
+                            "Invalid parameter type found for the number_of_classes argument, required "
+                                    + Attribute.Type.INT + " but found " +
+                                    numberOfClassesExecutor.getReturnType().toString());
                 }
             } else {
                 throw new SiddhiAppValidationException(
-                        "Number of classes count must be"
-                                + " (ConstantExpressionExecutor) but found "
+                        "Number of classes must be (ConstantExpressionExecutor) but found "
                                 + attributeExpressionExecutors[1].getClass().getCanonicalName());
             }
-            //3rd parameter
-            if (attributeExpressionExecutors[parameterPosition] instanceof ConstantExpressionExecutor) {
-                if (attributeExpressionExecutors[parameterPosition].getReturnType() == Attribute.Type.INT) {
-                    //configuring hoeffding tree model with hyper-parameters
-                    logger.debug("Hoeffding Adaptive Tree is configured with hyper-parameters");
-                    configureModelWithHyperParameters(modelName);
-                }
+
+            if (noOfFeatures > 2) {
+                cepEvent = new double[noOfFeatures];
+                featureVariableExpressionExecutors = CoreUtils
+                        .extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors,
+                                (attributeExpressionLength - noOfFeatures), (noOfFeatures - 1));
+
+                classLabelVariableExecutor = CoreUtils
+                        .extractAndValidateClassLabel(inputDefinition, attributeExpressionExecutors,
+                                classIndex);
+
             } else {
-               /* numberOfAttributes = attributeExpressionExecutors.length - parameterPosition;*/
-                numberOfAttributes = maxNumberOfFeatures;
-            }
-            if (numberOfAttributes < 2) {
+
                 throw new SiddhiAppValidationException(
-                        "Number of attributes must be greater than 1 but" + " found "
-                                + numberOfAttributes);
+                        "Number of features must be greater than 2 but" + " found "
+                                + noOfFeatures);
+
             }
-            featureVariableExpressionExecutors = CoreUtils
-                    .extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors,
-                            parameterPosition, classIndex);
 
-            classLabelVariableExecutor = CoreUtils
-                    .extractAndValidateClassLabel(inputDefinition, attributeExpressionExecutors,
-                            classIndex);
+            AdaptiveHoeffdingTreeModel model
+                    = AdaptiveHoeffdingModelsHolder.getInstance().getHoeffdingModel(modelName);
 
-            getModel(modelName);
+            if (!CoreUtils.isInitialized(model, noOfFeatures)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("Model [%s] has not been initialized.", modelName));
+                }
+                model.init(noOfFeatures, noOfClasses);
+            }
+
+            if (noOfParameters > minNoOfParameters) {
+                //configuation with hyper-parameters
+                if (noOfParameters == (minNoOfParameters + noOfHyperParameters)) {
+                    //configuring hoeffding tree model with hyper-parameters
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Hoeffding Adaptive Tree is configured with hyper-parameters");
+                    }
+                    configureModelWithHyperParameters(modelName);
+                } else {
+                    throw new SiddhiAppValidationException(String.format("Number of hyper-parameters needed for model"
+                                    + " manual configuration is %s but found %s", noOfHyperParameters,
+                            (noOfParameters - minNoOfParameters)));
+                }
+
+            }
             evolutionModel = new PrequentialModelEvaluation();
-            evolutionModel.reset(numberOfClasses);
-
+            evolutionModel.reset(noOfClasses);
         } else {
-            throw new SiddhiAppValidationException(String.format("Invalid number of parameters for " +
-                    "ml:hoeffdingLearn. This Stream Processor requires at least 2 parameters, namely, " +
-                    "model.name, number_of_classes, but found %s parameters", attributeExpressionExecutors.length));
+            throw new SiddhiAppValidationException(String.format("Invalid number of attributes for " +
+                            "streamingml:updateHoeffdingTree. This Stream Processor requires at least %s parameters," +
+                            "namely, model.name, number_of_classes and %s features but found %s parameters " +
+                            "and %s features", minNoOfParameters, minNoOfFeatures,
+                    (attributeExpressionLength - noOfFeatures), noOfFeatures));
         }
 
         //set attributes for OutputStream
-        List<Attribute> attributes = new ArrayList<Attribute>();
-        attributes.add(new Attribute("prediction", Attribute.Type.STRING));
+        List<Attribute> attributes = new ArrayList<>();
+        attributes.add(new Attribute("accuracy", Attribute.Type.DOUBLE));
         return attributes;
     }
 
@@ -252,178 +280,160 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 ComplexEvent complexEvent = streamEventChunk.next();
-                if (complexEvent.getType() != ComplexEvent.Type.TIMER) {
-                    double[] cepEvent = new double[numberOfAttributes];
 
-                    String classValue = classLabelVariableExecutor.execute(complexEvent).toString();
+                String classValue = classLabelVariableExecutor.execute(complexEvent).toString();
 
-                    // Set class value
-                    if (classValue.equals("?")) { // these data points for prediction
-                        cepEvent[numberOfAttributes - 1] = -1;
-                        throw new SiddhiAppRuntimeException(
-                                "The class value is not accepted. Found ? for class value");
-
-                    } else {
-                        if (classes.contains(classValue)) {
-                            cepEvent[numberOfAttributes - 1] = classes.indexOf(classValue);
-                        } else {
-                            if (classes.size() < numberOfClasses) {
-                                classes.add(classValue);
-                                cepEvent[numberOfAttributes - 1] = classes.indexOf(classValue);
-                            } else {
-                                throw new SiddhiAppRuntimeException(
-                                        "Number of classes " + numberOfClasses + " but found "
-                                                + classes.size());
-                            }
-                        }
-                    }
-
-                    for (int i = 0; i < numberOfAttributes - 1; i++) {
-                        cepEvent[i] = ((Number) featureVariableExpressionExecutors.get(i)
-                                .execute(complexEvent)).doubleValue();
-                    }
-
-                    AdaptiveHoeffdingTreeModel model = AdaptiveHoeffdingModelsHolder.getInstance()
-                            .getHoeffdingModel(modelName);
-
-
-                    /*model.trainOnEvent(cepEvent, classes);*/
-                    model.testThenTrainOnEvent(evolutionModel, cepEvent, classes);
-
-                    complexEventPopulater.populateComplexEvent(complexEvent, new Object[]{"Trained Successfully"});
+                for (int i = 0; i < noOfFeatures - 1; i++) {
+                    cepEvent[i] = ((Number) featureVariableExpressionExecutors.get(i)
+                            .execute(complexEvent)).doubleValue();
                 }
-                nextProcessor.process(streamEventChunk);
+
+                AdaptiveHoeffdingTreeModel model = AdaptiveHoeffdingModelsHolder.getInstance()
+                        .getHoeffdingModel(modelName);
+
+                double accuracy;
+                if (model.getClasses().size() == noOfClasses) {
+                    accuracy = model.evaluationTrainOnEvent(evolutionModel, cepEvent, classValue);
+                } else {
+                    model.trainOnEvent(cepEvent, classValue);
+                    accuracy = 0;
+                }
+                complexEventPopulater.populateComplexEvent(complexEvent, new Object[]{accuracy});
             }
+            nextProcessor.process(streamEventChunk);
         }
+
     }
-
-
-    private AdaptiveHoeffdingTreeModel getModel(String modelName) {
-        AdaptiveHoeffdingTreeModel model = AdaptiveHoeffdingModelsHolder.getInstance().getHoeffdingModel(modelName);
-        if (model == null) {
-            logger.debug("Creating new model Hoeffding Adaptive Tree model with the name, " + modelName);
-            model = new AdaptiveHoeffdingTreeModel();
-            AdaptiveHoeffdingModelsHolder.getInstance().addHoeffdingModel(modelName, model);
-        }
-        if (model.getStreamHeader() != null) {
-            // validate the model
-            if (numberOfAttributes != model.getNumberOfAttributes()) {
-                // clean the model
-                logger.debug("Deleting the model " + modelName);
-                AdaptiveHoeffdingModelsHolder.getInstance().deleteHoeffdingModel(modelName);
-                throw new SiddhiAppValidationException(String.format("Model [%s] expects %s " +
-                                "features, but the streamingml:hoeffdingClassifier " +
-                                "specifies %s features", modelName, model.getStreamHeader().numAttributes()
-                        , numberOfAttributes));
-            }
-        } else {
-            model.init(numberOfAttributes);
-        }
-        return model;
-    }
-
 
     private void configureModelWithHyperParameters(String modelName) {
-        int numberOfHyperParameters = 7;
-
         //default configurations for Hoeffding Adaptive tree
         int gracePeriod = 200;
         int splittingCriteria = 1;
         double allowableSplitError = 1e-7;
-        double breakTieThreshold = 0.05;
+        double tieBreakThreshold = 0.05;
         boolean binarySplit = false;
-        boolean disablePrePruning = false;
-        int leafpredictionStrategy = 2;
+        boolean prePruning = false;
+        int leafPredictionStrategy = 2;
 
-        while (attributeExpressionExecutors[parameterPosition] instanceof ConstantExpressionExecutor) {
-            switch (parameterPosition) {
-                case 3:
-                    if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
-                        gracePeriod = (Integer) ((ConstantExpressionExecutor)
-                                attributeExpressionExecutors[3])
-                                .getValue();
-                    } else {
-                        throw new SiddhiAppValidationException("GracePeriod must be an Integer." +
-                                " But found " + attributeExpressionExecutors[3].getClass().getCanonicalName());
-                    }
-                    break;
-                case 4:
-                    if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.INT) {
-                        splittingCriteria = (Integer) ((ConstantExpressionExecutor)
-                                attributeExpressionExecutors[4])
-                                .getValue();
-                    } else {
-                        throw new SiddhiAppValidationException("Splitting Criteria must be an Integer. " +
-                                "0=InfoGainSplitCriterion and 1=GiniSplitCriterion" +
-                                " But found " + attributeExpressionExecutors[4].getClass().getCanonicalName());
-                    }
-                    break;
-                case 5:
-                    if (attributeExpressionExecutors[5].getReturnType() == Attribute.Type.DOUBLE) {
-                        allowableSplitError = (double) ((ConstantExpressionExecutor)
-                                attributeExpressionExecutors[5])
-                                .getValue();
-                    } else {
-                        throw new SiddhiAppValidationException("AllowableSplitError must be a Double." +
-                                " But found " + attributeExpressionExecutors[5].getClass().getCanonicalName());
-                    }
-                    break;
-                case 6:
-                    if (attributeExpressionExecutors[6].getReturnType() == Attribute.Type.DOUBLE) {
-                        breakTieThreshold = (double) ((ConstantExpressionExecutor)
-                                attributeExpressionExecutors[6])
-                                .getValue();
-                    } else {
-                        throw new SiddhiAppValidationException("BreakTieThreshold must be a Double." +
-                                " But found " + attributeExpressionExecutors[6].getClass().getCanonicalName());
-                    }
-                    break;
-                case 7:
-                    if (attributeExpressionExecutors[7].getReturnType() == Attribute.Type.BOOL) {
-                        binarySplit = (boolean) ((ConstantExpressionExecutor)
-                                attributeExpressionExecutors[7])
-                                .getValue();
-                    } else {
-                        throw new SiddhiAppValidationException("BinarySplitOption must be an Integer." +
-                                " But found " + attributeExpressionExecutors[7].getClass().getCanonicalName());
-                    }
-                    break;
-                case 8:
-                    if (attributeExpressionExecutors[8].getReturnType() == Attribute.Type.BOOL) {
-                        disablePrePruning = (boolean) ((ConstantExpressionExecutor)
-                                attributeExpressionExecutors[8])
-                                .getValue();
-                    } else {
-                        throw new SiddhiAppValidationException("DisablePrePruning must be a Boolean." +
-                                " But found " + attributeExpressionExecutors[8].getClass().getCanonicalName());
-                    }
-                    break;
-                case 9:
-                    if (attributeExpressionExecutors[9].getReturnType() == Attribute.Type.INT) {
-                        leafpredictionStrategy = (int) ((ConstantExpressionExecutor)
-                                attributeExpressionExecutors[9])
-                                .getValue();
-                    } else {
-                        throw new SiddhiAppValidationException("LeafPredictionStrategy must be an Integer. " +
-                                "0=majority class, 1=naive Bayes, 2=naive Bayes adaptive" +
-                                " But found " + attributeExpressionExecutors[9].getClass().getCanonicalName());
-                    }
-                    break;
+        int parameterPosition = minNoOfParameters;
+
+        List<String> hyperParameters = new ArrayList<>();
+        hyperParameters.add("GracePeriod");
+        hyperParameters.add("Splitting Criteria");
+        hyperParameters.add("Allowable Split Error");
+        hyperParameters.add("Tie Break Threshold");
+        hyperParameters.add("Binary Split");
+        hyperParameters.add("Prepruning");
+        hyperParameters.add("Leaf Prediction Strategy");
+
+        for (int i = parameterPosition; i < noOfParameters; i++) {
+            if (attributeExpressionExecutors[i] instanceof ConstantExpressionExecutor) {
+                switch (i) {
+                    case 2:
+                        if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
+                            gracePeriod = (Integer) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[2])
+                                    .getValue();
+                            parameterPosition++;
+                        } else {
+                            throw new SiddhiAppValidationException(String.format("GracePeriod must be an %s." +
+                                            " But found %s at position %s", Attribute.Type.INT,
+                                    attributeExpressionExecutors[2].getClass().getCanonicalName(), (i + 1)));
+                        }
+                        break;
+                    case 3:
+                        if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
+                            splittingCriteria = (Integer) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[3]).getValue();
+                            parameterPosition++;
+                        } else {
+                            throw new SiddhiAppValidationException(String.format("Splitting Criteria must be an %s. " +
+                                            "0=InfoGainSplitCriterion and 1=GiniSplitCriterion" +
+                                            " But found %s in position %s.", Attribute.Type.INT,
+                                    attributeExpressionExecutors[3].getClass().getCanonicalName(), (i + 1)));
+                        }
+                        break;
+                    case 4:
+                        if (attributeExpressionExecutors[4].getReturnType() == Attribute.Type.DOUBLE) {
+                            allowableSplitError = (double) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[4])
+                                    .getValue();
+                            parameterPosition++;
+                        } else {
+                            throw new SiddhiAppValidationException(String.format("Allowable Split Error must be a " +
+                                            "%s. But found %s at position %s.", Attribute.Type.DOUBLE,
+                                    attributeExpressionExecutors[4].getClass().getCanonicalName(), (i + 1)));
+                        }
+                        break;
+                    case 5:
+                        if (attributeExpressionExecutors[5].getReturnType() == Attribute.Type.DOUBLE) {
+                            tieBreakThreshold = (double) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[5])
+                                    .getValue();
+                            parameterPosition++;
+                        } else {
+                            throw new SiddhiAppValidationException(String.format("Tie Break Threshold must be " +
+                                            "a %s. But found %s in position %s.", Attribute.Type.DOUBLE,
+                                    attributeExpressionExecutors[5].getClass().getCanonicalName(), (i + 1)));
+                        }
+                        break;
+                    case 6:
+                        if (attributeExpressionExecutors[6].getReturnType() == Attribute.Type.BOOL) {
+                            binarySplit = (boolean) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[6]).getValue();
+                            parameterPosition++;
+                        } else {
+                            throw new SiddhiAppValidationException(String.format("Enabling Binary Split must be " +
+                                            "a %s. But found %s in position %s.", Attribute.Type.BOOL,
+                                    attributeExpressionExecutors[6].getClass().getCanonicalName(), (i + 1)));
+                        }
+                        break;
+                    case 7:
+                        if (attributeExpressionExecutors[7].getReturnType() == Attribute.Type.BOOL) {
+                            prePruning = (boolean) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[7])
+                                    .getValue();
+                            parameterPosition++;
+                        } else {
+                            throw new SiddhiAppValidationException(String.format("Disabling PrePruning must be " +
+                                            "a %s. But found %s in position %s.", Attribute.Type.BOOL,
+                                    attributeExpressionExecutors[7].getClass().getCanonicalName(), (i + 1)));
+                        }
+                        break;
+                    case 8:
+                        if (attributeExpressionExecutors[8].getReturnType() == Attribute.Type.INT) {
+                            leafPredictionStrategy = (int) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[8])
+                                    .getValue();
+                            parameterPosition++;
+                        } else {
+                            throw new SiddhiAppValidationException(String.format("Leaf Prediction Strategy must " +
+                                            "be an %s. 0=majority class, 1=naive Bayes, 2=naive Bayes adaptive. " +
+                                            "But found %s in position %s.", Attribute.Type.INT,
+                                    attributeExpressionExecutors[8].getClass().getCanonicalName(), (i + 1)));
+                        }
+                        break;
+                    default:
+                }
+            } else {
+                throw new SiddhiAppValidationException(String.format("%s must be (ConstantExpressionExecutor) " +
+                                "but found %s in position %s.", hyperParameters.get(i - minNoOfParameters),
+                        attributeExpressionExecutors[i].getClass().getCanonicalName(), (i + 1)));
             }
-            parameterPosition++;
         }
-        if (parameterPosition == 10) {
-            numberOfAttributes = attributeExpressionExecutors.length - parameterPosition;
-            AdaptiveHoeffdingTreeModel model = getModel(modelName);
+
+        if (parameterPosition == (noOfHyperParameters + minNoOfParameters)) {
+            AdaptiveHoeffdingTreeModel model = AdaptiveHoeffdingModelsHolder.getInstance()
+                    .getHoeffdingModel(modelName);
             model.setConfigurations(gracePeriod, splittingCriteria, allowableSplitError,
-                    breakTieThreshold, binarySplit, disablePrePruning, leafpredictionStrategy);
+                    tieBreakThreshold, binarySplit, prePruning, leafPredictionStrategy);
 
         } else {
             throw new SiddhiAppValidationException("Number of hyper-parameters needed for model " +
-                    "manual configuration is " + numberOfHyperParameters + " but found " + (parameterPosition - 2));
+                    "manual configuration is " + noOfHyperParameters + " but found "
+                    + (parameterPosition - minNoOfParameters));
         }
     }
-
 
     @Override
     public void start() {

@@ -56,7 +56,12 @@ public class AdaptiveHoeffdingModelsHolder {
     }
 
     public AdaptiveHoeffdingTreeModel getHoeffdingModel(String name) {
-        return hoeffdingModelMap.get(name);
+        AdaptiveHoeffdingTreeModel model = hoeffdingModelMap.get(name);
+        if (model == null) {
+            model = new AdaptiveHoeffdingTreeModel(name);
+            addHoeffdingModel(name, model);
+        }
+        return model;
     }
 
     public void deleteHoeffdingModel(String name) {
@@ -66,4 +71,6 @@ public class AdaptiveHoeffdingModelsHolder {
     public void addHoeffdingModel(String name, AdaptiveHoeffdingTreeModel model) {
         hoeffdingModelMap.put(name, model);
     }
+
+
 }

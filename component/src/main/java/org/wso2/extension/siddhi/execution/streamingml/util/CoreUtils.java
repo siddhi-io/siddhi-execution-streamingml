@@ -1,5 +1,6 @@
 package org.wso2.extension.siddhi.execution.streamingml.util;
 
+import org.wso2.extension.siddhi.execution.streamingml.classification.hoeffdingtree.util.AdaptiveHoeffdingTreeModel;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -33,6 +34,7 @@ public class CoreUtils {
 
     /**
      * Maximum from the double array
+     *
      * @param doubles
      * @return
      */
@@ -50,13 +52,14 @@ public class CoreUtils {
     /**
      * @param inputDefinition
      * @param attributeExpressionExecutors
-     * @param startIndex
+     * @param startIndex starting index
+     * @param noOfFeatures
      * @return
      */
     public static List<VariableExpressionExecutor> extractAndValidateFeatures(
             AbstractDefinition inputDefinition, ExpressionExecutor[]
             attributeExpressionExecutors,
-            int startIndex, int endIndex) {
+            int startIndex, int noOfFeatures) {
 
         List<Attribute.Type> numericTypes = new ArrayList<>();
         numericTypes.add(Attribute.Type.DOUBLE);
@@ -67,7 +70,7 @@ public class CoreUtils {
         List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
 
         // feature values start
-        for (int i = startIndex; i < endIndex; i++) {
+        for (int i = startIndex; i < (startIndex + noOfFeatures); i++) {
             if (attributeExpressionExecutors[i] instanceof VariableExpressionExecutor) {
                 featureVariableExpressionExecutors.add((VariableExpressionExecutor)
                         attributeExpressionExecutors[i]);
@@ -97,14 +100,13 @@ public class CoreUtils {
 
 
     /**
-     *
      * @param inputDefinition
      * @param attributeExpressionExecutors
      * @param classIndex
      * @return
      */
     public static VariableExpressionExecutor extractAndValidateClassLabel
-            (AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, int classIndex) {
+    (AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, int classIndex) {
 
         VariableExpressionExecutor classLabelVariableExecutor;
 
@@ -133,6 +135,29 @@ public class CoreUtils {
         }
 
         return classLabelVariableExecutor;
+    }
+
+    /**
+     *
+     * @param model
+     * @param noOfFeatures
+     * @return
+     */
+    public static boolean isInitialized(AdaptiveHoeffdingTreeModel model, int noOfFeatures) {
+        boolean initialized;
+        if (model.getStreamHeader() != null) {
+            initialized = true;
+            // validate the model
+            if (noOfFeatures != model.getNoOfFeatures()) {
+                throw new SiddhiAppValidationException(String.format("Model [%s] expects %s " +
+                                "features, but the streamingml:updateHoeffdingTree " +
+                                "specifies %s features.", model.getModelName(), model.getNoOfFeatures(),
+                        noOfFeatures));
+            }
+        } else {
+            initialized = false;
+        }
+        return initialized;
 
     }
 }

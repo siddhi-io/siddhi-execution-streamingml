@@ -27,16 +27,11 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
@@ -44,15 +39,12 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
     private static final Logger logger = Logger
             .getLogger(HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase.class);
 
-    private volatile int count;
-    private volatile int accuracy;
+    private AtomicInteger count;
 
     @BeforeMethod
     public void init() {
-        count = 0;
-        accuracy = 0;
+        count = new AtomicInteger(0);
     }
-
 
     @Test
     public void testHoeffdingClassifierLearningExtension1() throws InterruptedException {
@@ -63,24 +55,28 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
         String inStreamDefinition = " define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 "
                 + "double,attribute_3 double, attribute_4 string );";
 
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', 3, " +
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 3, " +
                 "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select attribute_0, "
                 + "attribute_1, attribute_2, attribute_3, " +
-                "prediction as prediction insert into outputStream;");
+                "accuracy insert into outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
+                count.incrementAndGet();
                 EventPrinter.print(inEvents);
-                if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{6, 2.2, 4, 1, "Trained Successfully"}, inEvents[0]
+                if (count.get() == 1) {
+                    AssertJUnit.assertArrayEquals(new Object[]{6, 2.2, 4, 1, 0.0}, inEvents[0]
                             .getData());
                 }
-                if (count == 3) {
-                    AssertJUnit.assertArrayEquals(new Object[]{6.9, 3.1, 5.4, 2.1, "Trained Successfully"}, inEvents[0]
+                if (count.get() == 6) {
+                    AssertJUnit.assertArrayEquals(new Object[]{4.8, 3.4, 1.9, 0.2, 0.333}, inEvents[0]
+                            .getData());
+                }
+                if (count.get() == 7) {
+                    AssertJUnit.assertArrayEquals(new Object[]{5.8, 2.7, 4.1, 1, 0.5}, inEvents[0]
                             .getData());
                 }
             }
@@ -96,14 +92,9 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{6.1, 2.8, 4.7, 1.2, "versicolor"});
             inputHandler.send(new Object[]{4.8, 3.4, 1.9, 0.2, "setosa"});
             inputHandler.send(new Object[]{5.8, 2.7, 4.1, 1, "versicolor"});
-            inputHandler.send(new Object[]{5.1, 2.5, 3, 1.1, "versicolor"});
-            inputHandler.send(new Object[]{6.3, 2.8, 5.1, 1.5, "virginica"});
-            inputHandler.send(new Object[]{5.1, 3.8, 1.6, 0.2, "setosa"});
-            inputHandler.send(new Object[]{6.5, 2.8, 4.6, 1.5, "versicolor"});
-            inputHandler.send(new Object[]{5.7, 2.5, 5, 2, "virginica"});
 
-            Thread.sleep(1100);
-            AssertJUnit.assertEquals(12, count);
+            SiddhiTestHelper.waitForEvents(200, 7, count, 60000);
+
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
@@ -121,24 +112,24 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
                 + "double,attribute_3 double, attribute_4 string );";
 
         String query = ("@info(name = 'query1') " +
-                "from StreamA#streamingml:hoeffdingLearn('model1', 3, 5, 300, 1, 0.05, 0.05, false, false, 2, " +
+                "from StreamA#streamingml:updateHoeffdingTree('model1', 3, 5, 300, 1e-7, 0.05, false, false, 2, " +
                 "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select attribute_0, "
                 + "attribute_1, attribute_2, attribute_3, " +
-                "prediction as prediction insert into outputStream;");
+                "accuracy insert into outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
+                count.incrementAndGet();
                 EventPrinter.print(inEvents);
-                if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{6, 2.2, 4, 1, "Trained Successfully"}, inEvents[0]
+                if (count.get() == 1) {
+                    AssertJUnit.assertArrayEquals(new Object[]{6, 2.2, 4, 1, 0.0}, inEvents[0]
                             .getData());
                 }
-                if (count == 3) {
-                    AssertJUnit.assertArrayEquals(new Object[]{6.9, 3.1, 5.4, 2.1, "Trained Successfully"}, inEvents[0]
+                if (count.get() == 3) {
+                    AssertJUnit.assertArrayEquals(new Object[]{6.9, 3.1, 5.4, 2.1, 0.0}, inEvents[0]
                             .getData());
                 }
             }
@@ -153,8 +144,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{4.3, 3, 1.1, 0.1, "setosa"});
             inputHandler.send(new Object[]{6.1, 2.8, 4.7, 1.2, "versicolor"});
 
-            Thread.sleep(1100);
-            AssertJUnit.assertEquals(5, count);
+            SiddhiTestHelper.waitForEvents(200, 5, count, 60000);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
@@ -165,15 +155,15 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
 
     @Test
     public void testHoeffdingClassifierLearningExtension3() throws InterruptedException {
-        logger.info("HoeffdingClassifierUpdaterStreamProcessorExtension TestCase - Features are of any numeric type");
+        logger.info("HoeffdingClassifierUpdaterStreamProcessorExtension TestCase - Features are of un-supported type");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double, attribute_3 int, attribute_4 string );";
 
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', 3, " +
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 3, " +
                 "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select attribute_0, "
-                + " attribute_1, attribute_2, attribute_3, prediction as prediction insert into"
+                + " attribute_1, attribute_2, attribute_3, accuracy insert into"
                 + " outputStream;");
 
         try {
@@ -196,9 +186,9 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double, attribute_3 double, attribute_4 int );";
 
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', 3, " +
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 3, " +
                 "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select attribute_0, "
-                + "attribute_1, attribute_2, attribute_3, prediction as prediction insert into"
+                + "attribute_1, attribute_2, attribute_3, accuracy insert into"
                 + " outputStream;");
 
         try {
@@ -220,9 +210,9 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double, attribute_3 double, attribute_4 bool );";
 
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', 3, " +
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 2, " +
                 "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select attribute_0, "
-                + "attribute_1, attribute_2, attribute_3, prediction as prediction insert into"
+                + "attribute_1, attribute_2, attribute_3, accuracy insert into"
                 + " outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
@@ -230,7 +220,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
+                count.incrementAndGet();
                 EventPrinter.print(inEvents);
             }
         });
@@ -241,8 +231,9 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{0.2, 0.95, 0.22, 0.1, true});
             inputHandler.send(new Object[]{0.8, 0.1, 0.65, 0.92, false});
             inputHandler.send(new Object[]{0.75, 0.1, 0.58, 0.71, false});
-            Thread.sleep(1100);
-            AssertJUnit.assertEquals(4, count);
+
+            SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
+
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
@@ -258,17 +249,18 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double, attribute_3 int, attribute_4 string );";
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', 'model1', " +
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 'model1', " +
                 "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select att_0 as attribute_0, "
-                + "att_1 as attribute_1,att_2 as attribute_2,att_3 as attribute_3, prediction as prediction insert into"
+                + "att_1 as attribute_1,att_2 as attribute_2,att_3 as attribute_3, accuracy insert into"
                 + " outputStream;");
 
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
+            logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for the numberOfClasses " +
-                    "argument, required INT but found STRING"));
+            AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for "
+                    + "the number_of_classes argument, required INT but found STRING"));
         }
     }
 
@@ -280,19 +272,19 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double, attribute_3 int, attribute_4 string );";
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', " +
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', " +
                 "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select att_0 as attribute_0, "
-                + "att_1 as attribute_1,att_2 as attribute_2,att_3 as attribute_3, prediction as prediction insert into"
+                + "att_1 as attribute_1,att_2 as attribute_2,att_3 as attribute_3, accuracy insert into"
                 + " outputStream;");
 
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                     query);
         } catch (Exception e) {
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             logger.error(e);
-            AssertJUnit.assertTrue(e.getMessage().contains("Number of classes count must be " +
-                    "(ConstantExpressionExecutor) but found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("Number of classes must be (ConstantExpressionExecutor) "
+                    + "but found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -305,9 +297,9 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
         String inStreamDefinition = " define stream StreamA (attribute_0 float, attribute_1 double, attribute_2 "
                 + "int,attribute_3 long, attribute_4 string );";
 
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', 3, " +
-                "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select attribute_0, "
-                + "attribute_1, attribute_2, attribute_3, prediction as prediction insert into"
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 3, "
+                + "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select attribute_0, "
+                + "attribute_1, attribute_2, attribute_3, accuracy insert into"
                 + " outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
@@ -315,14 +307,14 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
+                count.incrementAndGet();
                 EventPrinter.print(inEvents);
-                if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{6, 2.2, 4, 1, "Trained Successfully"}, inEvents[0]
+                if (count.get() == 1) {
+                    AssertJUnit.assertArrayEquals(new Object[]{6, 2.2, 4, 1, 0.0}, inEvents[0]
                             .getData());
                 }
-                if (count == 3) {
-                    AssertJUnit.assertArrayEquals(new Object[]{6.9, 3.1, 5.4, 2.1, "Trained Successfully"}, inEvents[0]
+                if (count.get() == 3) {
+                    AssertJUnit.assertArrayEquals(new Object[]{6.9, 3.1, 5.4, 2.1, 0.0}, inEvents[0]
                             .getData());
                 }
             }
@@ -336,8 +328,8 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{4.3, 3, 1.1, 0.1, "setosa"});
             inputHandler.send(new Object[]{6.1, 2.8, 4.7, 1.2, "versicolor"});
 
-            Thread.sleep(1100);
-            AssertJUnit.assertEquals(5, count);
+            SiddhiTestHelper.waitForEvents(200, 5, count, 60000);
+
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
@@ -354,14 +346,15 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double, attribute_3 int, attribute_4 string );";
 
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', 3, 4, " +
-                "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select att_0 as attribute_0, "
-                + "att_1 as attribute_1,att_2 as attribute_2,att_3 as attribute_3, prediction as prediction insert into"
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 3, 4, " +
+                "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select attribute_0, "
+                + "attribute_1, attribute_2, attribute_3, accuracy insert into"
                 + " outputStream;");
 
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Number of hyper-parameters needed for model manual " +
                     "configuration is 7 but found 1"));
@@ -375,26 +368,26 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setPersistenceStore(new InMemoryPersistenceStore());
 
-        String inStreamDefinition = "@App:name('HoeffdingTestApp') \n" +
-                "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
-                "double, attribute_3 double, attribute_4 String);";
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', 3, " +
-                "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select attribute_0, "
-                + "attribute_1, attribute_2, attribute_3, prediction insert into"
-                + " outputStream;");
+        String inStreamDefinition = "@App:name('HoeffdingTestApp') \n"
+                + "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 "
+                + "double, attribute_3 double, attribute_4 String);";
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 2, "
+                + "attribute_0, attribute_1 , attribute_2 , attribute_3, attribute_4) select attribute_0, "
+                + "attribute_1, attribute_2, attribute_3, accuracy insert into outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
-                if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.1, 0.8, 0.2, 0.03, "Trained Successfully"},
+                count.incrementAndGet();
+                EventPrinter.print(inEvents);
+                if (count.get() == 1) {
+                    AssertJUnit.assertArrayEquals(new Object[]{0.1, 0.8, 0.2, 0.03, 0.0},
                             inEvents[0].getData());
                 }
-                if (count == 3) {
-                    AssertJUnit.assertArrayEquals(new Object[]{0.2, 0.95, 0.22, 0.1, "Trained Successfully"},
+                if (count.get() == 3) {
+                    AssertJUnit.assertArrayEquals(new Object[]{0.2, 0.95, 0.22, 0.1, 1.0},
                             inEvents[0].getData());
                 }
             }
@@ -420,8 +413,8 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
 
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    count++;
-                    if (count == 4) {
+                    count.incrementAndGet();
+                    if (count.get() == 4) {
                         // weights should be restored and should be following
                         AssertJUnit.assertArrayEquals(new Object[]{0.001, 0.008, 0.002, 3.0E-4}, inEvents[0]
                                 .getData());
@@ -436,8 +429,8 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
             // send a new event
             inputHandler.send(new Object[]{0.8, 0.1, 0.65, 0.92, false});
 
-            Thread.sleep(1100);
-            AssertJUnit.assertEquals(5, count);
+            SiddhiTestHelper.waitForEvents(200, 5, count, 60000);
+
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
@@ -445,38 +438,64 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
         }
     }
 
-
-    /*@Test*/
+    @Test
     public void testHoeffdingClassifierLearningExtension11() throws InterruptedException {
-        logger.info("HoeffdingClassifierUpdaterStreamProcessorExtension TestCase - Test then train model");
+        logger.info("HoeffdingClassifierUpdaterStreamProcessorExtension TestCase " +
+                "- Hyperparameter not type ConstantExecutor");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
+                "double, attribute_3 int, attribute_4 string );";
+
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 3, 5, 200, " +
+                "attribute_0, 0.05, false, false, 2, attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4)" +
+                " select attribute_0, attribute_1, attribute_2, attribute_3, accuracy insert into outputStream;");
+
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+        } catch (Exception e) {
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("Allowable Split Error must be " +
+                    "(ConstantExpressionExecutor) but found org.wso2.siddhi.core.executor.VariableExpressionExecutor" +
+                    " in position 5"));
+        }
+    }
+
+
+    @Test
+    public void testHoeffdingClassifierLearningExtension12() throws InterruptedException {
+        logger.info("HoeffdingClassifierUpdaterStreamProcessorExtension TestCase - Assert Model Prequntial Evaluation");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = " define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 "
                 + "double,attribute_3 double, attribute_4 string );";
 
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', 3, true, " +
-                "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) select att_0 as attribute_0, "
-                + "att_1 as attribute_1, att_2 as attribute_2,att_3 as attribute_3, actual_label as actual_label, " +
-                "pretrain_prediction as prediction insert into"
-                + " outputStream;");
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 3, " +
+                "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) \n" +
+                "select attribute_0, attribute_1, attribute_2, attribute_3, accuracy insert into outputStream;");
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
                 EventPrinter.print(inEvents);
-                if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{6.0, 2.2, 4.0, 1.0, "Trained Successfully"}, inEvents[0]
+                count.incrementAndGet();
+                if (count.get() == 1) {
+                    AssertJUnit.assertArrayEquals(new Object[]{6, 2.2, 4, 1, 0.0}, inEvents[0]
                             .getData());
                 }
-                if (count == 3) {
-                    AssertJUnit.assertArrayEquals(new Object[]{6.9, 3.1, 5.4, 2.1, "Trained Successfully"}, inEvents[0]
+                if (count.get() == 6) {
+                    AssertJUnit.assertArrayEquals(new Object[]{4.8, 3.4, 1.9, 0.2, 0.333}, inEvents[0]
+                            .getData());
+                }
+                if (count.get() == 7) {
+                    AssertJUnit.assertArrayEquals(new Object[]{5.8, 2.7, 4.1, 1, 0.5}, inEvents[0]
                             .getData());
                 }
             }
         });
+
         try {
             InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
             siddhiAppRuntime.start();
@@ -485,100 +504,67 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{6.9, 3.1, 5.4, 2.1, "virginica"});
             inputHandler.send(new Object[]{4.3, 3, 1.1, 0.1, "setosa"});
             inputHandler.send(new Object[]{6.1, 2.8, 4.7, 1.2, "versicolor"});
+            inputHandler.send(new Object[]{4.8, 3.4, 1.9, 0.2, "setosa"});
+            inputHandler.send(new Object[]{5.8, 2.7, 4.1, 1, "versicolor"});
+            inputHandler.send(new Object[]{5.1, 2.5, 3, 1.1, "versicolor"});
+            inputHandler.send(new Object[]{6.3, 2.8, 5.1, 1.5, "virginica"});
+            inputHandler.send(new Object[]{5.1, 3.8, 1.6, 0.2, "setosa"});
+            inputHandler.send(new Object[]{6.5, 2.8, 4.6, 1.5, "versicolor"});
+            inputHandler.send(new Object[]{5.7, 2.5, 5, 2, "virginica"});
 
-            Thread.sleep(1100);
-            AssertJUnit.assertEquals(5, count);
+            SiddhiTestHelper.waitForEvents(200, 12, count, 60000);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
-
 
     @Test
-    public void testHoeffdingClassifierLearningExtension21() throws InterruptedException {
-        logger.info("HoeffdingClassifierUpdaterStreamProcessorExtension TestCase - Assert Model Prequntial Evaluation");
+    public void testHoeffdingClassifierLearningExtension13() throws InterruptedException {
+        logger.info("HoeffdingClassifierUpdaterStreamProcessorExtension TestCase - no label is passed");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String inStreamDefinition = " define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 "
-                + "double,attribute_3 double, attribute_4 string );";
+        String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
+                "double, attribute_3 double);";
 
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingLearn('model1', 3, " +
-                "attribute_0, attribute_1 , attribute_2 ,attribute_3,attribute_4) \n" +
-                "insert all events into outputStream;");
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', 3, " +
+                "attribute_0, attribute_1 , attribute_2 , attribute_3) select attribute_0, "
+                + "attribute_1, attribute_2, attribute_3, accuracy insert into"
+                + " outputStream;");
 
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
-                EventPrinter.print(inEvents);
-               /* if (count == 1) {
-                    AssertJUnit.assertArrayEquals(new Object[]{6, 2.2, 4, 1, "Trained Successfully"}, inEvents[0]
-                            .getData());
-                }
-                if (count == 3) {
-                    AssertJUnit.assertArrayEquals(new Object[]{6.9, 3.1, 5.4, 2.1, "Trained Successfully"}, inEvents[0]
-                            .getData());
-                }*/
-            }
-        });
-    }
-
-    public void testClassificationStreamProcessorExtension2() throws InterruptedException {
-        logger.info("StreamingClasificationStreamProcessor Accuracy");
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String inStreamDefinition = " define stream inputStream (attribute_0 double, attribute_1 double, attribute_2 "
-                + "string );";
-        String query = ("@info(name = 'query2') from inputStream#ml:multiClassClassification(3,2,'2,2',1000,"
-                + "attribute_0, attribute_1 , attribute_2) select att_0 as attribute_0, att_1 as attribute_1, "
-                + "prediction as prediction insert into outputStream;");
-
-
-        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
-
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
-
-        Scanner scanner = null;
         try {
-            File file = new File("src/test/resources/binary.csv");
-            InputStream inputStream = new FileInputStream(file);
-            Reader fileReader = new InputStreamReader(inputStream, "UTF-8");
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            scanner = new Scanner(bufferedReader);
-
-            InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
-            siddhiAppRuntime.start();
-            while (scanner.hasNext()) {
-                String eventStr = scanner.nextLine();
-                String[] event = eventStr.split(",");
-                inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]), event[2]});
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    logger.error(e.getMessage());
-                }
-            }
-
-            Thread.sleep(1100);
-            //AssertJUnit.assertEquals(3, count);
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
             logger.error(e.getMessage());
-        } finally {
-            if (scanner != null) {
-                scanner.close();
-            }
-            siddhiAppRuntime.shutdown();
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("[label attribute] in 5 th index of classifierUpdate " +
+                    "should be either a BOOL or a STRING but found DOUBLE"));
         }
     }
+
+    @Test
+    public void testHoeffdingClassifierLearningExtension14() throws InterruptedException {
+        logger.info("HoeffdingClassifierUpdaterStreamProcessorExtension TestCase - No_Of_Classes is not passed");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
+                "double, attribute_3 double);";
+
+        String query = ("@info(name = 'query1') from StreamA#streamingml:updateHoeffdingTree('model1', " +
+                "attribute_0, attribute_1 , attribute_2 , attribute_3) select attribute_0, "
+                + "attribute_1, attribute_2, attribute_3, accuracy insert into"
+                + " outputStream;");
+
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("Number of classes must be (ConstantExpressionExecutor)" +
+                    " but found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
+        }
+    }
+
 }
 

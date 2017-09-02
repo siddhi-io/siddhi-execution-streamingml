@@ -43,6 +43,11 @@ public class PrequentialModelEvaluation {
         this.weightCorrect = 0.0D;
     }
 
+    /**
+     *
+     * @param inst MOAInstance representing the cepEvent
+     * @param classVotes Prediction votes for each class label
+     */
     void addResult(Instance inst, double[] classVotes) {
         if (this.numClasses == -1) {
             this.reset(inst.numClasses());
@@ -62,7 +67,7 @@ public class PrequentialModelEvaluation {
         }
     }
 
-    public double getFractionCorrectlyClassified() {
+    double getFractionCorrectlyClassified() {
         return this.weightObserved > 0.0D ? this.weightCorrect / this.weightObserved : 0.0D;
     }
 

@@ -48,8 +48,8 @@ import java.util.Map;
 
 /**
  * Predict using a linear binary classification Perceptron model built via
+ * {@link PerceptronClassifierUpdaterStreamProcessorExtension}
  *
- * {@link PerceptronClassifierStreamProcessorExtension}
  */
 @Extension(
         name = "perceptronClassifier",

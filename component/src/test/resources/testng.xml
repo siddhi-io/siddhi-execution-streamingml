@@ -25,8 +25,8 @@
             <class name="org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModelTest"/>
             <class name="org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.PerceptronClassifierUpdaterStreamProcessorExtensionTestCase"/>
             <class name="org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.PerceptronClassifierStreamProcessorExtensionTestCase"/>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.classification.hoeffdingtree.HoeffdingClassifierStreamProcessorExtension"/>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.classification.hoeffdingtree.HoeffdingClassifierUpdaterStreamProcessorExtension"/>
+            <class name="org.wso2.extension.siddhi.execution.streamingml.classification.hoeffdingtree.HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase"/>
+            <class name="org.wso2.extension.siddhi.execution.streamingml.classification.hoeffdingtree.HoeffdingClassifierStreamProcessorExtensionTestCase"/>
         </classes>
     </test>
 </suite>
