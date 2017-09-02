@@ -44,7 +44,7 @@ public class Coordinates implements Serializable {
     public void setCoordinates(double[] coordinates) {
         if (this.coordinates != null) {
             if (this.coordinates.length == coordinates.length) {
-                this.coordinates = coordinates.clone(); //TODO: validation for dimensionality - done
+                this.coordinates = coordinates.clone();
             } else {
                 throw new SiddhiAppValidationException("The dimensionality of the coordinate is " +
                         this.coordinates.length + " but the dimensionality of the received array is " +

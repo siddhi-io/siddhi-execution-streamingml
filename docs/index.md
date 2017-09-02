@@ -1,10 +1,10 @@
 # siddhi-execution-streamingml
-The **siddhi-execution-streamingml** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a>  that performs streaming machine learning on streams.
+The **siddhi-execution-streamingml** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi</a>  that performs streaming machine learning on event streams.
 
 Find some useful links below:
 
 * <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml">Source code</a>
-* <a target="_blank" href="https://https://github.com/wso2-extensions/siddhi-execution-streamingml/releases">Releases</a>
+* <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml/releases">Releases</a>
 * <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml/issues">Issue tracker</a>
 
 
@@ -34,8 +34,10 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
 
 ## Features
 
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/1.0.1-SNAPSHOT/#kmeansminibatch-stream-processor">kMeansMiniBatch</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed in a single query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). For example: #streamingML:KMeansMiniBatch(dimensionality, numberOfClusters, maxIterations,</p></div>
 * <a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/1.0.1-SNAPSHOT/#updateperceptronclassifier-stream-processor">updatePerceptronClassifier</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This extension builds/updates a linear binary classification Perceptron model.</p></div>
 * <a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/1.0.1-SNAPSHOT/#perceptronclassifier-stream-processor">perceptronClassifier</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This extension predicts using a linear binary classification Perceptron model.</p></div>
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/1.0.1-SNAPSHOT/#kmeansincremental-stream-processor">kMeansIncremental</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed by an instance of class Clusterer should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles Sequential K-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm </p></div>
 
 ## How to Contribute
 

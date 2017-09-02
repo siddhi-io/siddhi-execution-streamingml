@@ -34,7 +34,7 @@ public class Trainer implements Runnable {
     private float decayRate;
 
     public Trainer(Clusterer clusterer, List<DataPoint> dataPointsArray, float decayRate) {
-        this.clusterer = clusterer; //TODO: proper naming of params - done
+        this.clusterer = clusterer;
         this.dataPointsArray = dataPointsArray;
         this.decayRate = decayRate;
     }
@@ -42,7 +42,7 @@ public class Trainer implements Runnable {
     @Override
     public void run() {
         if (logger.isDebugEnabled()) {
-            logger.debug("running trainer thread"); //TODO: debug logger - done
+            logger.debug("running trainer thread");
         }
         clusterer.updateCluster(dataPointsArray, decayRate);
     }
