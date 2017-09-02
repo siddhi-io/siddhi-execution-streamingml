@@ -268,7 +268,7 @@
                         <reportFormat>brief</reportFormat>
                         <useFile>false</useFile>
                         <forkMode>once</forkMode>
-                        <argLine>${surefireArgLine} -ea -Xmx512m</argLine>
+                        <!--<argLine>${surefireArgLine} -ea -Xmx512m</argLine>-->
                     </configuration>
                 </plugin>
             </plugins>

@@ -29,7 +29,6 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
-//TODO: put licensing header - done
 public class KMeansMiniBatchSPExtensionTest {
 
     private static final Logger logger = Logger.getLogger(KMeansStreamProcessorExtensionTest.class);
@@ -109,7 +108,6 @@ public class KMeansMiniBatchSPExtensionTest {
         } finally {
             siddhiAppRuntime.shutdown();
         }
-            //TODO:assert count. shutdown the system - done
     }
 
     //Test case for 2D data points without decay rate
