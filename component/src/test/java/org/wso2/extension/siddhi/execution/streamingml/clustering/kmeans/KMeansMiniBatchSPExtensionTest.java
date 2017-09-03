@@ -19,28 +19,34 @@
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 public class KMeansMiniBatchSPExtensionTest {
 
     private static final Logger logger = Logger.getLogger(KMeansStreamProcessorExtensionTest.class);
-    private volatile int count;
-    @Before
+    private volatile AtomicInteger count;
+    @BeforeMethod
     public void init() {
-        count = 0;
+        count = new AtomicInteger(0);
     }
 
-    //Test case for 2D data points with decay rate
     @Test
     public void testClusteringLengthWindow2D_0() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case for 2D data points with decay rate");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "define stream InputStream (x double, y double);";
 
@@ -57,19 +63,19 @@ public class KMeansMiniBatchSPExtensionTest {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
 
                 for (Event event: inEvents) {
-                    count++;
+                    count.incrementAndGet();
 
-                    switch (count) {
+                    switch (count.get()) {
                         case 1:
-                            Assert.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
                                     event.getData(1)});
                             break;
                         case 2:
-                            Assert.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
                                     event.getData(1)});
                             break;
                         case 3:
-                            Assert.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
+                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
                                     event.getData(1)});
                             break;
                     }
@@ -103,6 +109,8 @@ public class KMeansMiniBatchSPExtensionTest {
             inputHandler.send(new Object[]{25.47, 25.8574});
             inputHandler.send(new Object[]{20.2568, 28.7882});
             inputHandler.send(new Object[]{2.9951, 3.9887});
+
+            SiddhiTestHelper.waitForEvents(200, 3, count, 5000);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
@@ -110,9 +118,10 @@ public class KMeansMiniBatchSPExtensionTest {
         }
     }
 
-    //Test case for 2D data points without decay rate
+
     @Test
     public void testClusteringLengthWindow2D_1() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case for 2D data points without decay rate");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "define stream InputStream (x double, y double);";
 
@@ -129,19 +138,19 @@ public class KMeansMiniBatchSPExtensionTest {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
 
                 for (Event event: inEvents) {
-                    count++;
+                    count.incrementAndGet();
 
-                    switch (count) {
+                    switch (count.get()) {
                         case 1:
-                            Assert.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
                                     event.getData(1)});
                             break;
                         case 2:
-                            Assert.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
                                     event.getData(1)});
                             break;
                         case 3:
-                            Assert.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
+                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
                                     event.getData(1)});
                             break;
                     }
@@ -175,6 +184,8 @@ public class KMeansMiniBatchSPExtensionTest {
             inputHandler.send(new Object[]{25.47, 25.8574});
             inputHandler.send(new Object[]{20.2568, 28.7882});
             inputHandler.send(new Object[]{2.9951, 3.9887});
+
+            SiddhiTestHelper.waitForEvents(200, 3, count, 5000);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
@@ -182,9 +193,10 @@ public class KMeansMiniBatchSPExtensionTest {
         }
     }
 
-    //Test case for 3D data points with k=5. demonstrating seperate thread retraining
     @Test
     public void testClusteringLengthWindow3D5k() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case for 3D data points with k=5. demonstrating " +
+                "seperate thread retraining");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "define stream InputStream (x double, y double, z double);";
 
@@ -200,24 +212,6 @@ public class KMeansMiniBatchSPExtensionTest {
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
 
-                /*for (Event event: inEvents) {
-                    count++;
-
-                    switch (count) {
-                        case 1:
-                            Assert.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
-                            event.getData(1)});
-                            break;
-                        case 2:
-                            Assert.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
-                            event.getData(1)});
-                            break;
-                        case 3:
-                            Assert.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
-                            event.getData(1)});
-                            break;
-                    }
-                }*/
             }
         });
 
@@ -286,9 +280,9 @@ public class KMeansMiniBatchSPExtensionTest {
         }
     }
 
-    //Test case for sending euclidean distance as output
     @Test
     public void testClusteringLengthWindow2D_2() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case for sending euclidean distance as output");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "define stream InputStream (x double, y double);";
 
@@ -340,4 +334,434 @@ public class KMeansMiniBatchSPExtensionTest {
         }
     }
 
+    @Test
+    public void testClusteringLengthWindow2D_3() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate modelName to be constant");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, modelName String);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch(modelName, 0.2f, 2, 10, 20, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("modelName has to be a constant."));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_4() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate decayRate to be constant");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, decayRate float);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model4', decayRate, 2, 10, 20, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("2nd parameter can be decayRate/numberOfClusters. " +
+                    "Both has to be a constant but found a variable in place."));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_5() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate numberOfClusters to be constant");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, numberOfClusters int);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch" +
+                        "('model5', 0.2f, numberOfClusters, 10, 20, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("numberOfClusters has to be a constant."));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_6() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate maxIterations to be constant");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, maxIterations int);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model6', 0.2f, 2, maxIterations, 20, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("Maximum iterations has to be a constant."));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_7() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate numberOfEventsToRetrain to be constant");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double, numberOfEventsToRetrain int);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch" +
+                        "('model7', 0.2f, 2, 10, numberOfEventsToRetrain, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("numberOfEventsToRetrain has to be a constant."));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_8() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate attribute_0 to be variable");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model8', 0.2f, 2, 10, 20, 5.0, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("The attributes should be variable but found a " +
+                    "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_9() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate attribute_1 to be variable");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model9', 0.2f, 2, 10, 20, x, 5.0) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("The attributes should be variable but found a " +
+                    "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_10() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate modelName to be String");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch(4, 0.2f, 2, 10, 20, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("modelName should be of type String but found INT"));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_11() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate decayRate to be float");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model11', 0.4, 2, 10, 20, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("The second query parameter should either be decayRate " +
+                    "or numberOfClusters which should be of type float or int respectively but found DOUBLE"));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_12() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate decayRate is in [0,1] when it is " +
+                "larger than 1");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model12', 1.4f, 2, 10, 20, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("decayRate should be in [0,1] but given as 1.4"));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_13() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate decayRate is in [0,1] when it is " +
+                "smaller than 0");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model13', -0.3f, 2, 10, 20, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("decayRate should be in [0,1] but given as -0.3"));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_14() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate numberOfClusters is int");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3f, 2.1, 10, 20, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("numberOfClusters should be of type int but found DOUBLE"));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_15() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate maxIterations is int");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3f, 2, 'aa', 20, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("Maximum iterations should be of type int but found " +
+                    "STRING"));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_16() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate numberOfEventsToRetrain is int");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3f, 2, 10, 1L, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        try {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        } catch (Exception e) {
+            logger.info("Error caught");
+            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e.getMessage().contains("numberOfEventsToRetrain should be of type int but found " +
+                    "LONG"));
+        }
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_17() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - testing 2 siddhiAppRumTimes");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3f, 2, 10, 1L, x, y) " +
+                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
+                        "closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+
+        SiddhiAppRuntime siddhiAppRuntime;
+
+        try {
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+            SiddhiManager siddhiManager2 = new SiddhiManager();
+//            siddhiAppRuntime = siddhiManager.;
+        }
+    }
+
+    /*@Test
+    public void testClusteringLengthWindow2D_18() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case for 2D data points model reusing");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model18', 0.2f, 2, 10, 20, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+
+                for (Event event: inEvents) {
+                    count.incrementAndGet();
+
+                    switch (count.get()) {
+                        case 1:
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
+                                    event.getData(1)});
+                            break;
+                        case 2:
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
+                                    event.getData(1)});
+                            break;
+                        case 3:
+                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
+                                    event.getData(1)});
+                            break;
+                    }
+                }
+            }
+        });
+
+
+        siddhiAppRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
+        try {
+            inputHandler.send(new Object[]{5.7905, 7.7499});
+            inputHandler.send(new Object[]{27.458, 23.8848});
+            inputHandler.send(new Object[]{3.078, 9.1072});
+            inputHandler.send(new Object[]{28.326, 26.7484});
+            inputHandler.send(new Object[]{2.2602, 4.6408});
+            inputHandler.send(new Object[]{27.3099, 26.1816});
+            inputHandler.send(new Object[]{0.9441, 0.6502});
+            inputHandler.send(new Object[]{23.9204, 27.6745});
+            inputHandler.send(new Object[]{2.0499, 9.9546});
+            inputHandler.send(new Object[]{23.7947, 20.8627});
+            inputHandler.send(new Object[]{5.8456, 6.8879});
+            inputHandler.send(new Object[]{26.7315, 25.5368});
+            inputHandler.send(new Object[]{5.8812, 5.9116});
+            inputHandler.send(new Object[]{24.5343, 26.77});
+            inputHandler.send(new Object[]{4.3866, 0.3132});
+            inputHandler.send(new Object[]{22.7654, 25.1381});
+            inputHandler.send(new Object[]{7.7824, 9.2299});
+            inputHandler.send(new Object[]{23.5167, 24.1244});
+            inputHandler.send(new Object[]{5.3086, 9.7503});
+            inputHandler.send(new Object[]{25.47, 25.8574});
+            inputHandler.send(new Object[]{20.2568, 28.7882});
+            inputHandler.send(new Object[]{2.9951, 3.9887});
+
+            logger.info("Now a different query and different siddhi manager");
+            SiddhiManager siddhiManager2 = new SiddhiManager();
+            String inputStream2 = "define stream InputStream (x double, y double);";
+
+            String query2 = (
+                    "@info(name = 'query1') " +
+                            "from InputStream#streamingml:kMeansMiniBatch('model17', 0.2f, 2, 10, 20, x, y) " +
+                            "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
+                            "insert into OutputStream;");
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager2.createSiddhiAppRuntime(inputStream + query);
+
+            SiddhiTestHelper.waitForEvents(200, 3, count, 5000);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }*/
+
 }
+
