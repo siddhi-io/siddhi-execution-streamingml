@@ -141,8 +141,7 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
     private int numberOfEventsReceived;
     private int coordinateStartIndex;
     private LinkedList<DataPoint> dataPointsArray;
-    //private double[] coordinateValuesOfCurrentDataPoint;
-    // TODO: use class level array and reuse it. creating arrays for every event is expensive - error?
+    private double[] coordinateValuesOfCurrentDataPoint;
 
 
     private boolean modelTrained = false;
@@ -239,7 +238,7 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
         }
 
         dimensionality = attributeExpressionExecutors.length - coordinateStartIndex;
-        //coordinateValuesOfCurrentDataPoint = new double[dimensionality];
+        coordinateValuesOfCurrentDataPoint = new double[dimensionality];
 
         //validating all the attributes to be variables
         for (int i = coordinateStartIndex; i < coordinateStartIndex + dimensionality; i++) {
@@ -272,8 +271,6 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
                 numberOfEventsReceived++;
-                double[] coordinateValuesOfCurrentDataPoint = new double[dimensionality];
-                //TODO: use class level array and reuse it. creating arrays for every event is expensive - error
 
                 //validating and getting coordinate values
                 for (int i = coordinateStartIndex; i < coordinateStartIndex + dimensionality; i++) {

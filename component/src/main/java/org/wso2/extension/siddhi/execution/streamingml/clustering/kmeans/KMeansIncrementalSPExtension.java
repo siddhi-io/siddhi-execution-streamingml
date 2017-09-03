@@ -54,7 +54,7 @@ import java.util.Map;
  */
 @Extension(
         name = "kMeansIncremental",
-        namespace = "streamingML",
+        namespace = "streamingml",
         description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and " +
                 "the dimensionality is calculated from number of parameters. " +
                 "All data points to be processed by an instance of class Clusterer should be of the same " +
@@ -123,6 +123,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
     private int numberOfEventsReceived;
     private int coordinateStartIndex;
     private LinkedList<DataPoint> dataPointsArray;
+    private double[] coordinateValuesOfCurrentDataPoint;
 
     private boolean modelTrained = false;
     private Clusterer clusterer;
@@ -163,6 +164,10 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
                 logger.debug("decayRate is specified.");
                 decayRate = (Float) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
 
+                if (decayRate < 0 || decayRate > 1) {
+                    throw new SiddhiAppValidationException("decayRate should be in [0,1] but given as " + decayRate);
+                }
+
                 //expressionExecutors[2] --> numberOfClusters
                 if (!(attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
                     throw new SiddhiAppValidationException("numberOfClusters has to be a constant.");
@@ -185,6 +190,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
         }
 
         dimensionality = attributeExpressionExecutors.length - coordinateStartIndex;
+        coordinateValuesOfCurrentDataPoint = new double[dimensionality];
 
         //validating all the attributes to be variables
         for (int i = coordinateStartIndex; i < coordinateStartIndex + dimensionality; i++) {
@@ -216,14 +222,12 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
                 StreamEvent streamEvent = streamEventChunk.next();
 
                 numberOfEventsReceived++;
-                double[] coordinateValues = new double[dimensionality];
-
 
                 //validating and getting coordinate values
                 for (int i = coordinateStartIndex; i < coordinateStartIndex + dimensionality; i++) {
                     try {
                         Number content = (Number) attributeExpressionExecutors[i].execute(streamEvent);
-                        coordinateValues[i - coordinateStartIndex] = content.doubleValue();
+                        coordinateValuesOfCurrentDataPoint[i - coordinateStartIndex] = content.doubleValue();
                     } catch (ClassCastException e) {
                         throw new SiddhiAppValidationException("coordinate values should be int/float/double/long " +
                                 "but found " +
@@ -233,7 +237,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
 
                 //creating a dataPoint with the received coordinate values
                 DataPoint currentDataPoint = new DataPoint();
-                currentDataPoint.setCoordinates(coordinateValues);
+                currentDataPoint.setCoordinates(coordinateValuesOfCurrentDataPoint);
                 dataPointsArray.add(currentDataPoint);
 
                 //handling the training
