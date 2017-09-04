@@ -8,12 +8,17 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Common utils for Streaming Machine Learning tasks.
  */
 public class CoreUtils {
+    private static final List<Attribute.Type> numericTypes = Arrays.asList(Attribute.Type.INT,
+            Attribute.Type.DOUBLE, Attribute.Type.LONG, Attribute.Type.FLOAT);
+
+
     /**
      * Index of the Maximum from double array
      *
@@ -52,7 +57,7 @@ public class CoreUtils {
     /**
      * @param inputDefinition
      * @param attributeExpressionExecutors
-     * @param startIndex starting index
+     * @param startIndex                   starting index
      * @param noOfFeatures
      * @return
      */
@@ -60,12 +65,6 @@ public class CoreUtils {
             AbstractDefinition inputDefinition, ExpressionExecutor[]
             attributeExpressionExecutors,
             int startIndex, int noOfFeatures) {
-
-        List<Attribute.Type> numericTypes = new ArrayList<>();
-        numericTypes.add(Attribute.Type.DOUBLE);
-        numericTypes.add(Attribute.Type.INT);
-        numericTypes.add(Attribute.Type.FLOAT);
-        numericTypes.add(Attribute.Type.LONG);
 
         List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
 
@@ -81,7 +80,7 @@ public class CoreUtils {
                         getAttributeType(attributeName);
 
                 //feature attributes not numerical type
-                if (!(numericTypes.contains(featureAttributeType))) {
+                if (!isNumeric(featureAttributeType)) {
                     throw new SiddhiAppValidationException("model.features in " + (i + 1) + "th parameter is not " +
                             "a numerical type attribute. Found " +
                             attributeExpressionExecutors[i].getReturnType()
@@ -96,6 +95,11 @@ public class CoreUtils {
             }
         }
         return featureVariableExpressionExecutors;
+    }
+
+
+    public static boolean isNumeric(Attribute.Type attributeType) {
+        return numericTypes.contains(attributeType) ? true : false;
     }
 
 
@@ -138,7 +142,6 @@ public class CoreUtils {
     }
 
     /**
-     *
      * @param model
      * @param noOfFeatures
      * @return

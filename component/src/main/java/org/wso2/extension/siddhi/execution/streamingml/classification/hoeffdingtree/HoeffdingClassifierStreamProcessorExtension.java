@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -53,8 +54,8 @@ import java.util.Map;
 @Extension(
         name = "hoeffdingTreeClassifier",
         namespace = "streamingml",
-        description = "Performs classification with Hoeffiding Adaptive Tree monitoring " +
-                "Concept drift with ADWIN ",
+        description = "Performs classification with Hoeffding Adaptive Tree for evolving "
+                + "data streams that uses ADWIN to replace branches for new ones.",
         parameters = {
                 @Parameter(name = "model.name",
                         description = "The name of the model to be used for prediction.",
@@ -70,22 +71,22 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        syntax = "define stream StreamA (attribute_0 double, attribute_1 double, " +
-                                "attribute_2 double, attribute_3 double);\n" +
-                                "\n" +
-                                "from StreamA#streamingml:hoeffdingTreeClassifier('model1', " +
-                                " attribute_0, attribute_1, attribute_2, attribute_3) \n" +
-                                "select attribute_0, attribute_1, attribute_2, attribute_3, " +
-                                "prediction, predictionConfidence insert into outputStream;",
-                        description = "A Hoeffding Tree model with the name 'model1' will be used " +
-                                "to predict the label of the feature vector represented " +
-                                "by attribute_0, attribute_1, attribute_2, attribute_3. " +
-                                "Predicted label (String/Bool) along with the Prediction Confidence " +
-                                "and the feature vector will be emitted to the outputStream. " +
-                                "The outputStream will have following definition; " +
-                                "(attribute_0 double, attribute_1 double, attribute_2" +
-                                " double, attribute_3 double, prediction string, " +
-                                "confidenceLevel double)."
+                        syntax = "define stream StreamA (attribute_0 double, attribute_1 double, "
+                                + "attribute_2 double, attribute_3 double);\n" +
+                                "\n"
+                                + "from StreamA#streamingml:hoeffdingTreeClassifier('model1', "
+                                + " attribute_0, attribute_1, attribute_2, attribute_3) \n"
+                                + "select attribute_0, attribute_1, attribute_2, attribute_3, "
+                                + "prediction, predictionConfidence insert into outputStream;",
+                        description = "A Hoeffding Tree model with the name 'model1' will be used "
+                                + "to predict the label of the feature vector represented "
+                                + "by attribute_0, attribute_1, attribute_2, attribute_3. "
+                                + "Predicted label (String/Bool) along with the Prediction Confidence "
+                                + "and the feature vector will be emitted to the outputStream. "
+                                + "The outputStream will have following definition; "
+                                + "(attribute_0 double, attribute_1 double, attribute_2"
+                                + " double, attribute_3 double, prediction string, "
+                                + "confidenceLevel double)."
                 )
         }
 )
@@ -108,15 +109,15 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
 
         if (attributeExpressionExecutors.length >= (minNoOfFeatures + minNoOfParameters)) {
             if (noOfFeatures < minNoOfFeatures) {
-                throw new SiddhiAppValidationException(String.format("Invalid number of feature attributes for " +
-                                "streamingml:hoeffdingTreeClassifier. This Stream Processor requires at least %s " +
-                                "feature attributes, but found %s feature attributes",
+                throw new SiddhiAppValidationException(String.format("Invalid number of feature attributes for "
+                                + "streamingml:hoeffdingTreeClassifier. This Stream Processor requires at least %s "
+                                + "feature attributes, but found %s feature attributes",
                         minNoOfFeatures, noOfFeatures));
             }
             if (noOfFeatures != (attributeExpressionLength - minNoOfParameters)) {
-                throw new SiddhiAppValidationException(String.format("Invalid number of feature attributes for " +
-                                "streamingml:hoeffdingTreeClassifier. This Stream Processor is defined with %s " +
-                                "features, but found %s feature attributes",
+                throw new SiddhiAppValidationException(String.format("Invalid number of feature attributes for "
+                                + "streamingml:hoeffdingTreeClassifier. This Stream Processor is defined with %s "
+                                + "features, but found %s feature attributes",
                         noOfFeatures, (attributeExpressionLength - minNoOfParameters)));
 
             }
@@ -135,8 +136,8 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
                                     getReturnType().toString());
                 }
             } else {
-                throw new SiddhiAppValidationException("Parameter model.name must be a constant but found " +
-                        attributeExpressionExecutors[0].getClass().getCanonicalName());
+                throw new SiddhiAppValidationException("Parameter model.name must be a constant but found "
+                        + attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
 
             featureVariableExpressionExecutors = CoreUtils
@@ -149,17 +150,17 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
                     = AdaptiveHoeffdingModelsHolder.getInstance().getHoeffdingModel(modelName);
 
             if (!CoreUtils.isInitialized(model, (noOfFeatures + 1))) {
-                throw new SiddhiAppValidationException(String.format("Model [%s] " +
-                        "needs to initialized prior to be used with streamingml:hoeffdingTreeClassifier. " +
-                        "Perform streamingml:updateHoeffdingTree process first.", modelName));
+                throw new SiddhiAppValidationException(String.format("Model [%s] needs to initialized "
+                        + "prior to be used with streamingml:hoeffdingTreeClassifier. "
+                        + "Perform streamingml:updateHoeffdingTree process first.", modelName));
             }
 
         } else {
-            throw new SiddhiAppValidationException(String.format("Invalid number of " +
-                            "parameters for streamingml:hoeffdingTreeClassifier. This Stream Processor requires " +
-                            "at least %s parameters, namely, model.name and at least %s feature_attributes," +
-                            " but found %s parameters", (minNoOfParameters + minNoOfFeatures), minNoOfFeatures,
-                    attributeExpressionExecutors.length));
+            throw new SiddhiAppValidationException(String.format("Invalid number of parameters for "
+                            + "streamingml:hoeffdingTreeClassifier. This Stream Processor requires "
+                            + "at least %s parameters, namely, model.name and at least %s feature_attributes,"
+                            + " but found %s parameters",
+                    (minNoOfParameters + minNoOfFeatures), minNoOfFeatures, attributeExpressionExecutors.length));
         }
 
         //set attributes for Output Stream
@@ -179,8 +180,15 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
 
                 // Set feature_attributes
                 for (int i = 0; i < noOfFeatures; i++) {
-                    cepEvent[i] = ((Number) featureVariableExpressionExecutors.get(i)
-                            .execute(complexEvent)).doubleValue();
+                    try {
+                        cepEvent[i] = ((Number) featureVariableExpressionExecutors.get(i)
+                                .execute(complexEvent)).doubleValue();
+                    } catch (ClassCastException e) {
+                        throw new SiddhiAppRuntimeException(String.format("Incompatible attribute feature type"
+                                + " at position %s. Not of any numeric type. Please refer the stream definition "
+                                + "for Model[%s]", (i + 1), modelName));
+                    }
+
                 }
                 AdaptiveHoeffdingTreeModel model = AdaptiveHoeffdingModelsHolder.getInstance()
                         .getHoeffdingModel(modelName);

@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -40,7 +41,7 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
             "define stream StreamTrain (attribute_0 double, " +
             "attribute_1 double, attribute_2 double, attribute_3 double, attribute_4 string );";
     private String trainingQuery = ("@info(name = 'query-train') " +
-            "from StreamTrain#streamingml:updateHoeffdingTree('model1', 4, " +
+            "from StreamTrain#streamingml:updateHoeffdingTree('ml', 4, " +
             "attribute_0, attribute_1, attribute_2, attribute_3, attribute_4) \n"
             + "insert all events into trainOutputStream;\n");
 
@@ -58,7 +59,7 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
 
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, " +
                 "attribute_2 double, attribute_3 double);";
-        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingTreeClassifier('model1', " +
+        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingTreeClassifier('ml', " +
                 " attribute_0, attribute_1, attribute_2, attribute_3) " +
                 "select attribute_0, attribute_1, attribute_2, attribute_3, prediction, confidenceLevel " +
                 "insert into outputStream;");
@@ -357,4 +358,52 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
     }
 
 
+    @Test
+    public void testClassificationStreamProcessorExtension12() throws InterruptedException {
+        logger.info("HoeffdingClassifierUpdaterStreamProcessorExtension TestCase " +
+                "- Input feature value attributes mismatch from the feature attribute definition");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, " +
+                "attribute_2 double, attribute_3 double);";
+        String query = ("@info(name = 'query1') from StreamA#streamingml:hoeffdingTreeClassifier('ml', " +
+                " attribute_0, attribute_1, attribute_2, attribute_3) " +
+                "select attribute_0, attribute_1, attribute_2, attribute_3, prediction, confidenceLevel " +
+                "insert into outputStream;");
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(trainingStream + inStreamDefinition
+                + trainingQuery + query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(inEvents);
+
+            }
+        });
+        try {
+            InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamTrain");
+            siddhiAppRuntime.start();
+
+            inputHandler.send(new Object[]{5.4, 3.4, 1.7, 0.2, "setosa"});
+            inputHandler.send(new Object[]{6.9, 3.1, 5.4, 2.1, "virginica"});
+            inputHandler.send(new Object[]{6, 2.2, 4, 1, "versicolor"});
+
+            Thread.sleep(1100);
+
+            InputHandler inputHandler1 = siddhiAppRuntime.getInputHandler("StreamA");
+            // send some unseen data for prediction
+            inputHandler1.send(new Object[]{5.1, "setosa", 1.6, 0.2});
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppRuntimeException);
+            AssertJUnit.assertTrue(e.getMessage().contains("Incompatible attribute feature type at position 2. "
+                    + "Not of any numeric type. Please refer the stream definition for Model[HoeffdingTestApp.ml]"));
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }
 }
+
+

@@ -41,7 +41,6 @@ import java.util.List;
  * Represents the Hoeffding Adaptive Tree Model
  */
 public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
-
     private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(AdaptiveHoeffdingTreeModel.class);
 
@@ -68,7 +67,8 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
 
     @Override
     public void getDescription(StringBuilder stringBuilder, int i) {
-        logger.info("Hoeffding AdaptiveTree Model with ADWIN concept drift detection");
+        logger.info("Hoeffding Adaptive Tree for evolving data streams "
+                + "that uses ADWIN to replace branches for new ones.");
     }
 
     /**
@@ -81,12 +81,12 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Model [%s] is being initialized.", this.modelName));
         }
-        hoeffdingAdaptiveTree = new HoeffdingAdaptiveTree();
         this.noOfFeatures = noOfAttributes;
         this.noOfClasses = noOfClasses;
-        streamHeader = createMOAInstanceHeader(this.noOfFeatures);
-        hoeffdingAdaptiveTree.setModelContext(streamHeader);
-        hoeffdingAdaptiveTree.prepareForUse();
+        this.streamHeader = createMOAInstanceHeader(this.noOfFeatures);
+        this.hoeffdingAdaptiveTree = new HoeffdingAdaptiveTree();
+        this.hoeffdingAdaptiveTree.setModelContext(streamHeader);
+        this.hoeffdingAdaptiveTree.prepareForUse();
     }
 
 
@@ -104,7 +104,7 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
                                   boolean binarySplitOption, boolean disablePrePruning,
                                   int leafpredictionStrategy) {
         if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Model [%s] is being manually configured.", this.modelName));
+            logger.debug(String.format("Model [%s] is being configured with hyper-parameters.", this.modelName));
         }
         hoeffdingAdaptiveTree.gracePeriodOption.setValue(gracePeriod);
         if (splittingCriteria == 0) {
@@ -203,23 +203,20 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
     }
 
 
-    public String getModelName() {
-        return modelName;
-    }
+    private int addClass(String label) {
+        // Set class value
+        if (classes.contains(label)) {
+            return classes.indexOf(label);
+        } else {
+            if (classes.size() < noOfClasses) {
+                classes.add(label);
+                return classes.indexOf(label);
+            } else {
+                throw new SiddhiAppRuntimeException(String.format("Number of classes %s is expected from the model "
+                        + "%s but found %s", noOfClasses, modelName, classes.size()));
 
-
-    /**
-     * @return
-     */
-    public InstancesHeader getStreamHeader() {
-        return this.streamHeader;
-    }
-
-    /**
-     * @return
-     */
-    public List<String> getClasses() {
-        return this.classes;
+            }
+        }
     }
 
     /**
@@ -230,28 +227,20 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
         return MathUtil.roundOff((CoreUtils.argMax(votes) / MathUtil.sum(votes)), 3);
     }
 
-    /**
-     * @return
-     */
-    public int getNoOfFeatures() {
-        return this.noOfFeatures;
+    public String getModelName() {
+        return modelName;
     }
 
-    private int addClass(String label) {
-        // Set class value
-        if (classes.contains(label)) {
-            return classes.indexOf(label);
-        } else {
-            if (classes.size() < noOfClasses) {
-                classes.add(label);
-                return classes.indexOf(label);
-            } else {
-                throw new SiddhiAppRuntimeException(
-                        "Number of classes " + noOfClasses + " is expected from the model "
-                                + modelName + " but found " + classes.size());
-            }
-        }
+    public InstancesHeader getStreamHeader() {
+        return this.streamHeader;
+    }
 
+    public List<String> getClasses() {
+        return this.classes;
+    }
+
+    public int getNoOfFeatures() {
+        return this.noOfFeatures;
     }
 
     @Override

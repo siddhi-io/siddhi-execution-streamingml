@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -65,8 +66,8 @@ import java.util.Map;
                         description = "The number of Class labels in the datastream.",
                         type = {DataType.INT}),
                 @Parameter(name = "grace.period",
-                        description = "The number of instances a leaf should observe between split attempts. " +
-                                "default:200, min:0, max:2147483647",
+                        description = "The number of instances a leaf should observe between split attempts. "
+                                + "min:0, max:2147483647",
                         type = {DataType.INT},
                         optional = true,
                         defaultValue = "200"),
@@ -74,16 +75,16 @@ import java.util.Map;
                         description = "Split criterion to use. 0:InfoGainSplitCriterion, 1:GiniSplitCriterion",
                         type = {DataType.INT},
                         optional = true,
-                        defaultValue = "InfoGainSplitCriterion"),
+                        defaultValue = "0:InfoGainSplitCriterion"),
                 @Parameter(name = "split.confidence",
-                        description = "The allowable error in split decision, values closer to 0 will take " +
-                                "longer to decide.",
+                        description = "The allowable error in split decision, values closer to 0 will take "
+                                + "longer to decide.",
                         type = {DataType.DOUBLE},
                         optional = true,
                         defaultValue = "1e-7"),
                 @Parameter(name = "tie.break.threshold",
-                        description = "Threshold below which a split will be forced to break ties. " +
-                                "min:0.0D, max:1.0D",
+                        description = "Threshold below which a split will be forced to break ties. "
+                                + "min:0.0D, max:1.0D",
                         type = {DataType.DOUBLE},
                         optional = true,
                         defaultValue = "0.05D"),
@@ -98,11 +99,11 @@ import java.util.Map;
                         optional = true,
                         defaultValue = "false"),
                 @Parameter(name = "leaf.prediction.strategy",
-                        description = "Leaf prediction to use. " +
-                                "0:Majority class, 1:Naive Bayes, 2:Naive Bayes Adaptive.",
+                        description = "Leaf prediction to use. "
+                                + "0:Majority class, 1:Naive Bayes, 2:Naive Bayes Adaptive.",
                         type = {DataType.INT},
                         optional = true,
-                        defaultValue = "Naive Bayes Adaptive"),
+                        defaultValue = "2:Naive Bayes Adaptive"),
                 @Parameter(name = "model.features",
                         description = "Features of the model which should be attributes of the stream.",
                         type = {DataType.DOUBLE, DataType.INT})
@@ -114,31 +115,31 @@ import java.util.Map;
         },
         examples = {
                 @Example(
-                        syntax = "define stream StreamA (attribute_0 double, attribute_1 double, " +
-                                "attribute_2 double, attribute_3 double, attribute_4 string );\n" +
-                                "\n" +
-                                "from StreamA#streamingml:hoeffdingLearn('model1', 3) \n" +
-                                "select attribute_0, attribute_1, attribute_2, attribute_3, " +
-                                "prequencialEvaluation insert into outputStream;",
-                        description = "A HoeffdingTree model with the name 'model1' will be built/updated under " +
-                                "3 number of classes using attribute_0, attribute_1, attribute_2, attribute_3 " +
-                                "as features and attribute_4 as the label."
+                        syntax = "define stream StreamA (attribute_0 double, attribute_1 double, "
+                                + "attribute_2 double, attribute_3 double, attribute_4 string );\n"
+                                + "\n"
+                                + "from StreamA#streamingml:hoeffdingLearn('model1', 3) \n"
+                                + "select attribute_0, attribute_1, attribute_2, attribute_3, "
+                                + "accuracy insert into outputStream;",
+                        description = "A HoeffdingTree model with the name 'model1' will be built/updated under "
+                                + "3 number of classes using attribute_0, attribute_1, attribute_2, attribute_3 "
+                                + "as features and attribute_4 as the label."
                 ),
                 @Example(
-                        syntax = "define stream StreamA (attribute_0 double, attribute_1 double, " +
-                                "attribute_2 double, attribute_3 double, attribute_4 string );\n" +
-                                "\n" +
-                                "from StreamA#streamingml:hoeffdingLearn('model1', 3, 200, 0, 1e-7, 1.0D, " +
-                                "true, true, 2) \n" +
-                                "select attribute_0, attribute_1, attribute_2, attribute_3, " +
-                                "prequencialEvaluation insert into outputStream;",
-                        description = "A Hoeffding Tree model with the name 'model1' will be " +
-                                "built/updated with a grace period of 200, InformationGain Split criterion," +
-                                "1e-7 of allowable error in split decision, 1.0D of breaktie threshold, " +
-                                "allowing only binary splits, disabled pre-pruning, Naive Bayes Adaptive as" +
-                                "leaf prediction using attribute_0, attribute_1, attribute_2, attribute_3 as " +
-                                "features and attribute_4 as the label. Updated weights of the " +
-                                "model will be emitted to the outputStream."
+                        syntax = "define stream StreamA (attribute_0 double, attribute_1 double, "
+                                + "attribute_2 double, attribute_3 double, attribute_4 string );\n"
+                                + "\n"
+                                + "from StreamA#streamingml:hoeffdingLearn('model1', 3, 200, 0, 1e-7, 1.0D, "
+                                + "true, true, 2) \n"
+                                + "select attribute_0, attribute_1, attribute_2, attribute_3, "
+                                + "accuracy insert into outputStream;",
+                        description = "A Hoeffding Tree model with the name 'model1' will be "
+                                + "built/updated with a grace period of 200, InformationGain Split criterion,"
+                                + "1e-7 of allowable error in split decision, 1.0D of breaktie threshold, "
+                                + "allowing only binary splits, disabled pre-pruning, Naive Bayes Adaptive as"
+                                + "leaf prediction using attribute_0, attribute_1, attribute_2, attribute_3 as "
+                                + "features and attribute_4 as the label. Updated weights of the model will be "
+                                + "emitted to the outputStream."
                 )
         }
 )
@@ -166,7 +167,6 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                                    ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         String siddhiAppName = siddhiAppContext.getName();
         String modelPrefix;
-
         noOfFeatures = inputDefinition.getAttributeList().size();
         noOfParameters = attributeExpressionLength - noOfFeatures;
 
@@ -183,8 +183,8 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                     modelName = siddhiAppName + "." + modelPrefix;
                 } else {
                     throw new SiddhiAppValidationException(
-                            "Invalid parameter type found for the model.name argument, " +
-                                    "required " + Attribute.Type.STRING + " but found "
+                            "Invalid parameter type found for the model.name argument, "
+                                    + "required " + Attribute.Type.STRING + " but found "
                                     + modelNameExecutor.getReturnType().toString());
                 }
             } else {
@@ -252,19 +252,19 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                     configureModelWithHyperParameters(modelName);
                 } else {
                     throw new SiddhiAppValidationException(String.format("Number of hyper-parameters needed for model"
-                                    + " manual configuration is %s but found %s", noOfHyperParameters,
-                            (noOfParameters - minNoOfParameters)));
+                                    + " manual configuration is %s but found %s",
+                            noOfHyperParameters, (noOfParameters - minNoOfParameters)));
                 }
 
             }
             evolutionModel = new PrequentialModelEvaluation();
             evolutionModel.reset(noOfClasses);
         } else {
-            throw new SiddhiAppValidationException(String.format("Invalid number of attributes for " +
-                            "streamingml:updateHoeffdingTree. This Stream Processor requires at least %s parameters," +
-                            "namely, model.name, number_of_classes and %s features but found %s parameters " +
-                            "and %s features", minNoOfParameters, minNoOfFeatures,
-                    (attributeExpressionLength - noOfFeatures), noOfFeatures));
+            throw new SiddhiAppValidationException(String.format("Invalid number of attributes for "
+                            + "streamingml:updateHoeffdingTree. This Stream Processor requires at least %s ,"
+                            + "parameters namely, model.name, number_of_classes and %s features but found %s "
+                            + "parameters and %s features",
+                    minNoOfParameters, minNoOfFeatures, (attributeExpressionLength - noOfFeatures), noOfFeatures));
         }
 
         //set attributes for OutputStream
@@ -284,8 +284,14 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                 String classValue = classLabelVariableExecutor.execute(complexEvent).toString();
 
                 for (int i = 0; i < noOfFeatures - 1; i++) {
-                    cepEvent[i] = ((Number) featureVariableExpressionExecutors.get(i)
-                            .execute(complexEvent)).doubleValue();
+                    try {
+                        cepEvent[i] = ((Number) featureVariableExpressionExecutors.get(i)
+                                .execute(complexEvent)).doubleValue();
+                    } catch (ClassCastException e) {
+                        throw new SiddhiAppRuntimeException(String.format("Incompatible attribute feature type"
+                                + " at position %s. Not of any numeric type. Please refer the stream definition "
+                                + "for Model[%s]", (i + 1), modelName));
+                    }
                 }
 
                 AdaptiveHoeffdingTreeModel model = AdaptiveHoeffdingModelsHolder.getInstance()
@@ -336,9 +342,9 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                                     .getValue();
                             parameterPosition++;
                         } else {
-                            throw new SiddhiAppValidationException(String.format("GracePeriod must be an %s." +
-                                            " But found %s at position %s", Attribute.Type.INT,
-                                    attributeExpressionExecutors[2].getClass().getCanonicalName(), (i + 1)));
+                            throw new SiddhiAppValidationException(String.format("GracePeriod must be an %s."
+                                            + " But found %s at position %s", Attribute.Type.INT,
+                                    attributeExpressionExecutors[2].getReturnType(), (i + 1)));
                         }
                         break;
                     case 3:
@@ -347,10 +353,10 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                                     attributeExpressionExecutors[3]).getValue();
                             parameterPosition++;
                         } else {
-                            throw new SiddhiAppValidationException(String.format("Splitting Criteria must be an %s. " +
-                                            "0=InfoGainSplitCriterion and 1=GiniSplitCriterion" +
-                                            " But found %s in position %s.", Attribute.Type.INT,
-                                    attributeExpressionExecutors[3].getClass().getCanonicalName(), (i + 1)));
+                            throw new SiddhiAppValidationException(String.format("Splitting Criteria must be an %s. "
+                                            + "0=InfoGainSplitCriterion and 1=GiniSplitCriterion"
+                                            + " But found %s in position %s.", Attribute.Type.INT,
+                                    attributeExpressionExecutors[3].getReturnType(), (i + 1)));
                         }
                         break;
                     case 4:
@@ -360,21 +366,21 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                                     .getValue();
                             parameterPosition++;
                         } else {
-                            throw new SiddhiAppValidationException(String.format("Allowable Split Error must be a " +
-                                            "%s. But found %s at position %s.", Attribute.Type.DOUBLE,
-                                    attributeExpressionExecutors[4].getClass().getCanonicalName(), (i + 1)));
+                            throw new SiddhiAppValidationException(String.format("Allowable Split Error must be a "
+                                            + "%s. But found %s at position %s.", Attribute.Type.DOUBLE,
+                                    attributeExpressionExecutors[4].getReturnType(), (i + 1)));
                         }
                         break;
                     case 5:
-                        if (attributeExpressionExecutors[5].getReturnType() == Attribute.Type.DOUBLE) {
-                            tieBreakThreshold = (double) ((ConstantExpressionExecutor)
-                                    attributeExpressionExecutors[5])
-                                    .getValue();
+                        Attribute.Type tieThresholdType = attributeExpressionExecutors[5].getReturnType();
+                        if (CoreUtils.isNumeric(tieThresholdType)) {
+                            tieBreakThreshold = ((Number) ((ConstantExpressionExecutor)
+                                    attributeExpressionExecutors[5]).getValue()).doubleValue();
                             parameterPosition++;
                         } else {
-                            throw new SiddhiAppValidationException(String.format("Tie Break Threshold must be " +
-                                            "a %s. But found %s in position %s.", Attribute.Type.DOUBLE,
-                                    attributeExpressionExecutors[5].getClass().getCanonicalName(), (i + 1)));
+                            throw new SiddhiAppValidationException(String.format("Tie Break Threshold must be "
+                                            + "a %s. But found %s in position %s.", Attribute.Type.DOUBLE,
+                                    attributeExpressionExecutors[5].getReturnType(), (i + 1)));
                         }
                         break;
                     case 6:
@@ -383,9 +389,9 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                                     attributeExpressionExecutors[6]).getValue();
                             parameterPosition++;
                         } else {
-                            throw new SiddhiAppValidationException(String.format("Enabling Binary Split must be " +
-                                            "a %s. But found %s in position %s.", Attribute.Type.BOOL,
-                                    attributeExpressionExecutors[6].getClass().getCanonicalName(), (i + 1)));
+                            throw new SiddhiAppValidationException(String.format("Enabling Binary Split must be "
+                                            + "a %s. But found %s in position %s.", Attribute.Type.BOOL,
+                                    attributeExpressionExecutors[6].getReturnType(), (i + 1)));
                         }
                         break;
                     case 7:
@@ -395,9 +401,9 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                                     .getValue();
                             parameterPosition++;
                         } else {
-                            throw new SiddhiAppValidationException(String.format("Disabling PrePruning must be " +
-                                            "a %s. But found %s in position %s.", Attribute.Type.BOOL,
-                                    attributeExpressionExecutors[7].getClass().getCanonicalName(), (i + 1)));
+                            throw new SiddhiAppValidationException(String.format("Disabling PrePruning must be "
+                                            + "a %s. But found %s in position %s.", Attribute.Type.BOOL,
+                                    attributeExpressionExecutors[7].getReturnType(), (i + 1)));
                         }
                         break;
                     case 8:
@@ -407,17 +413,17 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                                     .getValue();
                             parameterPosition++;
                         } else {
-                            throw new SiddhiAppValidationException(String.format("Leaf Prediction Strategy must " +
-                                            "be an %s. 0=majority class, 1=naive Bayes, 2=naive Bayes adaptive. " +
-                                            "But found %s in position %s.", Attribute.Type.INT,
-                                    attributeExpressionExecutors[8].getClass().getCanonicalName(), (i + 1)));
+                            throw new SiddhiAppValidationException(String.format("Leaf Prediction Strategy must "
+                                            + "be an %s. 0=majority class, 1=naive Bayes, 2=naive Bayes adaptive. "
+                                            + "But found %s in position %s.", Attribute.Type.INT,
+                                    attributeExpressionExecutors[8].getReturnType(), (i + 1)));
                         }
                         break;
                     default:
                 }
             } else {
-                throw new SiddhiAppValidationException(String.format("%s must be (ConstantExpressionExecutor) " +
-                                "but found %s in position %s.", hyperParameters.get(i - minNoOfParameters),
+                throw new SiddhiAppValidationException(String.format("%s must be (ConstantExpressionExecutor) "
+                                + "but found %s in position %s.", hyperParameters.get(i - minNoOfParameters),
                         attributeExpressionExecutors[i].getClass().getCanonicalName(), (i + 1)));
             }
         }
@@ -429,8 +435,8 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                     tieBreakThreshold, binarySplit, prePruning, leafPredictionStrategy);
 
         } else {
-            throw new SiddhiAppValidationException("Number of hyper-parameters needed for model " +
-                    "manual configuration is " + noOfHyperParameters + " but found "
+            throw new SiddhiAppValidationException("Number of hyper-parameters needed for model "
+                    + "manual configuration is " + noOfHyperParameters + " but found "
                     + (parameterPosition - minNoOfParameters));
         }
     }

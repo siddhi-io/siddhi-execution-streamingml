@@ -557,7 +557,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.fail("Model is visible across Siddhi Apps which is wrong!");
         }
     }
