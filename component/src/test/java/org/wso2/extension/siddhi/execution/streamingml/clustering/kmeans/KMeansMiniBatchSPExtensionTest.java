@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
+import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -654,35 +655,108 @@ public class KMeansMiniBatchSPExtensionTest {
 
     @Test
     public void testClusteringLengthWindow2D_17() throws Exception {
-        logger.info("KMeansMiniBatchSPExtension Test - testing 2 siddhiAppRumTimes");
+        logger.info("KMeansMiniBatchSPExtension Test - Test case for reusing the model in a different query");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String inputStream = "define stream InputStream (x double, y double);";
+        String inputStream1 = "@App:name('KMeansTestApp17') \n" +
+                "define stream InputStream1 (x double, y double);";
+        String inputStream2 = "@App:name('KMeansTestApp17') \n" +
+                "define stream InputStream2 (x double, y double);";
 
-        String query = (
+        String query1 = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3f, 2, 10, 1L, x, y) " +
-                        "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
-                        "closestCentroidCoordinate2, x, y " +
+                        "from InputStream1#streamingml:kMeansMiniBatch('model17', 0.2f, 2, 10, 20, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
+        String query2 = (
+                "@info(name = 'query2') " +
+                        "from InputStream2#streamingml:kMeansMiniBatch('model17', 0.2f, 2, 10, 20, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream1 + query1);
 
-        SiddhiAppRuntime siddhiAppRuntime;
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+
+                for (Event event: inEvents) {
+                    count.incrementAndGet();
+
+                    switch (count.get()) {
+                        case 1:
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
+                                    event.getData(1)});
+                            break;
+                        case 2:
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
+                                    event.getData(1)});
+                            break;
+                        case 3:
+                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
+                                    event.getData(1)});
+                            break;
+                    }
+                }
+            }
+        });
+
+
+        siddhiAppRuntime.start();
+        InputHandler inputHandler1 = siddhiAppRuntime.getInputHandler("InputStream1");
 
         try {
-            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+            inputHandler1.send(new Object[]{5.7905, 7.7499});
+            inputHandler1.send(new Object[]{27.458, 23.8848});
+            inputHandler1.send(new Object[]{3.078, 9.1072});
+            inputHandler1.send(new Object[]{28.326, 26.7484});
+            inputHandler1.send(new Object[]{2.2602, 4.6408});
+            inputHandler1.send(new Object[]{27.3099, 26.1816});
+            inputHandler1.send(new Object[]{0.9441, 0.6502});
+            inputHandler1.send(new Object[]{23.9204, 27.6745});
+            inputHandler1.send(new Object[]{2.0499, 9.9546});
+            inputHandler1.send(new Object[]{23.7947, 20.8627});
+            inputHandler1.send(new Object[]{5.8456, 6.8879});
+            inputHandler1.send(new Object[]{26.7315, 25.5368});
+            inputHandler1.send(new Object[]{5.8812, 5.9116});
+            inputHandler1.send(new Object[]{24.5343, 26.77});
+            inputHandler1.send(new Object[]{4.3866, 0.3132});
+            inputHandler1.send(new Object[]{22.7654, 25.1381});
+            inputHandler1.send(new Object[]{7.7824, 9.2299});
+            inputHandler1.send(new Object[]{23.5167, 24.1244});
+            inputHandler1.send(new Object[]{5.3086, 9.7503});
+            inputHandler1.send(new Object[]{25.47, 25.8574});
+            inputHandler1.send(new Object[]{20.2568, 28.7882});
+            inputHandler1.send(new Object[]{2.9951, 3.9887});
+
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream2 + query2);
+            InputHandler inputHandler2 = siddhiAppRuntime.getInputHandler("InputStream2");
+            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timestamp, inEvents, removeEvents);
+                }
+            });
 
 
+            inputHandler2.send(new Object[]{25.47, 25.8574});
+            inputHandler2.send(new Object[]{20.2568, 28.7882});
+            inputHandler2.send(new Object[]{2.9951, 3.9887});
+
+            //SiddhiTestHelper.waitForEvents(200, 3, count, 5000);
         } catch (Exception e) {
-            logger.info(e.getMessage());
-            SiddhiManager siddhiManager2 = new SiddhiManager();
-//            siddhiAppRuntime = siddhiManager.;
+            logger.error(e.getMessage());
+        } finally {
+            siddhiAppRuntime.shutdown();
         }
     }
 
-    /*@Test
+    @Test
     public void testClusteringLengthWindow2D_18() throws Exception {
-        logger.info("KMeansMiniBatchSPExtension Test - Test case for 2D data points model reusing");
+        logger.info("KMeansMiniBatchSPExtension Test - Test case for restoring from restart");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String inputStream = "define stream InputStream (x double, y double);";
+        siddhiManager.setPersistenceStore(new InMemoryPersistenceStore());
+        String inputStream = "@App:name('KMeansTestApp') \n" +
+                "define stream InputStream (x double, y double);";
 
         String query = (
                 "@info(name = 'query1') " +
@@ -744,24 +818,122 @@ public class KMeansMiniBatchSPExtensionTest {
             inputHandler.send(new Object[]{20.2568, 28.7882});
             inputHandler.send(new Object[]{2.9951, 3.9887});
 
-            logger.info("Now a different query and different siddhi manager");
-            SiddhiManager siddhiManager2 = new SiddhiManager();
-            String inputStream2 = "define stream InputStream (x double, y double);";
+            siddhiManager.persist();
+            Thread.sleep(1000);
+            siddhiAppRuntime.shutdown();
+            Thread.sleep(1000);
 
-            String query2 = (
-                    "@info(name = 'query1') " +
-                            "from InputStream#streamingml:kMeansMiniBatch('model17', 0.2f, 2, 10, 20, x, y) " +
-                            "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
-                            "insert into OutputStream;");
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager2.createSiddhiAppRuntime(inputStream + query);
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+                }
+            });
+            siddhiAppRuntime.start();
+            siddhiManager.restoreLastState();
+            inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
 
-            SiddhiTestHelper.waitForEvents(200, 3, count, 5000);
+            inputHandler.send(new Object[]{25.47, 25.8574});
+            inputHandler.send(new Object[]{20.2568, 28.7882});
+            inputHandler.send(new Object[]{2.9951, 3.9887});
+
+
+            //SiddhiTestHelper.waitForEvents(200, 3, count, 5000);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
-    }*/
+    }
+
+    @Test
+    public void testClusteringLengthWindow2D_19() throws Exception {
+        logger.info("KMeansMiniBatchSPExtension Test - Test case for restoring from restart before initial training");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setPersistenceStore(new InMemoryPersistenceStore());
+        String inputStream = "@App:name('KMeansTestApp') \n" +
+                "define stream InputStream (x double, y double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model19', 0.2f, 2, 10, 20, x, y) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
+                        "insert into OutputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+
+        siddhiAppRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
+        try {
+            inputHandler.send(new Object[]{5.7905, 7.7499});
+            inputHandler.send(new Object[]{27.458, 23.8848});
+            inputHandler.send(new Object[]{3.078, 9.1072});
+            inputHandler.send(new Object[]{28.326, 26.7484});
+            inputHandler.send(new Object[]{2.2602, 4.6408});
+            inputHandler.send(new Object[]{27.3099, 26.1816});
+            inputHandler.send(new Object[]{0.9441, 0.6502});
+
+            siddhiManager.persist();
+            Thread.sleep(1000);
+            siddhiAppRuntime.shutdown();
+            Thread.sleep(1000);
+
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    EventPrinter.print(timeStamp, inEvents, removeEvents);
+
+                    for (Event event: inEvents) {
+                        count.incrementAndGet();
+
+                        switch (count.get()) {
+                            case 1:
+                                AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779},
+                                        new Object[]{event.getData(0),
+                                        event.getData(1)});
+                                break;
+                            case 2:
+                                AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779},
+                                        new Object[]{event.getData(0),
+                                        event.getData(1)});
+                                break;
+                            case 3:
+                                AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196},
+                                        new Object[]{event.getData(0),
+                                        event.getData(1)});
+                                break;
+                        }
+                    }
+                }
+            });
+            siddhiAppRuntime.start();
+            siddhiManager.restoreLastState();
+            inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
+
+            inputHandler.send(new Object[]{23.9204, 27.6745});
+            inputHandler.send(new Object[]{2.0499, 9.9546});
+            inputHandler.send(new Object[]{23.7947, 20.8627});
+            inputHandler.send(new Object[]{5.8456, 6.8879});
+            inputHandler.send(new Object[]{26.7315, 25.5368});
+            inputHandler.send(new Object[]{5.8812, 5.9116});
+            inputHandler.send(new Object[]{24.5343, 26.77});
+            inputHandler.send(new Object[]{4.3866, 0.3132});
+            inputHandler.send(new Object[]{22.7654, 25.1381});
+            inputHandler.send(new Object[]{7.7824, 9.2299});
+            inputHandler.send(new Object[]{23.5167, 24.1244});
+            inputHandler.send(new Object[]{5.3086, 9.7503});
+            inputHandler.send(new Object[]{25.47, 25.8574});
+            inputHandler.send(new Object[]{20.2568, 28.7882});
+            inputHandler.send(new Object[]{2.9951, 3.9887});
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }
 
 }
 

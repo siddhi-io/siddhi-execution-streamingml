@@ -18,6 +18,7 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.util.Coordinates;
 import org.wso2.extension.siddhi.execution.streamingml.util.MathUtil;
@@ -48,6 +49,7 @@ public class Clusterer {
      */
     public Clusterer(int numberOfClusters, int maximumIterations, String modelName, String siddhiAppName,
                      int dimensionality) {
+        logger.setLevel(Level.ALL);
         model = KMeansModelHolder.getInstance().getKMeansModel(modelName);
         if (model == null) {
             model = new KMeansModel();
@@ -58,6 +60,17 @@ public class Clusterer {
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("Reusing an existing model with name " + modelName);
+            }
+            if (model.size() == numberOfClusters) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Existing model " + modelName + " is trained");
+                }
+                initialTrained = true;
+                modelTrained = true;
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Existing model " + modelName + " is not trained");
+                }
             }
         }
         this.numberOfClusters = numberOfClusters;
@@ -105,6 +118,8 @@ public class Clusterer {
 
     public void setModel(KMeansModel m) {
         model = m;
+//        initialTrained = true;
+//        modelTrained = true;
     }
 
     /**
