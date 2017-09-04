@@ -18,6 +18,7 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.Clusterer;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.DataPoint;
@@ -142,6 +143,7 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
     private int coordinateStartIndex;
     private LinkedList<DataPoint> dataPointsArray;
     private double[] coordinateValuesOfCurrentDataPoint;
+    private String modelName;
 
 
     private boolean modelTrained = false;
@@ -154,9 +156,10 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                    SiddhiAppContext siddhiAppContext) {
+        logger.setLevel(Level.ALL);
         //expressionExecutors[0] --> modelName
         dataPointsArray = new LinkedList<>();
-        String modelName;
+
         int numberOfClusters;
         if (!(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
             throw new SiddhiAppValidationException("modelName has to be a constant.");
@@ -327,7 +330,7 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
             map.put("untrainedData", dataPointsArray);
             map.put("modelTrained", modelTrained);
             map.put("numberOfEventsReceived", numberOfEventsReceived);
-            map.put("model", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
+            map.put("modelMap", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
             return map;
         }
     }
@@ -338,8 +341,8 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
             dataPointsArray = (LinkedList<DataPoint>) map.get("untrainedData");
             modelTrained = (Boolean) map.get("modelTrained");
             numberOfEventsReceived = (Integer) map.get("numberOfEventsReceived");
-            KMeansModel model1 = (KMeansModel) map.get("model");
-            clusterer.setModel(model1);
+            Map<String, KMeansModel> modelMap = (Map<String, KMeansModel>) map.get("modelMap");
+            KMeansModelHolder.getInstance().setKMeansModelMap(modelMap);
         }
     }
 
