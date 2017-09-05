@@ -18,7 +18,6 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.Clusterer;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.DataPoint;
@@ -43,7 +42,6 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -75,8 +73,8 @@ import java.util.concurrent.ExecutorService;
                                 "Value of this will be in [0,1]. 0 means only old data used and" +
                                 "1 will mean that only new data is used",
                         optional = true,
-                        type = {DataType.FLOAT},
-                        defaultValue = "0.01f"
+                        type = {DataType.DOUBLE},
+                        defaultValue = "0.01"
                 ),
                 @Parameter(
                         name = "number.of.clusters",
@@ -95,9 +93,9 @@ import java.util.concurrent.ExecutorService;
                         type = DataType.INT
                 ),
                 @Parameter(
-                        name = "coordinate.values",
+                        name = "model.features",
                         description = "This is a variable length argument. Depending on the dimensionality of " +
-                                "data points we will receive coordinates along each axis.",
+                                "data points we will receive coordinates as features along each axis.",
                         type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG}
                 )
 
@@ -110,21 +108,25 @@ import java.util.concurrent.ExecutorService;
                         type = {DataType.DOUBLE}
                 ),
                 @ReturnAttribute(
-                        name = "closestCentroidCoordinatei",
+                        name = "closestCentroidCoordinate",
                         description = "This is a variable length attribute. Depending on the dimensionality(d) " +
-                                "we will return closestCentroidCoordinate1 to closestCentroidCoordinated",
+                                "we will return closestCentroidCoordinate1 to closestCentroidCoordinated which are " +
+                                "the d dimensional coordinates of the closest centroid from the model to the " +
+                                "current event. This is the prediction result and this represents the cluster to" +
+                                "which the current event belongs to.",
                         type = {DataType.DOUBLE}
                 )
         },
         examples = {
                 @Example(
-                        syntax = "from InputStream#streamingml:kmeansminibatch(modelName, numberOfClusters, " +
+                        syntax = "define stream InputStream (modelFeature1 double, modelFeature2 double);" +
+                                "from InputStream#streamingml:kmeansminibatch(modelName, numberOfClusters, " +
                                 "maxIterations," +
-                                " numberOfEventsToRetrain, decayRate, coordinateValue1, coordinateValue2)\"\n" +
-                                "select coordinateValue1, coordinateValue2, euclideanDistanceToClosestCentroid, " +
+                                " numberOfEventsToRetrain, decayRate, modelFeature1, modelFeature2)\"\n" +
+                                "select modelFeature1, modelFeature2, euclideanDistanceToClosestCentroid, " +
                                 "closestCentroidCoordinate1, closestCentroidCoordinate2\"\n" +
                                 "insert into OutputStream",
-                        description = "modelName =model1, numberOfClusters=2, numberOfEventsToRetrain = 5, " +
+                        description = "modelName ='model1', numberOfClusters=2, numberOfEventsToRetrain = 5, " +
                                 "maxIterations=10" +
                                 " decayRate=0.2. This will cluster the collected data points within the window " +
                                 "for every 5 events" +
@@ -134,18 +136,13 @@ import java.util.concurrent.ExecutorService;
         }
 )
 public class KMeansMiniBatchSPExtension extends StreamProcessor {
-    private float decayRate;
-
-
+    private double decayRate;
     private int numberOfEventsToRetrain;
     private int numberOfEventsReceived;
     private int coordinateStartIndex;
     private LinkedList<DataPoint> dataPointsArray;
     private double[] coordinateValuesOfCurrentDataPoint;
-    private String modelName;
-
-
-    private boolean modelTrained = false;
+    private boolean modelTrained;
     private Clusterer clusterer;
     private int dimensionality;
     private ExecutorService executorService;
@@ -155,14 +152,15 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                    SiddhiAppContext siddhiAppContext) {
-        logger.setLevel(Level.ALL);
         //expressionExecutors[0] --> modelName
         dataPointsArray = new LinkedList<>();
 
         int numberOfClusters;
         if (!(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("modelName has to be a constant.");
+            throw new SiddhiAppValidationException("modelName has to be a constant but found " +
+                    this.attributeExpressionExecutors[0].getClass().getCanonicalName());
         }
+        String modelName;
         if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
             modelName = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
         } else {
@@ -173,13 +171,14 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
         //expressionExecutors[1] --> decayRate or numberOfClusters
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
             throw new SiddhiAppValidationException("2nd parameter can be decayRate/numberOfClusters. " +
-                    "Both has to be a constant but found a variable in place.");
+                    "Both has to be a constant but found " +
+                    this.attributeExpressionExecutors[1].getClass().getCanonicalName());
         }
-        if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.FLOAT) {
+        if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.DOUBLE) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Decay rate is specified." + siddhiAppContext.getName());
             }
-            decayRate = (Float) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
+            decayRate = (Double) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
             if (decayRate < 0 || decayRate > 1) {
                 throw new SiddhiAppValidationException("decayRate should be in [0,1] but given as " + decayRate);
             }
@@ -187,7 +186,8 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
 
             //expressionExecutors[2] --> numberOfClusters
             if (!(attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
-                throw new SiddhiAppValidationException("numberOfClusters has to be a constant.");
+                throw new SiddhiAppValidationException("numberOfClusters has to be a constant but found " +
+                        this.attributeExpressionExecutors[2].getClass().getCanonicalName());
             }
             if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
                 numberOfClusters = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue();
@@ -200,19 +200,20 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
             if (logger.isDebugEnabled()) {
                 logger.debug("Decay rate is not specified. using default " + decayRate);
             }
-            decayRate = 0.01f;
+            decayRate = 0.01;
             coordinateStartIndex = 4;
             numberOfClusters = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
         } else {
             throw new SiddhiAppValidationException("The second query parameter should either be decayRate or " +
-                    "numberOfClusters which should be of type float or int respectively but found " +
+                    "numberOfClusters which should be of type double or int respectively but found " +
                     attributeExpressionExecutors[1].getReturnType());
         }
 
 
         //expressionExecutors[coordinateStartIndex-2] --> maxIterations
         if (!(attributeExpressionExecutors[coordinateStartIndex - 2] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("Maximum iterations has to be a constant.");
+            throw new SiddhiAppValidationException("Maximum iterations has to be a constant but found " +
+                    this.attributeExpressionExecutors[coordinateStartIndex - 2].getClass().getCanonicalName());
         }
         int maxIterations;
         if (attributeExpressionExecutors[coordinateStartIndex - 2].getReturnType() == Attribute.Type.INT) {
@@ -225,7 +226,8 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
 
         //expressionExecutors[coordinateStartIndex-1] --> numberOfEventsToRetrain
         if (!(attributeExpressionExecutors[coordinateStartIndex - 1] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("numberOfEventsToRetrain has to be a constant.");
+            throw new SiddhiAppValidationException("numberOfEventsToRetrain has to be a constant but found " +
+                    this.attributeExpressionExecutors[coordinateStartIndex - 1].getClass().getCanonicalName());
         }
         if (attributeExpressionExecutors[coordinateStartIndex - 1].getReturnType() == Attribute.Type.INT) {
             numberOfEventsToRetrain = (Integer) ((ConstantExpressionExecutor)
@@ -312,7 +314,6 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
         nextProcessor.process(streamEventChunk);
     }
 
-
     @Override
     public void start() {
 
@@ -345,6 +346,4 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
             KMeansModelHolder.getInstance().setKMeansModelMap(modelMap);
         }
     }
-
-
 }

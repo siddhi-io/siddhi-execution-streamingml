@@ -20,16 +20,13 @@ package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
 import org.wso2.extension.siddhi.execution.streamingml.util.Coordinates;
 
-
 /**
  * Object which holds the data to be clustered and the
  * associatedCentroid, the centroid to which it belongs to
  */
 public class DataPoint extends Coordinates {
     static final long serialVersionUID = 1L;
-
     private Coordinates associatedCentroid;
-
 
     public Coordinates getAssociatedCentroid() {
         return associatedCentroid;

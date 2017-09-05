@@ -53,7 +53,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model1', 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model1', 0.2, 2, 10, 20, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -289,7 +289,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model4', 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model4', 0.2, 2, 10, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -343,7 +343,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch(modelName, 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch(modelName, 0.2, 2, 10, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -353,7 +353,8 @@ public class KMeansMiniBatchSPExtensionTest {
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("modelName has to be a constant."));
+            AssertJUnit.assertTrue(e.getMessage().contains("modelName has to be a constant but found " +
+                    "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -361,7 +362,7 @@ public class KMeansMiniBatchSPExtensionTest {
     public void testClusteringLengthWindow2D_4() throws Exception {
         logger.info("KMeansMiniBatchSPExtension Test - Test case to validate decayRate to be constant");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String inputStream = "define stream InputStream (x double, y double, decayRate float);";
+        String inputStream = "define stream InputStream (x double, y double, decayRate double);";
 
         String query = (
                 "@info(name = 'query1') " +
@@ -376,7 +377,8 @@ public class KMeansMiniBatchSPExtensionTest {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("2nd parameter can be decayRate/numberOfClusters. " +
-                    "Both has to be a constant but found a variable in place."));
+                    "Both has to be a constant but found " +
+                    "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -389,7 +391,7 @@ public class KMeansMiniBatchSPExtensionTest {
         String query = (
                 "@info(name = 'query1') " +
                         "from InputStream#streamingml:kMeansMiniBatch" +
-                        "('model5', 0.2f, numberOfClusters, 10, 20, x, y) " +
+                        "('model5', 0.2, numberOfClusters, 10, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -399,7 +401,8 @@ public class KMeansMiniBatchSPExtensionTest {
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("numberOfClusters has to be a constant."));
+            AssertJUnit.assertTrue(e.getMessage().contains("numberOfClusters has to be a constant but found " +
+                    "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -411,7 +414,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model6', 0.2f, 2, maxIterations, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model6', 0.2, 2, maxIterations, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -421,7 +424,8 @@ public class KMeansMiniBatchSPExtensionTest {
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Maximum iterations has to be a constant."));
+            AssertJUnit.assertTrue(e.getMessage().contains("Maximum iterations has to be a constant but found " +
+                    "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -434,7 +438,7 @@ public class KMeansMiniBatchSPExtensionTest {
         String query = (
                 "@info(name = 'query1') " +
                         "from InputStream#streamingml:kMeansMiniBatch" +
-                        "('model7', 0.2f, 2, 10, numberOfEventsToRetrain, x, y) " +
+                        "('model7', 0.2, 2, 10, numberOfEventsToRetrain, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -444,7 +448,8 @@ public class KMeansMiniBatchSPExtensionTest {
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("numberOfEventsToRetrain has to be a constant."));
+            AssertJUnit.assertTrue(e.getMessage().contains("numberOfEventsToRetrain has to be a constant but found " +
+                    "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -456,7 +461,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model8', 0.2f, 2, 10, 20, 5.0, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model8', 0.2, 2, 10, 20, 5.0, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -479,7 +484,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model9', 0.2f, 2, 10, 20, x, 5.0) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model9', 0.2, 2, 10, 20, x, 5.0) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -502,7 +507,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch(4, 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch(4, 0.2, 2, 10, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -518,13 +523,13 @@ public class KMeansMiniBatchSPExtensionTest {
 
     @Test
     public void testClusteringLengthWindow2D_11() throws Exception {
-        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate decayRate to be float");
+        logger.info("KMeansMiniBatchSPExtension Test - Test case to validate decayRate to be double");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "define stream InputStream (x double, y double);";
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model11', 0.4, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model11', 'hi', 2, 10, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -535,7 +540,7 @@ public class KMeansMiniBatchSPExtensionTest {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("The second query parameter should either be decayRate " +
-                    "or numberOfClusters which should be of type float or int respectively but found DOUBLE"));
+                    "or numberOfClusters which should be of type double or int respectively but found STRING"));
         }
     }
 
@@ -548,7 +553,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model12', 1.4f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model12', 1.4, 2, 10, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -571,7 +576,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model13', -0.3f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model13', -0.3, 2, 10, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -593,7 +598,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3f, 2.1, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3, 2.1, 10, 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -615,7 +620,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3f, 2, 'aa', 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3, 2, 'aa', 20, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -638,7 +643,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3f, 2, 10, 1L, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model13', 0.3, 2, 10, 1L, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -664,12 +669,12 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query1 = (
                 "@info(name = 'query1') " +
-                        "from InputStream1#streamingml:kMeansMiniBatch('model17', 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream1#streamingml:kMeansMiniBatch('model17', 0.2, 2, 10, 20, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         String query2 = (
                 "@info(name = 'query2') " +
-                        "from InputStream2#streamingml:kMeansMiniBatch('model17', 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream2#streamingml:kMeansMiniBatch('model17', 0.2, 2, 10, 20, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream1 + query1);
@@ -760,7 +765,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model18', 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model18', 0.2, 2, 10, 20, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -857,7 +862,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansMiniBatch('model19', 0.2f, 2, 10, 20, x, y) " +
+                        "from InputStream#streamingml:kMeansMiniBatch('model19', 0.2, 2, 10, 20, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);

@@ -19,21 +19,18 @@
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
 import org.apache.log4j.Logger;
-
 import java.util.List;
 
 /**
  * trains the model using a separate thread when the batch size is larger than a specified value
  */
 public class Trainer implements Runnable {
-
     private static final Logger logger = Logger.getLogger(Trainer.class.getName());
-
     private Clusterer clusterer;
     private List<DataPoint> dataPointsArray;
-    private float decayRate;
+    private double decayRate;
 
-    public Trainer(Clusterer clusterer, List<DataPoint> dataPointsArray, float decayRate) {
+    public Trainer(Clusterer clusterer, List<DataPoint> dataPointsArray, double decayRate) {
         this.clusterer = clusterer;
         this.dataPointsArray = dataPointsArray;
         this.decayRate = decayRate;

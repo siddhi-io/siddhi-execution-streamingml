@@ -31,7 +31,6 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -56,7 +55,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -164,7 +163,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -201,7 +200,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -220,7 +219,7 @@ public class KMeansIncrementalSPExtensionTest {
             inputHandler.send(new Object[]{5, 7});
             inputHandler.send(new Object[]{27.458f, 23.8848f});
             inputHandler.send(new Object[]{3.078, 9.1072});
-            inputHandler.send(new Object[]{"hi", 26.7484});
+            inputHandler.send(new Object[]{8, 26.7484});
             inputHandler.send(new Object[]{2.2602, 4.6408});
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -237,7 +236,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental(modelName, 0.2f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental(modelName, 0.2, 2, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -247,7 +246,8 @@ public class KMeansIncrementalSPExtensionTest {
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("modelName has to be a constant."));
+            AssertJUnit.assertTrue(e.getMessage().contains("modelName has to be a constant but found " +
+                    "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -255,7 +255,7 @@ public class KMeansIncrementalSPExtensionTest {
     public void testClusteringLengthWindow2D_5() throws Exception {
         logger.info("KMeansIncrementalSPExtension Test - Test case to validate decayRate to be constant");
         SiddhiManager siddhiManager = new SiddhiManager();
-        String inputStream = "define stream InputStream (x double, y double, decayRate float);";
+        String inputStream = "define stream InputStream (x double, y double, decayRate double);";
 
         String query = (
                 "@info(name = 'query1') " +
@@ -269,7 +269,8 @@ public class KMeansIncrementalSPExtensionTest {
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("decayRate has to be a constant."));
+            AssertJUnit.assertTrue(e.getMessage().contains("decayRate has to be a constant but found " +
+                    "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -282,7 +283,7 @@ public class KMeansIncrementalSPExtensionTest {
         String query = (
                 "@info(name = 'query1') " +
                         "from InputStream#streamingml:kMeansIncremental" +
-                        "('model6', 0.2f, numberOfClusters, x, y) " +
+                        "('model6', 0.2, numberOfClusters, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -292,7 +293,8 @@ public class KMeansIncrementalSPExtensionTest {
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("numberOfClusters has to be a constant."));
+            AssertJUnit.assertTrue(e.getMessage().contains("numberOfClusters has to be a constant but found " +
+                    "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -304,7 +306,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model7', 0.2f, 2, 5.0, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model7', 0.2, 2, 5.0, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -327,7 +329,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model8', 0.2f, 2, x, 4.0) " +
+                        "from InputStream#streamingml:kMeansIncremental('model8', 0.2, 2, x, 4.0) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -350,7 +352,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental(5L, 0.2f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental(5L, 0.2, 2, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -366,7 +368,7 @@ public class KMeansIncrementalSPExtensionTest {
 
     @Test
     public void testClusteringLengthWindow2D_10() throws Exception {
-        logger.info("KMeansIncrementalSPExtension Test - Test case to validate decayRate to be float");
+        logger.info("KMeansIncrementalSPExtension Test - Test case to validate decayRate to be double");
         SiddhiManager siddhiManager = new SiddhiManager();
         String inputStream = "define stream InputStream (x double, y double);";
 
@@ -383,7 +385,7 @@ public class KMeansIncrementalSPExtensionTest {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("The second query parameter should either be decayRate " +
-                    "or numberOfClusters which should be of type float or int respectively but found LONG"));
+                    "or numberOfClusters which should be of type double or int respectively but found LONG"));
         }
     }
 
@@ -396,7 +398,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model11', 1.4f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model11', 1.4, 2, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -419,7 +421,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model12', -0.3f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model12', -0.3, 2, x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -441,7 +443,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model12', 0.3f, 'hi', x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model12', 0.3, 'hi', x, y) " +
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
@@ -463,7 +465,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -504,7 +506,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -562,12 +564,12 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query1 = (
                 "@info(name = 'query1') " +
-                        "from InputStream1#streamingml:kMeansIncremental('model16', 0.2f, 2, x, y) " +
+                        "from InputStream1#streamingml:kMeansIncremental('model16', 0.2, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         String query2 = (
                 "@info(name = 'query2') " +
-                        "from InputStream2#streamingml:kMeansIncremental('model16', 0.2f, 2, x, y) " +
+                        "from InputStream2#streamingml:kMeansIncremental('model16', 0.2, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
 
@@ -634,7 +636,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model17', 0.2f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model17', 0.2, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -704,7 +706,7 @@ public class KMeansIncrementalSPExtensionTest {
 
         String query = (
                 "@info(name = 'query1') " +
-                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2f, 2, x, y) " +
+                        "from InputStream#streamingml:kMeansIncremental('model1', 0.2, 2, x, y) " +
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -747,7 +749,7 @@ public class KMeansIncrementalSPExtensionTest {
 //
 //        String query = (
 //                "@info(name = 'query1') " +
-//                        "from InputStream#streamingml:kMeansIncremental('model1', 0.001f, 2, x1, x2, x3, x4) " +
+//                        "from InputStream#streamingml:kMeansIncremental('model19', 0.001, 2, x1, x2, x3, x4) " +
 //                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x1, x2, x3, x4 " +
 //                        "insert into OutputStream;");
 //        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
@@ -777,6 +779,50 @@ public class KMeansIncrementalSPExtensionTest {
 //
 //        } catch (Exception e) {
 //            logger.error(e.getMessage());
+//        } finally {
+//            siddhiAppRuntime.shutdown();
+//        }
+//    }
+
+//    @Test
+//    public void testClusteringLengthWindow2D_20() throws Exception {
+//        logger.info("KMeansIncrementalSPExtension Test - standard dataset at " +
+//                "https://archive.ics.uci.edu/ml/datasets/Skin+Segmentation#");
+//        SiddhiManager siddhiManager = new SiddhiManager();
+//        String inputStream = "define stream InputStream (x1 double, x2 double, x3 double);";
+//
+//        String query = (
+//                "@info(name = 'query1') " +
+//                        "from InputStream#streamingml:kMeansIncremental('model20', 0.001, 2, x1, x2, x3) " +
+//                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x1, x2, x3 " +
+//                        "insert into OutputStream;");
+//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+//
+//        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+//            @Override
+//            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+//                EventPrinter.print(timeStamp, inEvents, removeEvents);
+//            }
+//        });
+//
+//        Scanner scanner = null;
+//        siddhiAppRuntime.start();
+//        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
+//        try {
+//            File file = new File("src/test/resources/Skin_NonSkin.csv");
+//            FileReader fileReader = new FileReader(file);
+//            BufferedReader bufferedReader = new BufferedReader(fileReader);
+//            scanner = new Scanner(bufferedReader);
+//
+//            while (scanner.hasNext()) {
+//                String eventStr = scanner.nextLine();
+//                String[] event = eventStr.split("\t");
+//                inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]),
+//                        Double.valueOf(event[2])});
+//            }
+//
+//        } catch (Exception e) {
+//            logger.error("error" + e.getMessage());
 //        } finally {
 //            siddhiAppRuntime.shutdown();
 //        }
