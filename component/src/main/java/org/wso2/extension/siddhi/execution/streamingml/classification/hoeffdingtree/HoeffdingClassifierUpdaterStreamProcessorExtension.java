@@ -170,7 +170,6 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
         String modelPrefix;
         noOfFeatures = inputDefinition.getAttributeList().size();
         noOfParameters = attributeExpressionLength - noOfFeatures;
-
         int classIndex = attributeExpressionLength - 1;
 
         if (attributeExpressionLength >= minNoOfParameters + minNoOfFeatures) {
@@ -213,9 +212,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                         "Number of classes must be (ConstantExpressionExecutor) but found "
                                 + attributeExpressionExecutors[1].getClass().getCanonicalName());
             }
-
             if (noOfFeatures > 2) {
-                cepEvent = new double[noOfFeatures];
                 featureVariableExpressionExecutors = CoreUtils
                         .extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors,
                                 (attributeExpressionLength - noOfFeatures), (noOfFeatures - 1));
@@ -223,13 +220,10 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                 classLabelVariableExecutor = CoreUtils
                         .extractAndValidateClassLabel(inputDefinition, attributeExpressionExecutors,
                                 classIndex);
-
             } else {
-
                 throw new SiddhiAppValidationException(
                         "Number of features must be greater than 2 but" + " found "
                                 + noOfFeatures);
-
             }
 
             AdaptiveHoeffdingTreeModel model
@@ -241,7 +235,6 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                 }
                 model.init(noOfFeatures, noOfClasses);
             }
-
             if (noOfParameters > minNoOfParameters) {
                 //configuation with hyper-parameters
                 if (noOfParameters == (minNoOfParameters + noOfHyperParameters)) {
@@ -266,7 +259,6 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
                             + "parameters and %s features",
                     minNoOfParameters, minNoOfFeatures, (attributeExpressionLength - noOfFeatures), noOfFeatures));
         }
-
         //set attributes for OutputStream
         List<Attribute> attributes = new ArrayList<>();
         attributes.add(new Attribute("accuracy", Attribute.Type.DOUBLE));
@@ -280,9 +272,8 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 ComplexEvent complexEvent = streamEventChunk.next();
-
                 String classValue = classLabelVariableExecutor.execute(complexEvent).toString();
-
+                cepEvent = new double[noOfFeatures];
                 for (int i = 0; i < noOfFeatures - 1; i++) {
                     try {
                         cepEvent[i] = ((Number) featureVariableExpressionExecutors.get(i)

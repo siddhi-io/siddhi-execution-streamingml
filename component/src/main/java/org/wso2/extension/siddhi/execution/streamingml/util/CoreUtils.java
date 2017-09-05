@@ -91,9 +91,8 @@ public class CoreUtils {
 
             } else {
                 throw new SiddhiAppValidationException((i + 1) + "th parameter is not " +
-                        "an attribute (VariableExpressionExecutor). Check the number of " +
-                        "attribute entered as a attribute set with number " +
-                        "of attribute configuration parameter");
+                        "an attribute (VariableExpressionExecutor) present in the stream definition. Found a "
+                        + attributeExpressionExecutors[i].getClass().getCanonicalName());
             }
         }
         return featureVariableExpressionExecutors;
@@ -117,7 +116,6 @@ public class CoreUtils {
      */
     public static VariableExpressionExecutor extractAndValidateClassLabel
     (AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, int classIndex) {
-
         VariableExpressionExecutor classLabelVariableExecutor;
 
         if (attributeExpressionExecutors[classIndex] instanceof VariableExpressionExecutor) {
@@ -139,11 +137,9 @@ public class CoreUtils {
 
         } else {
             throw new SiddhiAppValidationException((classIndex) + "th parameter is not " +
-                    "an attribute (VariableExpressionExecutor). Check the number of " +
-                    "attribute entered as a attribute set with number "
-                    + "of attribute configuration parameter");
+                    "an attribute (VariableExpressionExecutor) present in the stream definition. Found a "
+                    + attributeExpressionExecutors[classIndex].getClass().getCanonicalName());
         }
-
         return classLabelVariableExecutor;
     }
 

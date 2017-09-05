@@ -281,7 +281,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                     query);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Number of classes must be (ConstantExpressionExecutor) "
                     + "but found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
@@ -454,7 +454,6 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
-            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Allowable Split Error must be " +
                     "(ConstantExpressionExecutor) but found org.wso2.siddhi.core.executor.VariableExpressionExecutor" +
@@ -573,20 +572,20 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
                 "SiddhiApp");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String trainingStream1 = "@App:name('HoeffdingTestApp1') \n" +
+        String trainingStream1 = "@App:name('HoeffdingTestApp') \n" +
                 "define stream StreamTrain (attribute_0 double, " +
                 "attribute_1 double, attribute_2 double, attribute_3 double, attribute_4 string );";
-        String trainingQuery1 = ("@info(name = 'query-train1') " +
+        String trainingQuery1 = ("@info(name = 'query-train') " +
                 "from StreamTrain#streamingml:updateHoeffdingTree('ml', 4, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3, attribute_4) \n"
                 + "insert all events into trainOutputStream;\n");
 
-        String trainingStrream2 = "@App:name('HoeffdingTreeTestApp2') define stream StreamA (attribute_0 double, "
+        String trainingStrream2 = "@App:name('HoeffdingTreeTestApp') define stream StreamTrain (attribute_0 double, "
                 + "attribute_1 double, attribute_2 double,attribute_3 string );";
-        String trainingQuery2 = ("@info(name = 'query-train2') from StreamA#streamingml:updateHoeffdingTree('ml', 3, "
+        String trainingQuery2 = ("@info(name = 'query-train') "
+                + "from StreamTrain#streamingml:updateHoeffdingTree('ml', 3, "
                 + "attribute_0, attribute_1 , attribute_2 ,attribute_3) select attribute_0, "
                 + "attribute_1, attribute_2, accuracy insert into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager
                     .createSiddhiAppRuntime(trainingStream1 + trainingQuery1);
@@ -749,5 +748,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
                     + " out of range: -2.0"));
         }
     }
+
+
 }
 

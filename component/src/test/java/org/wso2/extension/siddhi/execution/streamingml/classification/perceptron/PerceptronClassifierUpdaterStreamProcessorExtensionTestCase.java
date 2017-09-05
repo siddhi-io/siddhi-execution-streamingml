@@ -175,8 +175,8 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         } catch (Exception e) {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("model.features in updatePerceptronClassifier should be of" +
-                    " type DOUBLE or INT. But there's an attribute called attribute_3 of type BOOL"));
+            AssertJUnit.assertTrue(e.getMessage().contains("model.features in 7th parameter is not a numerical"
+                    + " type attribute. Found BOOL. Check the input stream definition"));
         }
     }
 
@@ -491,11 +491,11 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Parameter[7] of updatePerceptronClassifier must be an " +
-                    "attribute present in the stream, but found a org.wso2.siddhi.core.executor" +
-                    ".ConstantExpressionExecutor"));
+            AssertJUnit.assertTrue(e.getMessage().contains("7th parameter is not an attribute "
+                    + "(VariableExpressionExecutor) present in the stream definition. Found a "
+                    + "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
 

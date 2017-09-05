@@ -124,7 +124,6 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
     /**
      * @param cepEvent   event data
      * @param classLabel class  label of the cepEvent
-     * @return
      */
     public void trainOnEvent(double[] cepEvent, String classLabel) {
         cepEvent[noOfFeatures - 1] = addClass(classLabel);
@@ -139,7 +138,7 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
      * @param modelEvaluation Prequential Model Evaluator.
      * @param cepEvent        event data
      * @param classValue      class label of the cepEvent
-     * @return
+     * @return Prequential accuracy
      */
     public double evaluationTrainOnEvent(PrequentialModelEvaluation modelEvaluation,
                                          double[] cepEvent, String classValue) {
@@ -183,11 +182,6 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
         return instance;
     }
 
-
-    /**
-     * @param numberOfAttributes
-     * @return represents stream definition
-     */
     private InstancesHeader createMOAInstanceHeader(int numberOfAttributes) {
         FastVector headerAttributes = new FastVector();
         for (int i = 0; i < numberOfAttributes - 1; i++) {
@@ -219,7 +213,7 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
 
     /**
      * @param votes-Vote prediction for the class labels
-     * @return
+     * @return Prediction confidence to the 3rd decimal point
      */
     private double getPredictionConfidence(double[] votes) {
         return MathUtil.roundOff((CoreUtils.argMax(votes) / MathUtil.sum(votes)), 3);

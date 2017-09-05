@@ -21,6 +21,7 @@ package org.wso2.extension.siddhi.execution.streamingml.classification.perceptro
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModel;
 import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModelsHolder;
+import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -48,8 +49,7 @@ import java.util.Map;
 
 /**
  * Predict using a linear binary classification Perceptron model built via
- * {@link PerceptronClassifierUpdaterStreamProcessorExtension}
- *
+ * {@link PerceptronClassifierStreamProcessorExtension}
  */
 @Extension(
         name = "perceptronClassifier",
@@ -195,13 +195,15 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                     // set number of features
                     numberOfFeatures = attributeExpressionLength - 3;
                     // feature variables
-                    extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 3);
+                    featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
+                            attributeExpressionExecutors, 3, numberOfFeatures);
 
                 } else if (attributeExpressionExecutors[2] instanceof VariableExpressionExecutor) {
                     // set number of features
                     numberOfFeatures = attributeExpressionLength - 2;
                     // feature variables
-                    extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 2);
+                    featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
+                            attributeExpressionExecutors, 2, numberOfFeatures);
                 } else {
                     throw new SiddhiAppValidationException("3rd Parameter must either be a constant (model.threshold)" +
                             "" + " or an attribute of the stream (model.features), but found a " +
@@ -211,7 +213,9 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                 // set number of features
                 numberOfFeatures = attributeExpressionLength - 1;
                 // feature values
-                extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 1);
+              /*  extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 1);*/
+                featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
+                        attributeExpressionExecutors, 1, numberOfFeatures);
             } else {
                 throw new SiddhiAppValidationException("2nd Parameter must either be a constant (model.bias) or " +
                         "an attribute of the stream (model.features), but found a " + attributeExpressionExecutors[1]
@@ -223,27 +227,27 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
         }
 
         model = PerceptronModelsHolder.getInstance().getPerceptronModel(modelName);
-        if (model == null) {
-            model = new PerceptronModel();
-            PerceptronModelsHolder.getInstance().addPerceptronModel(modelName, model);
-        }
-        if (bias != -1) {
-            model.setBias(bias);
-        }
-        if (threshold != -1) {
-            model.setThreshold(threshold);
-        }
-        if (model.getFeatureSize() != -1) {
-            // validate the model
-            if (numberOfFeatures != model.getFeatureSize()) {
-                // clean the model
-                PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
-                throw new SiddhiAppValidationException(String.format("Model [%s] expects %s features, but the " +
-                        "streamingml:perceptronClassifier specifies %s features", modelPrefix, model.getFeatureSize()
-                        , numberOfFeatures));
+        if (model != null) {
+            if (bias != -1) {
+                model.setBias(bias);
+            }
+            if (threshold != -1) {
+                model.setThreshold(threshold);
+            }
+            if (model.getFeatureSize() != -1) {
+                // validate the model
+                if (numberOfFeatures != model.getFeatureSize()) {
+                    throw new SiddhiAppValidationException(String.format("Model [%s] expects %s features, "
+                                    + "but the streamingml:perceptronClassifier specifies %s features",
+                            modelPrefix, model.getFeatureSize(), numberOfFeatures));
+                }
             }
         } else {
-            model.initWeights(numberOfFeatures);
+
+            throw new SiddhiAppValidationException(String.format("Model [%s] needs to initialized "
+                    + "prior to be used with streamingml:perceptronClassifier. "
+                    + "Perform streamingml:updatePerceptronClassifier process first.", modelName));
+
         }
 
         List<Attribute> attributes = new ArrayList<>();
@@ -251,30 +255,6 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
         attributes.add(new Attribute("confidenceLevel", Attribute.Type.DOUBLE));
 
         return attributes;
-    }
-
-    private void extractAndValidateFeatures(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, int startIndex) {
-        // feature values start
-        for (int i = startIndex; i < attributeExpressionLength; i++) {
-            if (attributeExpressionExecutors[i] instanceof VariableExpressionExecutor) {
-                featureVariableExpressionExecutors.add((VariableExpressionExecutor) attributeExpressionExecutors[i]);
-                // other attributes should be double type.
-                String attributeName = ((VariableExpressionExecutor) attributeExpressionExecutors[i]).getAttribute()
-                        .getName();
-                Attribute.Type featureAttributeType = inputDefinition.getAttributeType(attributeName);
-                if (!(featureAttributeType == Attribute.Type.DOUBLE || featureAttributeType == Attribute.Type.INT)) {
-                    throw new SiddhiAppValidationException(String.format("model.features in " + "perceptronClassifier" +
-                            " should be of type %s or %s. But there's an " + "attribute" + " called " + "%s of type " +
-                            "%s", Attribute.Type.DOUBLE, Attribute.Type.INT, attributeName, featureAttributeType.name
-                            ()));
-                }
-            } else {
-                throw new SiddhiAppValidationException("Parameter[" + (i + 1) + "] of perceptronClassifier must" + " " +
-                        "be an attribute present in the stream, but found a " + attributeExpressionExecutors[i]
-                        .getClass().getCanonicalName());
-            }
-        }
     }
 
     /**

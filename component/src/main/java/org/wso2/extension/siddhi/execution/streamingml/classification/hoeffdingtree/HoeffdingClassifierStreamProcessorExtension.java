@@ -119,7 +119,6 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
                                 + "streamingml:hoeffdingTreeClassifier. This Stream Processor is defined with %s "
                                 + "features, but found %s feature attributes",
                         noOfFeatures, (attributeExpressionLength - minNoOfParameters)));
-
             }
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
@@ -152,7 +151,6 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
                         + "prior to be used with streamingml:hoeffdingTreeClassifier. "
                         + "Perform streamingml:updateHoeffdingTree process first.", modelName));
             }
-
         } else {
             throw new SiddhiAppValidationException(String.format("Invalid number of parameters for "
                             + "streamingml:hoeffdingTreeClassifier. This Stream Processor requires "
@@ -160,7 +158,6 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
                             + " but found %s parameters",
                     (minNoOfParameters + minNoOfFeatures), minNoOfFeatures, attributeExpressionExecutors.length));
         }
-
         //set attributes for Output Stream
         List<Attribute> attributes = new ArrayList<Attribute>();
         attributes.add(new Attribute("prediction", Attribute.Type.STRING));
@@ -175,9 +172,7 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 ComplexEvent complexEvent = streamEventChunk.next();
-
                 cepEvent = new double[noOfFeatures];
-
                 // Set feature_attributes
                 for (int i = 0; i < noOfFeatures; i++) {
                     try {
