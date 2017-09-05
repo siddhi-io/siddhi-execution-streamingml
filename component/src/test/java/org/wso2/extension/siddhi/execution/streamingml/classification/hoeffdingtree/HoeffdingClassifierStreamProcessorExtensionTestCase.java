@@ -134,7 +134,7 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("model.features in 5th parameter is not " +
                     "a numerical type attribute. Found BOOL. Check the input stream definition"));
@@ -157,7 +157,7 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for " +
                     "the model.name argument, required STRING but found INT"));
@@ -180,7 +180,7 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Parameter model.name must be a constant but found org" +
                     ".wso2.siddhi.core.executor.VariableExpressionExecutor"));
@@ -202,8 +202,8 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            logger.error(e);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid number of parameters " +
                     "for streamingml:hoeffdingTreeClassifier. This Stream Processor requires at least 3 parameters," +
                     " namely, model.name and at least 2 feature_attributes, but found 0 parameters"));
@@ -228,8 +228,8 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
                     inStreamDefinition + trainingQuery + query);
             AssertJUnit.fail();
         } catch (Exception e) {
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            logger.error(e);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid number of feature attributes " +
                     "for streamingml:hoeffdingTreeClassifier. This Stream Processor is defined with " +
                     "4 features, but found 3 feature"));
@@ -251,7 +251,7 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found " +
                     "for the model.name argument, required STRING but found DOUBLE"));
@@ -273,7 +273,7 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid number of feature attributes " +
                     "for streamingml:hoeffdingTreeClassifier. This Stream Processor is defined with 4 features," +
@@ -296,7 +296,7 @@ public class HoeffdingClassifierStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid number of feature attributes " +
                     "for streamingml:hoeffdingTreeClassifier. This Stream Processor is defined with 4 features," +

@@ -18,6 +18,8 @@ public class CoreUtils {
     private static final List<Attribute.Type> numericTypes = Arrays.asList(Attribute.Type.INT,
             Attribute.Type.DOUBLE, Attribute.Type.LONG, Attribute.Type.FLOAT);
 
+    private static final List<Attribute.Type> labelTypes = Arrays.asList(Attribute.Type.STRING, Attribute.Type.BOOL);
+
 
     /**
      * Index of the Maximum from double array
@@ -99,7 +101,11 @@ public class CoreUtils {
 
 
     public static boolean isNumeric(Attribute.Type attributeType) {
-        return numericTypes.contains(attributeType) ? true : false;
+        return numericTypes.contains(attributeType);
+    }
+
+    public static boolean isLabelType(Attribute.Type attributeType) {
+        return labelTypes.contains(attributeType);
     }
 
 
@@ -122,7 +128,7 @@ public class CoreUtils {
                     getAttributeType(attributeName);
 
             //class label should be String or Bool
-            if (classLabelAttributeType == Attribute.Type.STRING || classLabelAttributeType == Attribute.Type.BOOL) {
+            if (isLabelType(classLabelAttributeType)) {
                 classLabelVariableExecutor = (VariableExpressionExecutor) attributeExpressionExecutors[classIndex];
             } else {
                 throw new SiddhiAppValidationException(String.format("[label attribute] in %s th index of " +

@@ -41,10 +41,7 @@ public class MathUtil {
         return sum;
     }
 
-    /**
-     * @param val
-     * @return
-     */
+
     public static double sum(double[] val) {
         double sum = 0;
         for (double x : val) {
@@ -55,8 +52,7 @@ public class MathUtil {
     }
 
     /**
-     *
-     * @param value double value
+     * @param value  double value
      * @param places number of decimal points
      * @return
      */

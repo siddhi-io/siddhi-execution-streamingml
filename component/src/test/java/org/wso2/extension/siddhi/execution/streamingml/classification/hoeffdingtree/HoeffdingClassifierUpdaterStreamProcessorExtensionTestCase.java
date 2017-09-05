@@ -257,7 +257,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for "
                     + "the number_of_classes argument, required INT but found STRING"));
@@ -281,7 +281,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                     query);
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Number of classes must be (ConstantExpressionExecutor) "
                     + "but found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
@@ -454,6 +454,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Allowable Split Error must be " +
                     "(ConstantExpressionExecutor) but found org.wso2.siddhi.core.executor.VariableExpressionExecutor" +
@@ -748,7 +749,5 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
                     + " out of range: -2.0"));
         }
     }
-
-
 }
 

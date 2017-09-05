@@ -39,18 +39,6 @@ public class AdaptiveHoeffdingModelsHolder {
         return instance;
     }
 
-    public Map<String, AdaptiveHoeffdingTreeModel> getHoeffdingModelMap() {
-        return hoeffdingModelMap;
-    }
-
-    public Map<String, AdaptiveHoeffdingTreeModel> getClonedHoeffdingModelMap() {
-        Map<String, AdaptiveHoeffdingTreeModel> clonedMap = new HashMap<>();
-        for (Map.Entry<String, AdaptiveHoeffdingTreeModel> entry : hoeffdingModelMap.entrySet()) {
-            clonedMap.put(entry.getKey(), new AdaptiveHoeffdingTreeModel(entry.getValue()));
-        }
-        return clonedMap;
-    }
-
     public void setHoeffdingModelMap(Map<String, AdaptiveHoeffdingTreeModel> modelsMap) {
         this.hoeffdingModelMap = modelsMap;
     }
@@ -64,12 +52,16 @@ public class AdaptiveHoeffdingModelsHolder {
         return model;
     }
 
-    public void deleteHoeffdingModel(String name) {
-        hoeffdingModelMap.remove(name);
+    private void addHoeffdingModel(String name, AdaptiveHoeffdingTreeModel model) {
+        hoeffdingModelMap.put(name, model);
     }
 
-    public void addHoeffdingModel(String name, AdaptiveHoeffdingTreeModel model) {
-        hoeffdingModelMap.put(name, model);
+    public Map<String, AdaptiveHoeffdingTreeModel> getClonedHoeffdingModelMap() {
+        Map<String, AdaptiveHoeffdingTreeModel> clonedMap = new HashMap<>();
+        for (Map.Entry<String, AdaptiveHoeffdingTreeModel> entry : hoeffdingModelMap.entrySet()) {
+            clonedMap.put(entry.getKey(), new AdaptiveHoeffdingTreeModel(entry.getValue()));
+        }
+        return clonedMap;
     }
 
 

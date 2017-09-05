@@ -144,8 +144,6 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
                     .extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors,
                             (attributeExpressionLength - noOfFeatures), noOfFeatures);
 
-            cepEvent = new double[noOfFeatures];
-
             AdaptiveHoeffdingTreeModel model
                     = AdaptiveHoeffdingModelsHolder.getInstance().getHoeffdingModel(modelName);
 
@@ -177,6 +175,8 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 ComplexEvent complexEvent = streamEventChunk.next();
+
+                cepEvent = new double[noOfFeatures];
 
                 // Set feature_attributes
                 for (int i = 0; i < noOfFeatures; i++) {

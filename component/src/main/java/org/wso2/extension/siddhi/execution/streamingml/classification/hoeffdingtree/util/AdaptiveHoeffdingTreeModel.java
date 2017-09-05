@@ -51,6 +51,11 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
     private HoeffdingAdaptiveTree hoeffdingAdaptiveTree;
     private List<String> classes = new ArrayList<String>();
 
+    @Override
+    public void getDescription(StringBuilder stringBuilder, int i) {
+        logger.info("Hoeffding Adaptive Tree for evolving data streams "
+                + "that uses ADWIN to replace branches for new ones.");
+    }
 
     public AdaptiveHoeffdingTreeModel(String modelName) {
         this.modelName = modelName;
@@ -63,12 +68,6 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
         this.noOfClasses = model.noOfClasses;
         this.hoeffdingAdaptiveTree = model.hoeffdingAdaptiveTree;
         this.classes = model.classes;
-    }
-
-    @Override
-    public void getDescription(StringBuilder stringBuilder, int i) {
-        logger.info("Hoeffding Adaptive Tree for evolving data streams "
-                + "that uses ADWIN to replace branches for new ones.");
     }
 
     /**
@@ -121,7 +120,6 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
         hoeffdingAdaptiveTree.leafpredictionOption.setChosenIndex(leafpredictionStrategy);
 
     }
-
 
     /**
      * @param cepEvent   event data

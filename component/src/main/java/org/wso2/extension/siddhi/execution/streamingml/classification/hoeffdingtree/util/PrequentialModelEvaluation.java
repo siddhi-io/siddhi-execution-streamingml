@@ -32,20 +32,14 @@ public class PrequentialModelEvaluation {
     private double weightObserved;
     private double weightCorrect;
 
-    public void reset() {
-        this.reset(this.numClasses);
-    }
-
     public void reset(int numClasses) {
         this.numClasses = numClasses;
-
         this.weightObserved = 0.0D;
         this.weightCorrect = 0.0D;
     }
 
     /**
-     *
-     * @param inst MOAInstance representing the cepEvent
+     * @param inst       MOAInstance representing the cepEvent
      * @param classVotes Prediction votes for each class label
      */
     void addResult(Instance inst, double[] classVotes) {

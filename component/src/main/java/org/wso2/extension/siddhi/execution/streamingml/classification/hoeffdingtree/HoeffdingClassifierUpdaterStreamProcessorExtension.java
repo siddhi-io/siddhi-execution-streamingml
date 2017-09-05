@@ -56,8 +56,8 @@ import java.util.Map;
 @Extension(
         name = "updateHoeffdingTree",
         namespace = "streamingml",
-        description = "Performs classification with Hoeffiding Adaptive Tree monitoring " +
-                "Concept drift with ADWIN ",
+        description = "Performs build/update of Hoeffding Adaptive Tree for evolving "
+                + "data streams that uses ADWIN to replace branches for new ones.",
         parameters = {
                 @Parameter(name = "model.name",
                         description = "The name of the model to be build/updated.",
@@ -118,18 +118,19 @@ import java.util.Map;
                         syntax = "define stream StreamA (attribute_0 double, attribute_1 double, "
                                 + "attribute_2 double, attribute_3 double, attribute_4 string );\n"
                                 + "\n"
-                                + "from StreamA#streamingml:hoeffdingLearn('model1', 3) \n"
+                                + "from StreamA#streamingml:updateHoeffdingTree('model1', 3) \n"
                                 + "select attribute_0, attribute_1, attribute_2, attribute_3, "
                                 + "accuracy insert into outputStream;",
                         description = "A HoeffdingTree model with the name 'model1' will be built/updated under "
                                 + "3 number of classes using attribute_0, attribute_1, attribute_2, attribute_3 "
-                                + "as features and attribute_4 as the label."
+                                + "as features and attribute_4 as the label. The accuracy evaluation will be "
+                                + "emitted to the outputStream"
                 ),
                 @Example(
                         syntax = "define stream StreamA (attribute_0 double, attribute_1 double, "
                                 + "attribute_2 double, attribute_3 double, attribute_4 string );\n"
                                 + "\n"
-                                + "from StreamA#streamingml:hoeffdingLearn('model1', 3, 200, 0, 1e-7, 1.0D, "
+                                + "from StreamA#streamingml:updateHoeffdingTree('model1', 3, 200, 0, 1e-7, 1.0D, "
                                 + "true, true, 2) \n"
                                 + "select attribute_0, attribute_1, attribute_2, attribute_3, "
                                 + "accuracy insert into outputStream;",
@@ -138,7 +139,7 @@ import java.util.Map;
                                 + "1e-7 of allowable error in split decision, 1.0D of breaktie threshold, "
                                 + "allowing only binary splits, disabled pre-pruning, Naive Bayes Adaptive as"
                                 + "leaf prediction using attribute_0, attribute_1, attribute_2, attribute_3 as "
-                                + "features and attribute_4 as the label. Updated weights of the model will be "
+                                + "features and attribute_4 as the label. The accuracy evaluation will be "
                                 + "emitted to the outputStream."
                 )
         }
@@ -176,8 +177,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtension extends StreamPr
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 ConstantExpressionExecutor modelNameExecutor =
                         (ConstantExpressionExecutor) attributeExpressionExecutors[0];
-                if (modelNameExecutor.getReturnType() == Attribute.Type.STRING
-                        || modelNameExecutor.getReturnType() == Attribute.Type.BOOL) {
+                if (CoreUtils.isLabelType(modelNameExecutor.getReturnType())) {
                     modelPrefix = (String) modelNameExecutor.getValue();
                     // model name = user given name + siddhi app name
                     modelName = siddhiAppName + "." + modelPrefix;
