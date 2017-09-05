@@ -62,8 +62,7 @@ import java.util.concurrent.ExecutorService;
                 "All data points to be processed in a single query should be of the" +
                 " same dimensionality. The Euclidean distance is taken as the distance metric. " +
                 "The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by " +
-                "D.Sculley, Google, Inc.). " +
-                "For example: #streamingML:KMeansMiniBatch(dimensionality, numberOfClusters, maxIterations,",
+                "D.Sculley, Google, Inc.). ",
         parameters = {
                 @Parameter(
                         name = "model.name",
@@ -253,11 +252,12 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
 
         String siddhiAppName = siddhiAppContext.getName();
         modelName = modelName + "." + siddhiAppName;
-        logger.debug("model name is " + modelName);
+        if (logger.isDebugEnabled()) {
+            logger.debug("model name is " + modelName);
+        }
         clusterer = new Clusterer(numberOfClusters, maxIterations, modelName, siddhiAppName, dimensionality);
 
         executorService = siddhiAppContext.getExecutorService();
-        //logger.setLevel(Level.ALL);
 
         List<Attribute> attributeList = new ArrayList<>(1 + dimensionality);
         attributeList.add(new Attribute("euclideanDistanceToClosestCentroid", Attribute.Type.DOUBLE));

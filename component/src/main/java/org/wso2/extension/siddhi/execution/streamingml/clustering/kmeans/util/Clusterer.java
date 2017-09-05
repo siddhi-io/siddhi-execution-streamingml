@@ -18,7 +18,6 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.util.Coordinates;
 import org.wso2.extension.siddhi.execution.streamingml.util.MathUtil;
@@ -49,7 +48,7 @@ public class Clusterer {
      */
     public Clusterer(int numberOfClusters, int maximumIterations, String modelName, String siddhiAppName,
                      int dimensionality) {
-        logger.setLevel(Level.ALL);
+        //logger.setLevel(Level.ALL);
         model = KMeansModelHolder.getInstance().getKMeansModel(modelName);
         if (model == null) {
             model = new KMeansModel();
@@ -105,12 +104,16 @@ public class Clusterer {
                                   LinkedList<DataPoint> dataPointsArray) {
         int minBatchSizeToTriggerSeparateThread = 10; //TODO: test and tune to optimum value
         if (numberOfEventsToRetrain < minBatchSizeToTriggerSeparateThread) {
-            logger.debug("Traditional training in " + siddhiAppName);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Traditional training in " + siddhiAppName);
+            }
             updateCluster(dataPointsArray, decayRate);
             dataPointsArray.clear();
             modelTrained = true;
         } else {
-            logger.debug("Seperate thread training in " + siddhiAppName);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Seperate thread training in " + siddhiAppName);
+            }
             Trainer trainer = new Trainer(this, dataPointsArray, decayRate);
             Future f = executorService.submit(trainer);
         }
@@ -126,7 +129,9 @@ public class Clusterer {
      * Perform clustering
      */
     public void cluster(List<DataPoint> dataPointsArray) {
-        logger.info("initial Clustering");
+        if (logger.isDebugEnabled()) {
+            logger.debug("initial Clustering");
+        }
         buildModel(dataPointsArray);
 
         int iter = 0;
@@ -173,7 +178,9 @@ public class Clusterer {
      * @param decayRate       should be in [0,1]
      */
     public void updateCluster(List<DataPoint> dataPointsArray, float decayRate) {
-        logger.info("Updating cluster");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updating cluster");
+        }
         StringBuilder s;
 
         List<Coordinates> intermediateCentroidList = new LinkedList<>();
@@ -200,31 +207,39 @@ public class Clusterer {
                 boolean centroidShifted = false;
                 while (iter < maximumIterations) {
                     assignToCluster(dataPointsArray);
-                    logger.info("data points array");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("data points array");
+                    }
                     s = new StringBuilder();
                     for (Coordinates c : dataPointsArray) {
                         s.append(Arrays.toString(c.getCoordinates()));
 
                     }
-                    logger.info(s.toString());
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(s.toString());
+                    }
                     List<Coordinates> newCentroidList = calculateNewCentroids(dataPointsArray);
 
                     centroidShifted = !intermediateCentroidList.equals(newCentroidList);
-
-                    logger.info("centroid list");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("centroid list");
+                    }
                     s = new StringBuilder();
                     for (Coordinates c : model.getCentroidList()) {
                         s.append(Arrays.toString(c.getCoordinates()));
                     }
-                    logger.info(s.toString());
-                    logger.info("new centroid list");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(s.toString());
+                        logger.debug("new centroid list");
+                    }
                     s = new StringBuilder();
                     for (Coordinates c : newCentroidList) {
                         s.append(Arrays.toString(c.getCoordinates()));
                     }
-                    logger.info(s.toString());
-
-                    logger.info("Centroid shifted? = " + centroidShifted);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(s.toString());
+                        logger.debug("Centroid shifted? = " + centroidShifted);
+                    }
                     if (!centroidShifted) {
                         break;
                     }
@@ -233,12 +248,16 @@ public class Clusterer {
                     }
                     iter++;
                 }
-                logger.info("old centroid list");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("old centroid list");
+                }
                 s = new StringBuilder();
                 for (Coordinates c : oldCentroidList) {
                     s.append(Arrays.toString(c.getCoordinates()));
                 }
-                logger.info(s.toString());
+                if (logger.isDebugEnabled()) {
+                    logger.debug(s.toString());
+                }
                 for (int i = 0; i < numberOfClusters; i++) {
                     if (countOfDataPointsAssignedToEachCentroid[i] > 0) {
                         double[] weightedCoordinates = new double[dimensionality];
@@ -246,7 +265,9 @@ public class Clusterer {
                         double[] newCoordinates = intermediateCentroidList.get(i).getCoordinates();
                         Arrays.setAll(weightedCoordinates, j -> Math.round(((1 - decayRate) * oldCoordinates[j] +
                                 decayRate * newCoordinates[j]) * 10000.0) / 10000.0);
-                        logger.info("weighted" + Arrays.toString(weightedCoordinates));
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("weighted" + Arrays.toString(weightedCoordinates));
+                        }
                         intermediateCentroidList.get(i).setCoordinates(weightedCoordinates);
                         //model.update(i, weightedCoordinates);
                     } else {
@@ -255,12 +276,16 @@ public class Clusterer {
                     }
                 }
                 model.setCentroidList(intermediateCentroidList);
-                logger.info("weighted centroid list");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("weighted centroid list");
+                }
                 s = new StringBuilder();
                 for (Coordinates c : model.getCentroidList()) {
                     s.append(Arrays.toString(c.getCoordinates()));
                 }
-                logger.info(s.toString());
+                if (logger.isDebugEnabled()) {
+                    logger.debug(s.toString());
+                }
             }
         }
     }

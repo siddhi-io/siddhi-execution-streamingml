@@ -18,6 +18,7 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.Clusterer;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.DataPoint;
@@ -135,6 +136,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
                                    ExpressionExecutor[] attributeExpressionExecutors,
                                    ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         dataPointsArray = new LinkedList<>();
+        logger.setLevel(Level.ALL);
 
         //expressionExecutors[0] --> modelName
         if (!(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
@@ -152,7 +154,9 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
         int numberOfClusters;
         if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
             if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
-                logger.debug("decayRate not specified. using default");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("decayRate not specified. using default");
+                }
                 decayRate = 0.01f;
                 coordinateStartIndex = 2;
                 numberOfClusters = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
@@ -161,7 +165,9 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
             }
         } else if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.FLOAT) {
             if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
-                logger.debug("decayRate is specified.");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("decayRate is specified.");
+                }
                 decayRate = (Float) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
 
                 if (decayRate < 0 || decayRate > 1) {
@@ -202,7 +208,9 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
 
         String siddhiAppName = siddhiAppContext.getName();
         modelName = modelName + "." + siddhiAppName;
-        logger.debug("model name is " + modelName);
+        if (logger.isDebugEnabled()) {
+            logger.debug("model name is " + modelName);
+        }
         int maxIterations = 2;
         clusterer = new Clusterer(numberOfClusters, maxIterations, modelName, siddhiAppName, dimensionality);
 
@@ -222,6 +230,9 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
                 StreamEvent streamEvent = streamEventChunk.next();
 
                 numberOfEventsReceived++;
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Number of events received : " + numberOfEventsReceived);
+                }
 
                 //validating and getting coordinate values
                 for (int i = coordinateStartIndex; i < coordinateStartIndex + dimensionality; i++) {
@@ -274,7 +285,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
             map.put("untrainedData", dataPointsArray);
             map.put("modelTrained", modelTrained);
             map.put("numberOfEventsReceived", numberOfEventsReceived);
-            map.put("model", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
+            map.put("modelMap", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
             return map;
         }
     }
@@ -285,8 +296,8 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
             dataPointsArray = (LinkedList<DataPoint>) map.get("untrainedData");
             modelTrained = (Boolean) map.get("modelTrained");
             numberOfEventsReceived = (Integer) map.get("numberOfEventsReceived");
-            KMeansModel model1 = (KMeansModel) map.get("model");
-            clusterer.setModel(model1);
+            Map<String, KMeansModel> modelMap = (Map<String, KMeansModel>) map.get("modelMap");
+            KMeansModelHolder.getInstance().setKMeansModelMap(modelMap);
         }
     }
 
