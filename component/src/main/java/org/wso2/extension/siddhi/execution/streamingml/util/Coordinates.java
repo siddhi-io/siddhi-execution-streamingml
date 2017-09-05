@@ -19,10 +19,8 @@
 package org.wso2.extension.siddhi.execution.streamingml.util;
 
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-
 import java.io.Serializable;
 import java.util.Arrays;
-
 
 /**
  * Object which holds the data about coordinate values in a multidimensional space
@@ -30,7 +28,6 @@ import java.util.Arrays;
  */
 public class Coordinates implements Serializable {
     static final long serialVersionUID = 1L;
-
     private double[] coordinates;
 
     public double[] getCoordinates() {
@@ -66,7 +63,6 @@ public class Coordinates implements Serializable {
         }
 
         Coordinates that = (Coordinates) o;
-
         return Arrays.equals(getCoordinates(), that.getCoordinates());
     }
 

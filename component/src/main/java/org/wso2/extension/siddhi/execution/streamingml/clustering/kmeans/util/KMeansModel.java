@@ -20,7 +20,6 @@ package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
 
 import org.wso2.extension.siddhi.execution.streamingml.util.Coordinates;
-
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;

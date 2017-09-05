@@ -21,7 +21,6 @@ package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.util.Coordinates;
 import org.wso2.extension.siddhi.execution.streamingml.util.MathUtil;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -48,7 +47,6 @@ public class Clusterer {
      */
     public Clusterer(int numberOfClusters, int maximumIterations, String modelName, String siddhiAppName,
                      int dimensionality) {
-        //logger.setLevel(Level.ALL);
         model = KMeansModelHolder.getInstance().getKMeansModel(modelName);
         if (model == null) {
             model = new KMeansModel();
@@ -87,7 +85,7 @@ public class Clusterer {
         return modelTrained;
     }
 
-    public void train(LinkedList<DataPoint> dataPointsArray, int numberOfEventsToRetrain, float decayRate,
+    public void train(LinkedList<DataPoint> dataPointsArray, int numberOfEventsToRetrain, double decayRate,
                       ExecutorService executorService) {
         if ((!initialTrained)) {
             cluster(dataPointsArray);
@@ -99,8 +97,7 @@ public class Clusterer {
         }
     }
 
-
-    private void periodicTraining(int numberOfEventsToRetrain, float decayRate, ExecutorService executorService,
+    private void periodicTraining(int numberOfEventsToRetrain, double decayRate, ExecutorService executorService,
                                   LinkedList<DataPoint> dataPointsArray) {
         int minBatchSizeToTriggerSeparateThread = 10; //TODO: test and tune to optimum value
         if (numberOfEventsToRetrain < minBatchSizeToTriggerSeparateThread) {
@@ -121,8 +118,6 @@ public class Clusterer {
 
     public void setModel(KMeansModel m) {
         model = m;
-//        initialTrained = true;
-//        modelTrained = true;
     }
 
     /**
@@ -177,7 +172,7 @@ public class Clusterer {
      * @param dataPointsArray
      * @param decayRate       should be in [0,1]
      */
-    public void updateCluster(List<DataPoint> dataPointsArray, float decayRate) {
+    public void updateCluster(List<DataPoint> dataPointsArray, double decayRate) {
         if (logger.isDebugEnabled()) {
             logger.debug("Updating cluster");
         }
@@ -331,23 +326,20 @@ public class Clusterer {
      * @return an Object[] array as mentioned above
      */
     public Object[] getAssociatedCentroidInfo(DataPoint currentDatapoint) {
-
         Coordinates associatedCentroid = findAssociatedCentroid(currentDatapoint);
         double minDistance = MathUtil.euclideanDistance(currentDatapoint.getCoordinates(),
                 associatedCentroid.getCoordinates());
         List<Double> associatedCentroidInfoList = new ArrayList<Double>();
         associatedCentroidInfoList.add(minDistance);
+
         for (double x : associatedCentroid.getCoordinates()) {
             associatedCentroidInfoList.add(x);
         }
 
         Object[] associatedCentroidInfo = new Object[associatedCentroidInfoList.size()];
-
         associatedCentroidInfoList.toArray(associatedCentroidInfo);
-
         return associatedCentroidInfo;
     }
-
 
     /**
      * after assigning data points to closest centroids this method calculates new centroids using

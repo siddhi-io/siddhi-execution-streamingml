@@ -18,7 +18,6 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,9 +25,7 @@ import java.util.Map;
  * singleton to store the kmeans models
  */
 public class KMeansModelHolder {
-
     private static final KMeansModelHolder instance = new KMeansModelHolder();
-
     private Map<String, KMeansModel> kMeansModelMap = new HashMap<>();
 
     private KMeansModelHolder(){
