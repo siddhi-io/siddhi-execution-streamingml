@@ -572,7 +572,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
                 "SiddhiApp");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String trainingStream1 = "@App:name('HoeffdingTestApp') \n" +
+        String trainingStream1 = "@App:name('HoeffdingTreeTestApp1') \n" +
                 "define stream StreamTrain (attribute_0 double, " +
                 "attribute_1 double, attribute_2 double, attribute_3 double, attribute_4 string );";
         String trainingQuery1 = ("@info(name = 'query-train') " +
@@ -580,7 +580,7 @@ public class HoeffdingClassifierUpdaterStreamProcessorExtensionTestCase {
                 "attribute_0, attribute_1, attribute_2, attribute_3, attribute_4) \n"
                 + "insert all events into trainOutputStream;\n");
 
-        String trainingStrream2 = "@App:name('HoeffdingTreeTestApp') define stream StreamTrain (attribute_0 double, "
+        String trainingStrream2 = "@App:name('HoeffdingTreeTestApp2') define stream StreamTrain (attribute_0 double, "
                 + "attribute_1 double, attribute_2 double,attribute_3 string );";
         String trainingQuery2 = ("@info(name = 'query-train') "
                 + "from StreamTrain#streamingml:updateHoeffdingTree('ml', 3, "

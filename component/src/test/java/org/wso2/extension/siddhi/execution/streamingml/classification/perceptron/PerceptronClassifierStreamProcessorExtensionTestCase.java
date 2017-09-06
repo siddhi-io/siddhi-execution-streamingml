@@ -28,7 +28,10 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Testing @{@link PerceptronClassifierStreamProcessorExtension}
@@ -36,7 +39,7 @@ import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     private static final Logger logger = Logger.getLogger(PerceptronClassifierStreamProcessorExtensionTestCase.class);
-    private volatile int count;
+    private AtomicInteger count;
     private String trainingStream = "@App:name('PerceptronTestApp') \ndefine stream StreamTrain (attribute_0 double, " +
             "attribute_1 double, attribute_2 " + "double, attribute_3 double, attribute_4 string );";
     private String trainingQuery = ("@info(name = 'query-train') from " +
@@ -46,7 +49,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
     @BeforeMethod
     public void init() {
-        count = 0;
+        count = new AtomicInteger(0);
     }
 
     @Test
@@ -65,17 +68,17 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
-                if (count == 1) {
+                count.incrementAndGet();
+                if (count.get() == 1) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001},
                             inEvents[0].getData());
-                } else if (count == 2) {
+                } else if (count.get() == 2) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144},
                             inEvents[0].getData());
-                } else if (count == 3) {
+                } else if (count.get() == 3) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, false, 0.333926}, inEvents[0]
                             .getData());
-                } else if (count == 4) {
+                } else if (count.get() == 4) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, true, 0.5128304},
                             inEvents[0].getData());
                 }
@@ -113,8 +116,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             inputHandler1.send(new Object[]{0.8, 0.67, 0.1, 0.03});
             inputHandler1.send(new Object[]{0.33, 0.23, 0.632, 0.992});
 
-            AssertJUnit.assertEquals(4, count);
-            Thread.sleep(1100);
+            SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
@@ -136,7 +138,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("model.features in 7th parameter is not a numerical "
                     + "type attribute. Found BOOL. Check the input stream definition"));
@@ -157,7 +159,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for the model.bias argument" +
                     "." + " Expected: DOUBLE but found: INT"));
@@ -178,7 +180,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for the model.threshold " +
                     "argument. Expected: DOUBLE but found: INT"));
@@ -199,7 +201,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter value found for the model.threshold " +
                     "argument. Expected a value between 0 & 1, but found: 1.1"));
@@ -220,7 +222,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Parameter model.name must be a constant but found org" +
                     ".wso2.siddhi.core.executor.VariableExpressionExecutor"));
@@ -264,13 +266,13 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
+                count.incrementAndGet();
                 EventPrinter.print(inEvents);
                 // should emit probabilities
-                if (count == 1) {
+                if (count.get() == 1) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001},
                             inEvents[0].getData());
-                } else if (count == 2) {
+                } else if (count.get() == 2) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144},
                             inEvents[0].getData());
                 }
@@ -293,8 +295,8 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             // send some unseen data for prediction
             inputHandler1.send(new Object[]{0.8, 0.67, 0.1, 0.03});
             inputHandler1.send(new Object[]{0.33, 0.23, 0.632, 0.992});
-            AssertJUnit.assertEquals(2, count);
-            Thread.sleep(1100);
+
+            SiddhiTestHelper.waitForEvents(200, 2, count, 60000);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
@@ -318,7 +320,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             AssertJUnit.fail();
         } catch (Exception e) {
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e.getMessage().contains("Model [model1] expects 4 features, but the " +
                     "streamingml:perceptronClassifier specifies 3 features"));
         }
@@ -337,7 +339,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for the model.name argument," +
                     "" + " required STRING but found DOUBLE"));
@@ -379,7 +381,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid number of parameters for " +
                     "streamingml:perceptronClassifier. This Stream Processor requires at most 7 parameters, " +
@@ -403,13 +405,13 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                count++;
+                count.incrementAndGet();
                 EventPrinter.print(inEvents);
                 // should emit probabilities
-                if (count == 1) {
+                if (count.get() == 1) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.67, 0.1, 0.03, true, 0.5263760000000001},
                             inEvents[0].getData());
-                } else if (count == 2) {
+                } else if (count.get() == 2) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.33, 0.23, 0.632, 0.992, false, 0.2779144},
                             inEvents[0].getData());
                 }
@@ -432,8 +434,8 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             // send some unseen data for prediction
             inputHandler1.send(new Object[]{0.8, 0.67, 0.1, 0.03});
             inputHandler1.send(new Object[]{0.33, 0.23, 0.632, 0.992});
-            AssertJUnit.assertEquals(2, count);
-            Thread.sleep(1100);
+
+            SiddhiTestHelper.waitForEvents(200, 2, count, 60000);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
@@ -500,7 +502,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
             AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter value found for the model.threshold " +
                     "argument. Expected a value between 0 & 1, but found: -0.1"));

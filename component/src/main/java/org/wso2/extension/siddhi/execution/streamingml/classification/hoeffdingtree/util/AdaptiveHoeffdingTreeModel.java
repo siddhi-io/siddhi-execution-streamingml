@@ -90,6 +90,8 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
 
 
     /**
+     * Configure Hoeffding Adaptive Tree Model with hyper-parameters.
+     *
      * @param gracePeriod            number of instances a leaf should observe between split attempts.
      * @param splittingCriteria      Split criterion to use. 0:InfoGainSplitCriterion, 1:GiniSplitCriterion".
      * @param allowableSplitError    Allowable error in split decision, values closer to 0 will take.
@@ -133,7 +135,6 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
         hoeffdingAdaptiveTree.trainOnInstanceImpl(trainInstance);
     }
 
-
     /**
      * @param modelEvaluation Prequential Model Evaluator.
      * @param cepEvent        event data
@@ -157,7 +158,6 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
         modelEvaluation.addResult(trainInstance, votes);
         return MathUtil.roundOff(modelEvaluation.getFractionCorrectlyClassified(), 3);
     }
-
 
     /**
      * @param cepEvent Event data.
@@ -193,7 +193,6 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
         streamHeader.setClassIndex(streamHeader.numAttributes());
         return streamHeader;
     }
-
 
     private int addClass(String label) {
         // Set class value
@@ -237,7 +236,6 @@ public class AdaptiveHoeffdingTreeModel extends AbstractOptionHandler {
 
     @Override
     protected void prepareForUseImpl(TaskMonitor taskMonitor, ObjectRepository objectRepository) {
-
     }
 }
 

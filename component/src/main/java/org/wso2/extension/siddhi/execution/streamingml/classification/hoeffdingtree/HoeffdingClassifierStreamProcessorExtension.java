@@ -183,7 +183,6 @@ public class HoeffdingClassifierStreamProcessorExtension extends StreamProcessor
                                 + " at position %s. Not of any numeric type. Please refer the stream definition "
                                 + "for Model[%s]", (i + 1), modelName));
                     }
-
                 }
                 AdaptiveHoeffdingTreeModel model = AdaptiveHoeffdingModelsHolder.getInstance()
                         .getHoeffdingModel(modelName);
