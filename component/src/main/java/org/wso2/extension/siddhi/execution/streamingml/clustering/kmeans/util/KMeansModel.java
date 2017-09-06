@@ -18,9 +18,9 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
-
-import org.wso2.extension.siddhi.execution.streamingml.util.Coordinates;
+import org.apache.log4j.Logger;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,53 +29,86 @@ import java.util.List;
  */
 public class KMeansModel implements Serializable {
     static final long serialVersionUID = 1L;
-    private List<Coordinates> centroidList;
+    private List<Cluster> clusterList;
+    private static final Logger logger = Logger.getLogger(KMeansModel.class.getName());
 
     public KMeansModel() {
-        centroidList = new LinkedList<>();
+        clusterList = new LinkedList<>();
+        //logger.setLevel(Level.ALL);
     }
 
-    public KMeansModel(List<Coordinates> centroidList) {
-        this.centroidList = centroidList;
+    public KMeansModel(List<Cluster> clusterList) {
+        this.clusterList = clusterList;
     }
 
-    public synchronized List<Coordinates> getCentroidList() {
-        return centroidList;
+    public synchronized List<Cluster> getClusterList() {
+        return clusterList;
     }
 
-    public synchronized void setCentroidList(List<Coordinates> centroidList) {
-        this.centroidList = centroidList;
+    public synchronized void setClusterList(List<Cluster> clusterList) {
+        this.clusterList = clusterList;
     }
 
     public synchronized void clear() {
-        centroidList.clear();
+        clusterList.clear();
     }
 
-    public synchronized boolean contains(Coordinates x) {
-        return centroidList.contains(x);
+    public synchronized void clearClusterMembers() {
+        for (Cluster c: clusterList) {
+            if (c != null) {
+                c.clearDataPointsInCluster();
+            }
+        }
     }
 
-    public synchronized void add(Coordinates x) {
-        centroidList.add(x);
+    public synchronized boolean contains(DataPoint x) {
+        for (Cluster c: clusterList) {
+            if (c.getCentroid().equals(x)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public synchronized void add(DataPoint x) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("adding a new cluster with centroid " + Arrays.toString(x.getCoordinates()));
+        }
+        Cluster c = new Cluster(x);
+        clusterList.add(c);
     }
 
     public synchronized void update(int index, double[] x) {
-        centroidList.get(index).setCoordinates(x);
+        clusterList.get(index).getCentroid().setCoordinates(x);
     }
 
     public synchronized int size() {
-        return centroidList.size();
+        return clusterList.size();
     }
 
-    public synchronized double[] getCoordinatesOfCentroid(int index) {
-        return centroidList.get(index).getCoordinates();
+    public synchronized double[] getCoordinatesOfCentroidOfCluster(int index) {
+        return clusterList.get(index).getCentroid().getCoordinates();
     }
 
-    public synchronized Coordinates getCentroid(int index) {
-        return centroidList.get(index);
+    public synchronized DataPoint getCentroidOfCluster(int index) {
+        return clusterList.get(index).getCentroid();
     }
 
-    public synchronized int indexOf(Coordinates x) {
-        return centroidList.indexOf(x);
+    public synchronized int indexOf(DataPoint x) {
+        for (int i = 0; i < clusterList.size(); i++) {
+            if (clusterList.get(i).getCentroid().equals(x)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public synchronized String getModelInfo() {
+        StringBuilder s = new StringBuilder();
+        for (Cluster c: clusterList) {
+            s.append(Arrays.toString(c.getCentroid().getCoordinates())).append(" with members : ")
+                    .append(c.getMemberInfo()).append("\n");
+        }
+        return s.toString();
     }
 }

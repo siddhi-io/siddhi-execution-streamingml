@@ -54,9 +54,8 @@ public class KMeansModelHolder {
     public Map<String, KMeansModel> getClonedKMeansModelMap() {
         Map<String, KMeansModel> clonedMap = new HashMap<>();
         for (Map.Entry<String, KMeansModel> entry: kMeansModelMap.entrySet()) {
-            clonedMap.put(entry.getKey(), new KMeansModel(entry.getValue().getCentroidList()));
+            clonedMap.put(entry.getKey(), new KMeansModel(entry.getValue().getClusterList()));
         }
-
         return clonedMap;
     }
 }

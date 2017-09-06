@@ -18,31 +18,54 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
-import org.wso2.extension.siddhi.execution.streamingml.util.Coordinates;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import java.io.Serializable;
+import java.util.Arrays;
 
 /**
- * Object which holds the data to be clustered and the
- * associatedCentroid, the centroid to which it belongs to
+ * Object which holds the data from each event and information about centroids in terms of coordinates
  */
-public class DataPoint extends Coordinates {
+public class DataPoint implements Serializable {
     static final long serialVersionUID = 1L;
-    private Coordinates associatedCentroid;
+    private double[] coordinates;
 
-    public Coordinates getAssociatedCentroid() {
-        return associatedCentroid;
+    public double[] getCoordinates() {
+        if (coordinates != null) {
+            return coordinates.clone();
+        } else {
+            throw new SiddhiAppValidationException("No coordinates have been set. Hence null return value.");
+        }
     }
 
-    public void setAssociatedCentroid(Coordinates associatedCentroid) {
-        this.associatedCentroid = associatedCentroid;
+    public void setCoordinates(double[] coordinates) {
+        if (this.coordinates != null) {
+            if (this.coordinates.length == coordinates.length) {
+                this.coordinates = coordinates.clone();
+            } else {
+                throw new SiddhiAppValidationException("The dimensionality of the coordinate is " +
+                        this.coordinates.length + " but the dimensionality of the received array is " +
+                        coordinates.length);
+            }
+        } else  {
+            this.coordinates = coordinates.clone();
+        }
     }
 
     @Override
     public boolean equals(Object o) {
-        return super.equals(o);
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DataPoint)) {
+            return false;
+        }
+
+        DataPoint that = (DataPoint) o;
+        return Arrays.equals(getCoordinates(), that.getCoordinates());
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Arrays.hashCode(getCoordinates());
     }
 }

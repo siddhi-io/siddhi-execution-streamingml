@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class KMeansIncrementalSPExtensionTest {
 
-    private static final Logger logger = Logger.getLogger(KMeansStreamProcessorExtensionTest.class);
+    private static final Logger logger = Logger.getLogger(KMeansIncrementalSPExtensionTest.class);
     private volatile AtomicInteger count;
     @BeforeMethod
     public void init() {
@@ -740,49 +740,49 @@ public class KMeansIncrementalSPExtensionTest {
         }
     }
 
-//    @Test
-//    public void testClusteringLengthWindow2D_19() throws Exception {
-//        logger.info("KMeansIncrementalSPExtension Test - standard dataset at " +
-//                "https://archive.ics.uci.edu/ml/datasets/3D+Road+Network+%28North+Jutland%2C+Denmark%29");
-//        SiddhiManager siddhiManager = new SiddhiManager();
-//        String inputStream = "define stream InputStream (x1 double, x2 double, x3 double, x4 double);";
-//
-//        String query = (
-//                "@info(name = 'query1') " +
-//                        "from InputStream#streamingml:kMeansIncremental('model19', 0.001, 2, x1, x2, x3, x4) " +
-//                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x1, x2, x3, x4 " +
-//                        "insert into OutputStream;");
-//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-//
-//        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-//            @Override
-//            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-//                EventPrinter.print(timeStamp, inEvents, removeEvents);
-//            }
-//        });
-//
-//        Scanner scanner = null;
-//        siddhiAppRuntime.start();
-//        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
-//        try {
-//            File file = new File("src/test/resources/3D_spatial_network.csv");
-//            FileReader fileReader = new FileReader(file);
-//            BufferedReader bufferedReader = new BufferedReader(fileReader);
-//            scanner = new Scanner(bufferedReader);
-//
-//            while (scanner.hasNext()) {
-//                String eventStr = scanner.nextLine();
-//                String[] event = eventStr.split(",");
-//                inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]),
-//                        Double.valueOf(event[2]), Double.valueOf(event[3])});
-//            }
-//
-//        } catch (Exception e) {
-//            logger.error(e.getMessage());
-//        } finally {
-//            siddhiAppRuntime.shutdown();
-//        }
-//    }
+    @Test
+    public void testClusteringLengthWindow2D_19() throws Exception {
+        logger.info("KMeansIncrementalSPExtension Test - standard dataset at " +
+                "https://archive.ics.uci.edu/ml/datasets/3D+Road+Network+%28North+Jutland%2C+Denmark%29");
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String inputStream = "define stream InputStream (x1 double, x2 double, x3 double, x4 double);";
+
+        String query = (
+                "@info(name = 'query1') " +
+                        "from InputStream#streamingml:kMeansIncremental('model19', 0.001, 2, x1, x2, x3, x4) " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x1, x2, x3, x4 " +
+                        "insert into OutputStream;");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
+
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                //EventPrinter.print(timeStamp, inEvents, removeEvents);
+            }
+        });
+
+        Scanner scanner = null;
+        siddhiAppRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
+        try {
+            File file = new File("src/test/resources/3D_spatial_network.csv");
+            FileReader fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            scanner = new Scanner(bufferedReader);
+
+            while (scanner.hasNext()) {
+                String eventStr = scanner.nextLine();
+                String[] event = eventStr.split(",");
+                inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]),
+                        Double.valueOf(event[2]), Double.valueOf(event[3])});
+            }
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }
 
 //    @Test
 //    public void testClusteringLengthWindow2D_20() throws Exception {
