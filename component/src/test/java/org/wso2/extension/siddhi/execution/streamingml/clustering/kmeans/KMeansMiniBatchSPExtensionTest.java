@@ -19,7 +19,6 @@
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans;
 
 import org.apache.log4j.Logger;
-
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,13 +31,12 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class KMeansMiniBatchSPExtensionTest {
 
-    private static final Logger logger = Logger.getLogger(KMeansStreamProcessorExtensionTest.class);
+    private static final Logger logger = Logger.getLogger(KMeansMiniBatchSPExtensionTest.class);
     private volatile AtomicInteger count;
     @BeforeMethod
     public void init() {
@@ -204,7 +202,8 @@ public class KMeansMiniBatchSPExtensionTest {
         String query = (
                 "@info(name = 'query1') " +
                         "from InputStream#streamingml:kMeansMiniBatch('model3', 5, 10, 20, x, y, z) " +
-                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, closestCentroidCoordinate3 " +
+                        "select x, y, z, closestCentroidCoordinate1, closestCentroidCoordinate2, " +
+                        "closestCentroidCoordinate3 " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
@@ -240,6 +239,7 @@ public class KMeansMiniBatchSPExtensionTest {
             inputHandler.send(new Object[]{29.5058, 26.2186, 23.2569});
             inputHandler.send(new Object[]{31.504, 35.2271, 30.861});
             inputHandler.send(new Object[]{43.8162, 42.5516, 42.1917});
+
             inputHandler.send(new Object[]{6.802, 5.622, 0.0968});
             inputHandler.send(new Object[]{14.9855, 14.9271, 14.6778});
             inputHandler.send(new Object[]{22.8387, 29.0477, 23.7825});
@@ -260,6 +260,7 @@ public class KMeansMiniBatchSPExtensionTest {
             inputHandler.send(new Object[]{26.1163, 27.9993, 29.4323});
             inputHandler.send(new Object[]{30.1437, 36.8126, 35.784});
             inputHandler.send(new Object[]{43.5106, 41.1323, 44.9021});
+
             inputHandler.send(new Object[]{0.8561, 9.8248, 3.7628});
             inputHandler.send(new Object[]{19.8792, 17.9442, 17.8631});
             inputHandler.send(new Object[]{24.351, 25.887, 20.1706});
@@ -833,6 +834,25 @@ public class KMeansMiniBatchSPExtensionTest {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
+                    for (Event event: inEvents) {
+                        count.incrementAndGet();
+
+                        switch (count.get()) {
+                            case 4:
+                                AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
+                                        event.getData(0), event.getData(1)});
+                                break;
+                            case 5:
+                                AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
+                                        event.getData(0), event.getData(1)});
+                                break;
+                            case 6:
+                                AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{
+                                        event.getData(0), event.getData(1)});
+                                break;
+
+                        }
+                    }
                 }
             });
             siddhiAppRuntime.start();

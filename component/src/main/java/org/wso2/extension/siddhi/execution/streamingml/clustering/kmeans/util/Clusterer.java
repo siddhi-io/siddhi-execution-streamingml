@@ -19,7 +19,6 @@
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.execution.streamingml.util.Coordinates;
 import org.wso2.extension.siddhi.execution.streamingml.util.MathUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +38,6 @@ public class Clusterer {
     private String siddhiAppName;
     private KMeansModel model;
     private int dimensionality;
-    private int[] countOfDataPointsAssignedToEachCentroid;
     private static final Logger logger = Logger.getLogger(Clusterer.class.getName());
 
     /**
@@ -48,6 +46,7 @@ public class Clusterer {
     public Clusterer(int numberOfClusters, int maximumIterations, String modelName, String siddhiAppName,
                      int dimensionality) {
         model = KMeansModelHolder.getInstance().getKMeansModel(modelName);
+        //logger.setLevel(Level.ALL);
         if (model == null) {
             model = new KMeansModel();
             KMeansModelHolder.getInstance().addKMeansModel(modelName, model);
@@ -74,7 +73,6 @@ public class Clusterer {
         this.maximumIterations = maximumIterations;
         this.siddhiAppName = siddhiAppName;
         this.dimensionality = dimensionality;
-        this.countOfDataPointsAssignedToEachCentroid = new int[numberOfClusters];
     }
 
     public boolean isInitialTrained() {
@@ -99,7 +97,7 @@ public class Clusterer {
 
     private void periodicTraining(int numberOfEventsToRetrain, double decayRate, ExecutorService executorService,
                                   LinkedList<DataPoint> dataPointsArray) {
-        int minBatchSizeToTriggerSeparateThread = 10; //TODO: test and tune to optimum value
+        int minBatchSizeToTriggerSeparateThread = 100; //TODO: test and tune to optimum value
         if (numberOfEventsToRetrain < minBatchSizeToTriggerSeparateThread) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Traditional training in " + siddhiAppName);
@@ -133,19 +131,31 @@ public class Clusterer {
         if (dataPointsArray.size() != 0 && (model.size() == numberOfClusters)) {
             boolean centroidShifted = false;
             while (iter < maximumIterations) {
+                logger.debug("Current model : \n" + model.getModelInfo());
+                logger.debug("clustering iteration : " + iter);
                 assignToCluster(dataPointsArray);
-                List<Coordinates> newCentroidList = calculateNewCentroids(dataPointsArray);
+                logger.debug("Current model : \n" + model.getModelInfo());
+                List<Cluster> newClusterList = calculateNewClusters();
 
-                centroidShifted = !model.getCentroidList().equals(newCentroidList);
+                logger.debug("previous model : " + printClusterList(model.getClusterList()));
+                logger.debug("new model : " + printClusterList(newClusterList));
+                centroidShifted = !model.getClusterList().equals(newClusterList);
+                logger.debug("centroid shifted?" + centroidShifted);
                 if (!centroidShifted) {
                     break;
                 }
-                for (int i = 0; i < numberOfClusters; i++) {
-                    model.update(i, newCentroidList.get(i).getCoordinates());
-                }
+                model.setClusterList(newClusterList);
                 iter++;
             }
         }
+    }
+
+    public String printClusterList(List<Cluster> clusterList) {
+        StringBuilder s = new StringBuilder();
+        for (Cluster c: clusterList) {
+            s.append(Arrays.toString(c.getCentroid().getCoordinates()));
+        }
+        return s.toString();
     }
 
     public void buildModel(List<DataPoint> dataPointsArray) {
@@ -154,7 +164,7 @@ public class Clusterer {
             if (distinctCount >= numberOfClusters) {
                 break;
             }
-            Coordinates coordinatesOfCurrentDataPoint = new Coordinates();
+            DataPoint coordinatesOfCurrentDataPoint = new DataPoint();
             coordinatesOfCurrentDataPoint.setCoordinates(currentDataPoint.getCoordinates());
             if (!model.contains(coordinatesOfCurrentDataPoint)) {
                 model.add(coordinatesOfCurrentDataPoint);
@@ -175,111 +185,81 @@ public class Clusterer {
     public void updateCluster(List<DataPoint> dataPointsArray, double decayRate) {
         if (logger.isDebugEnabled()) {
             logger.debug("Updating cluster");
+            logger.debug("model at the start of this update : ");
+            logger.debug(model.getModelInfo());
         }
         StringBuilder s;
-
-        List<Coordinates> intermediateCentroidList = new LinkedList<>();
-
+        List<Cluster> intermediateClusterList = new LinkedList<>();
 
         int iter = 0;
         if (dataPointsArray.size() != 0) {
-
             //when number of elements in centroid list is less than numberOfClusters
             if (model.size() < numberOfClusters) {
                 buildModel(dataPointsArray);
             }
-
             if (model.size() == numberOfClusters) {
-                ArrayList<Coordinates> oldCentroidList = new ArrayList<>(numberOfClusters);
+                ArrayList<Cluster> oldClusterList = new ArrayList<>(numberOfClusters);
                 for (int i = 0; i < numberOfClusters; i++) {
-                    Coordinates c = new Coordinates();
-                    Coordinates c1 = new Coordinates();
-                    c.setCoordinates(model.getCoordinatesOfCentroid(i));
-                    c1.setCoordinates(model.getCoordinatesOfCentroid(i));
-                    oldCentroidList.add(c);
-                    intermediateCentroidList.add(c1);
+                    DataPoint d = new DataPoint();
+                    DataPoint d1 = new DataPoint();
+                    d.setCoordinates(model.getCoordinatesOfCentroidOfCluster(i));
+                    d1.setCoordinates(model.getCoordinatesOfCentroidOfCluster(i));
+                    Cluster c = new Cluster(d);;
+                    Cluster c1 = new Cluster(d1);
+                    oldClusterList.add(c);
+                    intermediateClusterList.add(c1);
                 }
                 boolean centroidShifted = false;
                 while (iter < maximumIterations) {
                     assignToCluster(dataPointsArray);
+                    s = new StringBuilder();
+                    for (DataPoint c : dataPointsArray) {
+                        s.append(Arrays.toString(c.getCoordinates()));
+
+                    }
+                    List<Cluster> newClusterList = calculateNewClusters();
+                    centroidShifted = !intermediateClusterList.equals(newClusterList);
                     if (logger.isDebugEnabled()) {
+                        logger.debug("current iteration : " + iter);
                         logger.debug("data points array");
-                    }
-                    s = new StringBuilder();
-                    for (Coordinates c : dataPointsArray) {
-                        s.append(Arrays.toString(c.getCoordinates()));
-
-                    }
-                    if (logger.isDebugEnabled()) {
                         logger.debug(s.toString());
-                    }
-                    List<Coordinates> newCentroidList = calculateNewCentroids(dataPointsArray);
-
-                    centroidShifted = !intermediateCentroidList.equals(newCentroidList);
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("centroid list");
-                    }
-                    s = new StringBuilder();
-                    for (Coordinates c : model.getCentroidList()) {
-                        s.append(Arrays.toString(c.getCoordinates()));
-                    }
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(s.toString());
-                        logger.debug("new centroid list");
-                    }
-                    s = new StringBuilder();
-                    for (Coordinates c : newCentroidList) {
-                        s.append(Arrays.toString(c.getCoordinates()));
-                    }
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(s.toString());
-                        logger.debug("Centroid shifted? = " + centroidShifted);
+                        logger.debug("Cluster list : ");
+                        logger.debug(printClusterList(intermediateClusterList));
+                        logger.debug("new cluster list ");
+                        logger.debug(printClusterList(newClusterList));
+                        logger.debug("Centroid shifted? = " + centroidShifted + "\n");
                     }
                     if (!centroidShifted) {
                         break;
                     }
+                    model.setClusterList(newClusterList);
                     for (int i = 0; i < numberOfClusters; i++) {
-                        intermediateCentroidList.get(i).setCoordinates(newCentroidList.get(i).getCoordinates());
+                        Cluster b = newClusterList.get(i);
+                        intermediateClusterList.get(i).getCentroid().setCoordinates(b.getCentroid().getCoordinates());
                     }
                     iter++;
                 }
                 if (logger.isDebugEnabled()) {
-                    logger.debug("old centroid list");
-                }
-                s = new StringBuilder();
-                for (Coordinates c : oldCentroidList) {
-                    s.append(Arrays.toString(c.getCoordinates()));
-                }
-                if (logger.isDebugEnabled()) {
-                    logger.debug(s.toString());
+                    logger.debug("old cluster list :");
+                    logger.debug(printClusterList(oldClusterList));
                 }
                 for (int i = 0; i < numberOfClusters; i++) {
-                    if (countOfDataPointsAssignedToEachCentroid[i] > 0) {
+                    if (model.getClusterList().get(i).getDataPointsInCluster().size() != 0) {
                         double[] weightedCoordinates = new double[dimensionality];
-                        double[] oldCoordinates = oldCentroidList.get(i).getCoordinates();
-                        double[] newCoordinates = intermediateCentroidList.get(i).getCoordinates();
+                        double[] oldCoordinates = oldClusterList.get(i).getCentroid().getCoordinates();
+                        double[] newCoordinates = intermediateClusterList.get(i).getCentroid().getCoordinates();
                         Arrays.setAll(weightedCoordinates, j -> Math.round(((1 - decayRate) * oldCoordinates[j] +
                                 decayRate * newCoordinates[j]) * 10000.0) / 10000.0);
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("weighted" + Arrays.toString(weightedCoordinates));
-                        }
-                        intermediateCentroidList.get(i).setCoordinates(weightedCoordinates);
-                        //model.update(i, weightedCoordinates);
+                        intermediateClusterList.get(i).getCentroid().setCoordinates(weightedCoordinates);
                     } else {
-                        intermediateCentroidList.get(i).setCoordinates(oldCentroidList.get(i).getCoordinates());
-                        //model.update(i, );
+                        intermediateClusterList.get(i).getCentroid().setCoordinates(
+                                oldClusterList.get(i).getCentroid().getCoordinates());
                     }
                 }
-                model.setCentroidList(intermediateCentroidList);
+                model.setClusterList(intermediateClusterList);
                 if (logger.isDebugEnabled()) {
                     logger.debug("weighted centroid list");
-                }
-                s = new StringBuilder();
-                for (Coordinates c : model.getCentroidList()) {
-                    s.append(Arrays.toString(c.getCoordinates()));
-                }
-                if (logger.isDebugEnabled()) {
-                    logger.debug(s.toString());
+                    logger.debug(printClusterList(model.getClusterList()));
                 }
             }
         }
@@ -287,13 +267,16 @@ public class Clusterer {
 
     /**
      * finds the nearest centroid to each data point in the input array
-     *
      * @param dataPointsArray arraylist containing datapoints for which we need to assign centroids
      */
     private void assignToCluster(List<DataPoint> dataPointsArray) {
+        logger.debug("Running function assignToCluster");
+        model.clearClusterMembers();
         for (DataPoint currentDataPoint : dataPointsArray) {
-            Coordinates associatedCentroid = findAssociatedCentroid(currentDataPoint);
-            currentDataPoint.setAssociatedCentroid(associatedCentroid);
+            Cluster associatedCluster = findAssociatedCluster(currentDataPoint);
+            logger.debug("Associated cluster of " + Arrays.toString(currentDataPoint.getCoordinates()) + " is " +
+             Arrays.toString(associatedCluster.getCentroid().getCoordinates()));
+            associatedCluster.addToCluster(currentDataPoint);
         }
     }
 
@@ -303,36 +286,37 @@ public class Clusterer {
      * @param currentDatapoint input DataPoint to which we need to find nearest centroid
      * @return centroid - the nearest centroid to the input DataPoint
      */
-    private Coordinates findAssociatedCentroid(DataPoint currentDatapoint) {
-        double minDistance = MathUtil.euclideanDistance(model.getCoordinatesOfCentroid(0),
+    private Cluster findAssociatedCluster(DataPoint currentDatapoint) {
+        double minDistance = MathUtil.euclideanDistance(model.getCoordinatesOfCentroidOfCluster(0),
                 currentDatapoint.getCoordinates());
-        Coordinates associatedCentroid = model.getCentroid(0);
+        Cluster associatedCluster = model.getClusterList().get(0);
         for (int i = 0; i < model.size(); i++) {
-            Coordinates centroid = model.getCentroid(i);
-            double dist = MathUtil.euclideanDistance(centroid.getCoordinates(), currentDatapoint.getCoordinates());
+            Cluster cluster = model.getClusterList().get(i);
+            double dist = MathUtil.euclideanDistance(cluster.getCentroid().getCoordinates(),
+                    currentDatapoint.getCoordinates());
             if (dist < minDistance) {
                 minDistance = dist;
-                associatedCentroid = centroid;
+                associatedCluster = cluster;
             }
         }
-        return associatedCentroid;
+        return associatedCluster;
     }
 
     /**
-     * similar to findAssociatedCentroid method but return an Object[] array with the distance
+     * similar to findAssociatedCluster method but return an Object[] array with the distance
      * to closest centroid and the coordinates of the closest centroid
      *
      * @param currentDatapoint the input dataPoint for which the closest centroid needs to be found
      * @return an Object[] array as mentioned above
      */
     public Object[] getAssociatedCentroidInfo(DataPoint currentDatapoint) {
-        Coordinates associatedCentroid = findAssociatedCentroid(currentDatapoint);
+        Cluster associatedCluster = findAssociatedCluster(currentDatapoint);
         double minDistance = MathUtil.euclideanDistance(currentDatapoint.getCoordinates(),
-                associatedCentroid.getCoordinates());
+                associatedCluster.getCentroid().getCoordinates());
         List<Double> associatedCentroidInfoList = new ArrayList<Double>();
         associatedCentroidInfoList.add(minDistance);
 
-        for (double x : associatedCentroid.getCoordinates()) {
+        for (double x : associatedCluster.getCentroid().getCoordinates()) {
             associatedCentroidInfoList.add(x);
         }
 
@@ -347,39 +331,22 @@ public class Clusterer {
      *
      * @return returns an array list of coordinate objects each representing a centroid
      */
-    private List<Coordinates> calculateNewCentroids(List<DataPoint> dataPointsArray) {
-        ArrayList<double[]> total = new ArrayList<>();
-        List<Coordinates> newCentroidList = new LinkedList<>();
+    private List<Cluster> calculateNewClusters() {
+        List<Cluster> newClusterList = new LinkedList<>();
 
-        for (int i = 0; i < numberOfClusters; i++) {
-            countOfDataPointsAssignedToEachCentroid[i] = 0;
-            total.add(new double[dimensionality]);
-
-            Coordinates c = new Coordinates();
-            newCentroidList.add(c);
-        }
-
-
-        for (int y = 0; y < dataPointsArray.size(); y++) {
-            Coordinates associatedCen = dataPointsArray.get(y).getAssociatedCentroid();
-            int index = model.indexOf(associatedCen);
-            int c = y;
-            countOfDataPointsAssignedToEachCentroid[index] += 1;
-            Arrays.setAll(total.get(index), i -> total.get(index)[i] + dataPointsArray.get(c).getCoordinates()[i]);
-        }
-
-        for (int j = 0; j < numberOfClusters; j++) {
-            if (countOfDataPointsAssignedToEachCentroid[j] > 0) {
-                for (int x = 0; x < dimensionality; x++) {
-                    double newValue = total.get(j)[x] / countOfDataPointsAssignedToEachCentroid[j];
-                    newValue = Math.round(newValue * 10000.0) / 10000.0;
-                    total.get(j)[x] = newValue;
-                }
-                newCentroidList.get(j).setCoordinates(total.get(j));
-            } else {
-                newCentroidList.get(j).setCoordinates(total.get(j));
+        for (Cluster c: model.getClusterList()) {
+            double[] total;
+            total = new double[dimensionality];
+            for (DataPoint d: c.getDataPointsInCluster()) {
+                Arrays.setAll(total, i -> total[i] + d.getCoordinates()[i]);
             }
+            Arrays.setAll(total, i -> Math.round((total[i] / c.getDataPointsInCluster().size()) * 10000.0) / 10000.0);
+
+            DataPoint d1 = new DataPoint();
+            d1.setCoordinates(total);
+            Cluster c1 = new Cluster(d1);
+            newClusterList.add(c1);
         }
-        return newCentroidList;
+        return newClusterList;
     }
 }

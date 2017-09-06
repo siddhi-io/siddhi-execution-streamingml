@@ -154,6 +154,7 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
                                    SiddhiAppContext siddhiAppContext) {
         //expressionExecutors[0] --> modelName
         dataPointsArray = new LinkedList<>();
+        //logger.setLevel(Level.ALL);
 
         int numberOfClusters;
         if (!(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
@@ -197,10 +198,10 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
             }
 
         } else if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
+            decayRate = 0.01;
             if (logger.isDebugEnabled()) {
                 logger.debug("Decay rate is not specified. using default " + decayRate);
             }
-            decayRate = 0.01;
             coordinateStartIndex = 4;
             numberOfClusters = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
         } else {
@@ -297,7 +298,8 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
 
                 //handling the training
                 if (numberOfEventsReceived % numberOfEventsToRetrain == 0) {
-                    clusterer.train(dataPointsArray, numberOfEventsToRetrain, decayRate, executorService);
+                    clusterer.train(new LinkedList<>(dataPointsArray), numberOfEventsToRetrain, decayRate,
+                            executorService);
                     dataPointsArray.clear();
                 }
 

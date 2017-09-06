@@ -34,6 +34,7 @@ public class Trainer implements Runnable {
         this.clusterer = clusterer;
         this.dataPointsArray = dataPointsArray;
         this.decayRate = decayRate;
+        //logger.setLevel(Level.ALL);
     }
 
     @Override
