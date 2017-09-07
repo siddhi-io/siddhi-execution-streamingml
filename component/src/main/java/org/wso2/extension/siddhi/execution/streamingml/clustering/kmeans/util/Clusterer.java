@@ -33,8 +33,7 @@ import java.util.concurrent.Future;
 public class Clusterer {
     private int numberOfClusters;
     private int maximumIterations;
-    private boolean initialTrained = false;
-    private boolean modelTrained = false;
+    private boolean isInitialTrained = false;
     private String siddhiAppName;
     private KMeansModel model;
     private int dimensionality;
@@ -46,7 +45,6 @@ public class Clusterer {
     public Clusterer(int numberOfClusters, int maximumIterations, String modelName, String siddhiAppName,
                      int dimensionality) {
         model = KMeansModelHolder.getInstance().getKMeansModel(modelName);
-        //logger.setLevel(Level.ALL);
         if (model == null) {
             model = new KMeansModel();
             KMeansModelHolder.getInstance().addKMeansModel(modelName, model);
@@ -61,8 +59,7 @@ public class Clusterer {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Existing model " + modelName + " is trained");
                 }
-                initialTrained = true;
-                modelTrained = true;
+                isInitialTrained = true;
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Existing model " + modelName + " is not trained");
@@ -75,21 +72,21 @@ public class Clusterer {
         this.dimensionality = dimensionality;
     }
 
-    public boolean isInitialTrained() {
-        return initialTrained;
+
+    public boolean isModelInitialTrained() {
+        return isInitialTrained;
     }
 
-    public boolean isModelTrained() {
-        return modelTrained;
+    public void setModelInitialTrained(boolean b) {
+        isInitialTrained = b;
     }
 
     public void train(LinkedList<DataPoint> dataPointsArray, int numberOfEventsToRetrain, double decayRate,
                       ExecutorService executorService) {
-        if ((!initialTrained)) {
+        if ((!isInitialTrained)) {
             cluster(dataPointsArray);
             dataPointsArray.clear();
-            initialTrained = true;
-            modelTrained = true;
+            isInitialTrained = true;
         } else {
             periodicTraining(numberOfEventsToRetrain, decayRate, executorService, dataPointsArray);
         }
@@ -104,7 +101,6 @@ public class Clusterer {
             }
             updateCluster(dataPointsArray, decayRate);
             dataPointsArray.clear();
-            modelTrained = true;
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("Seperate thread training in " + siddhiAppName);
@@ -131,16 +127,20 @@ public class Clusterer {
         if (dataPointsArray.size() != 0 && (model.size() == numberOfClusters)) {
             boolean centroidShifted = false;
             while (iter < maximumIterations) {
-                logger.debug("Current model : \n" + model.getModelInfo());
-                logger.debug("clustering iteration : " + iter);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Current model : \n" + model.getModelInfo() + "\nclustering iteration : " + iter);
+                }
                 assignToCluster(dataPointsArray);
-                logger.debug("Current model : \n" + model.getModelInfo());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Current model : \n" + model.getModelInfo());
+                }
                 List<Cluster> newClusterList = calculateNewClusters();
 
-                logger.debug("previous model : " + printClusterList(model.getClusterList()));
-                logger.debug("new model : " + printClusterList(newClusterList));
                 centroidShifted = !model.getClusterList().equals(newClusterList);
-                logger.debug("centroid shifted?" + centroidShifted);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("previous model : " + printClusterList(model.getClusterList()) + "\nnew model : " +
+                            printClusterList(newClusterList) + "\ncentroid shifted?" + centroidShifted);
+                }
                 if (!centroidShifted) {
                     break;
                 }
@@ -211,23 +211,19 @@ public class Clusterer {
                 }
                 boolean centroidShifted = false;
                 while (iter < maximumIterations) {
-                    assignToCluster(dataPointsArray);
-                    s = new StringBuilder();
-                    for (DataPoint c : dataPointsArray) {
-                        s.append(Arrays.toString(c.getCoordinates()));
 
-                    }
+                    assignToCluster(dataPointsArray);
                     List<Cluster> newClusterList = calculateNewClusters();
                     centroidShifted = !intermediateClusterList.equals(newClusterList);
                     if (logger.isDebugEnabled()) {
-                        logger.debug("current iteration : " + iter);
-                        logger.debug("data points array");
-                        logger.debug(s.toString());
-                        logger.debug("Cluster list : ");
-                        logger.debug(printClusterList(intermediateClusterList));
-                        logger.debug("new cluster list ");
-                        logger.debug(printClusterList(newClusterList));
-                        logger.debug("Centroid shifted? = " + centroidShifted + "\n");
+                        s = new StringBuilder();
+                        for (DataPoint c : dataPointsArray) {
+                            s.append(Arrays.toString(c.getCoordinates()));
+                        }
+                        logger.debug("current iteration : " + iter + "\ndata points array\n" + s.toString() +
+                                "\nCluster list : \n" + printClusterList(intermediateClusterList) +
+                                "\nnew cluster list \n" + printClusterList(newClusterList) + "\nCentroid shifted? = "
+                                + centroidShifted + "\n");
                     }
                     if (!centroidShifted) {
                         break;
@@ -240,8 +236,7 @@ public class Clusterer {
                     iter++;
                 }
                 if (logger.isDebugEnabled()) {
-                    logger.debug("old cluster list :");
-                    logger.debug(printClusterList(oldClusterList));
+                    logger.debug("old cluster list :\n" + printClusterList(oldClusterList));
                 }
                 for (int i = 0; i < numberOfClusters; i++) {
                     if (model.getClusterList().get(i).getDataPointsInCluster().size() != 0) {
@@ -258,8 +253,7 @@ public class Clusterer {
                 }
                 model.setClusterList(intermediateClusterList);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("weighted centroid list");
-                    logger.debug(printClusterList(model.getClusterList()));
+                    logger.debug("weighted centroid list\n" + printClusterList(model.getClusterList()));
                 }
             }
         }

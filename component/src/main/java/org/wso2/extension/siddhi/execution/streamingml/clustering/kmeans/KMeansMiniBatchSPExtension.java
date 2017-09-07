@@ -77,7 +77,7 @@ import java.util.concurrent.ExecutorService;
                         defaultValue = "0.01"
                 ),
                 @Parameter(
-                        name = "number.of.clusters",
+                        name = "no.of.clusters",
                         description = "The assumed number of natural clusters (numberOfClusters) in the data set.",
                         type = {DataType.INT}
                 ),
@@ -88,7 +88,7 @@ import java.util.concurrent.ExecutorService;
                         type = {DataType.INT}
                 ),
                 @Parameter(
-                        name = "number.of.events.to.retrain",
+                        name = "no.of.events.to.retrain",
                         description = "number of events to recalculate cluster centers. ",
                         type = DataType.INT
                 ),
@@ -142,9 +142,10 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
     private int coordinateStartIndex;
     private LinkedList<DataPoint> dataPointsArray;
     private double[] coordinateValuesOfCurrentDataPoint;
-    private boolean modelTrained;
+    private boolean isModelInitialTrained;
     private Clusterer clusterer;
     private int dimensionality;
+    private String modelName;
     private ExecutorService executorService;
     private static final Logger logger = Logger.getLogger(KMeansMiniBatchSPExtension.class.getName());
 
@@ -152,16 +153,15 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                    SiddhiAppContext siddhiAppContext) {
-        //expressionExecutors[0] --> modelName
         dataPointsArray = new LinkedList<>();
-        //logger.setLevel(Level.ALL);
-
         int numberOfClusters;
+
+        //expressionExecutors[0] --> modelName
         if (!(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
             throw new SiddhiAppCreationException("modelName has to be a constant but found " +
                     this.attributeExpressionExecutors[0].getClass().getCanonicalName());
         }
-        String modelName;
+
         if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
             modelName = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
         } else {
@@ -209,7 +209,6 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
                     "numberOfClusters which should be of type double or int respectively but found " +
                     attributeExpressionExecutors[1].getReturnType());
         }
-
 
         //expressionExecutors[coordinateStartIndex-2] --> maxIterations
         if (!(attributeExpressionExecutors[coordinateStartIndex - 2] instanceof ConstantExpressionExecutor)) {
@@ -280,7 +279,6 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
 
                 //validating and getting coordinate values
                 for (int i = coordinateStartIndex; i < coordinateStartIndex + dimensionality; i++) {
-
                     try {
                         Number content = (Number) attributeExpressionExecutors[i].execute(streamEvent);
                         coordinateValuesOfCurrentDataPoint[i - coordinateStartIndex] = content.doubleValue();
@@ -303,14 +301,12 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
                     dataPointsArray.clear();
                 }
 
-                modelTrained = clusterer.isModelTrained();
-                if (modelTrained) {
+                isModelInitialTrained = clusterer.isModelInitialTrained();
+                if (isModelInitialTrained) {
+                    logger.debug("Populating output");
                     complexEventPopulater.populateComplexEvent(streamEvent,
                             clusterer.getAssociatedCentroidInfo(currentDataPoint));
-                } else {
-                    streamEventChunk.remove();
                 }
-
             }
         }
         nextProcessor.process(streamEventChunk);
@@ -323,7 +319,7 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
 
     @Override
     public void stop() {
-
+        KMeansModelHolder.getInstance().deleteKMeansModel(modelName);
     }
 
     @Override
@@ -331,9 +327,10 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
         synchronized (this) {
             Map<String, Object> map = new HashMap();
             map.put("untrainedData", dataPointsArray);
-            map.put("modelTrained", modelTrained);
+            map.put("isModelInitialTrained", isModelInitialTrained);
             map.put("numberOfEventsReceived", numberOfEventsReceived);
-            map.put("modelMap", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
+            map.put("kMeansModelMap", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
+            logger.debug("storing kmeans modelmap " + map.get("kMeansModelMap"));
             return map;
         }
     }
@@ -342,10 +339,12 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
     public void restoreState(Map<String, Object> map) {
         synchronized (this) {
             dataPointsArray = (LinkedList<DataPoint>) map.get("untrainedData");
-            modelTrained = (Boolean) map.get("modelTrained");
+            isModelInitialTrained = (Boolean) map.get("isModelInitialTrained");
             numberOfEventsReceived = (Integer) map.get("numberOfEventsReceived");
-            Map<String, KMeansModel> modelMap = (Map<String, KMeansModel>) map.get("modelMap");
+            Map<String, KMeansModel> modelMap = (Map<String, KMeansModel>) map.get("kMeansModelMap");
             KMeansModelHolder.getInstance().setKMeansModelMap(modelMap);
+            clusterer.setModel(modelMap.get(modelName));
+            clusterer.setModelInitialTrained(isModelInitialTrained);
         }
     }
 }

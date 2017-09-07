@@ -26,7 +26,7 @@ import java.util.Arrays;
  * Object which holds the data from each event and information about centroids in terms of coordinates
  */
 public class DataPoint implements Serializable {
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -3694544849918946452L;
     private double[] coordinates;
 
     public double[] getCoordinates() {

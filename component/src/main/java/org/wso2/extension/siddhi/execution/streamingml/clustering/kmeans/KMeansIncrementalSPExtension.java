@@ -76,7 +76,7 @@ import java.util.Map;
                         defaultValue = "0.01f"
                 ),
                 @Parameter(
-                        name = "number.of.clusters",
+                        name = "no.of.clusters",
                         description = "The assumed number of natural clusters (numberOfClusters) in the data set.",
                         type = {DataType.INT}
                 ),
@@ -97,11 +97,11 @@ import java.util.Map;
                 ),
                 @ReturnAttribute(
                         name = "closestCentroidCoordinate",
-                        description = "This is a variable length attribute. Depending on the dimensionality(d) " +
-                                "we will return closestCentroidCoordinate1 to closestCentroidCoordinated which are " +
-                                "the d dimensional coordinates of the closest centroid from the model to the " +
-                                "current event. This is the prediction result and this represents the cluster to" +
-                                "which the current event belongs to.",
+                        description = "This is a variable length attribute. Depending on the dimensionality(D) " +
+                                "we will return closestCentroidCoordinate1, closestCentroidCoordinate2,... " +
+                                "closestCentroidCoordinateD which are the d dimensional coordinates of the closest " +
+                                "centroid from the model to the current event. This is the prediction result and " +
+                                "this represents the cluster to which the current event belongs to.",
                         type = {DataType.DOUBLE}
                 )
         },
@@ -121,13 +121,13 @@ import java.util.Map;
 )
 public class KMeansIncrementalSPExtension extends StreamProcessor {
     private double decayRate;
-    private int numberOfEventsReceived;
     private int coordinateStartIndex;
     private LinkedList<DataPoint> dataPointsArray;
     private double[] coordinateValuesOfCurrentDataPoint;
-    private boolean modelTrained;
+    private boolean isModelInitialTrained;
     private Clusterer clusterer;
     private int dimensionality;
+    private String modelName;
     private static final Logger logger = Logger.getLogger(KMeansIncrementalSPExtension.class.getName());
 
     @Override
@@ -141,7 +141,6 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
             throw new SiddhiAppCreationException("modelName has to be a constant but found " +
                     this.attributeExpressionExecutors[0].getClass().getCanonicalName());
         }
-        String modelName;
         if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
             modelName = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
         } else {
@@ -213,8 +212,8 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
         if (logger.isDebugEnabled()) {
             logger.debug("model name is " + modelName);
         }
-        int maxIterations = 2;
-        clusterer = new Clusterer(numberOfClusters, maxIterations, modelName, siddhiAppName, dimensionality);
+
+        clusterer = new Clusterer(numberOfClusters, 2, modelName, siddhiAppName, dimensionality);
 
         List<Attribute> attributeList = new ArrayList<>(1 + dimensionality);
         attributeList.add(new Attribute("euclideanDistanceToClosestCentroid", Attribute.Type.DOUBLE));
@@ -230,11 +229,6 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
-
-                if (logger.isDebugEnabled()) {
-                    numberOfEventsReceived++;
-                    logger.debug("Number of events received : " + numberOfEventsReceived);
-                }
 
                 //validating and getting coordinate values
                 for (int i = coordinateStartIndex; i < coordinateStartIndex + dimensionality; i++) {
@@ -257,12 +251,10 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
                 clusterer.train(dataPointsArray, 1, decayRate, null);
                 dataPointsArray.clear();
 
-                modelTrained = clusterer.isModelTrained();
-                if (modelTrained) {
+                isModelInitialTrained = clusterer.isModelInitialTrained();
+                if (isModelInitialTrained) {
                     complexEventPopulater.populateComplexEvent(streamEvent,
                             clusterer.getAssociatedCentroidInfo(currentDataPoint));
-                } else {
-                    streamEventChunk.remove();
                 }
             }
         }
@@ -271,12 +263,11 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
 
     @Override
     public void start() {
-
     }
 
     @Override
     public void stop() {
-
+        KMeansModelHolder.getInstance().deleteKMeansModel(modelName);
     }
 
     @Override
@@ -284,9 +275,8 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
         synchronized (this) {
             Map<String, Object> map = new HashMap();
             map.put("untrainedData", dataPointsArray);
-            map.put("modelTrained", modelTrained);
-            map.put("numberOfEventsReceived", numberOfEventsReceived);
-            map.put("modelMap", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
+            map.put("isModelInitialTrained", isModelInitialTrained);
+            map.put("kMeansModelMap", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
             return map;
         }
     }
@@ -295,12 +285,11 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
     public void restoreState(Map<String, Object> map) {
         synchronized (this) {
             dataPointsArray = (LinkedList<DataPoint>) map.get("untrainedData");
-            modelTrained = (Boolean) map.get("modelTrained");
-            numberOfEventsReceived = (Integer) map.get("numberOfEventsReceived");
-            Map<String, KMeansModel> modelMap = (Map<String, KMeansModel>) map.get("modelMap");
+            isModelInitialTrained = (Boolean) map.get("isModelInitialTrained");
+            Map<String, KMeansModel> modelMap = (Map<String, KMeansModel>) map.get("kMeansModelMap");
             KMeansModelHolder.getInstance().setKMeansModelMap(modelMap);
+            clusterer.setModel(modelMap.get(modelName));
+            clusterer.setModelInitialTrained(isModelInitialTrained);
         }
     }
-
-
 }

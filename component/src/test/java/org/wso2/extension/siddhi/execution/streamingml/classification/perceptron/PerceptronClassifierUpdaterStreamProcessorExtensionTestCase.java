@@ -170,8 +170,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("model.features in updatePerceptronClassifier " +
-                    "should be of" +
-                    " type DOUBLE or INT. But there's an attribute called attribute_3 of type BOOL"));
+                    "should be of type DOUBLE or INT. But there's an attribute called attribute_3 of type BOOL"));
         }
     }
 
@@ -194,8 +193,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("[model.label] attribute_4 in " +
-                    "updatePerceptronClassifier " +
-                    "should be either a BOOL or a STRING (true/false). But found INT"));
+                    "updatePerceptronClassifier should be either a BOOL or a STRING (true/false). But found INT"));
         }
     }
 
@@ -490,8 +488,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter[7] of updatePerceptronClassifier " +
-                    "must be an " +
-                    "attribute present in the stream, but found a org.wso2.siddhi.core.executor" +
+                    "must be an attribute present in the stream, but found a org.wso2.siddhi.core.executor" +
                     ".ConstantExpressionExecutor"));
         }
     }
@@ -537,8 +534,8 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("model.label attribute in " +
-                    "updatePerceptronClassifier " +
-                    "should be a variable, but found a org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+                    "updatePerceptronClassifier should be a variable, but found a org.wso2.siddhi.core.executor" +
+                    ".ConstantExpressionExecutor"));
         }
     }
 
