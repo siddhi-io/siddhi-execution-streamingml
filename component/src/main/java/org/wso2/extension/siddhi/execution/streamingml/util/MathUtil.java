@@ -40,32 +40,4 @@ public class MathUtil {
 
         return sum;
     }
-
-
-    public static double sum(double[] val) {
-        double sum = 0;
-        for (double x : val) {
-            sum += x;
-        }
-        return sum;
-
-    }
-
-    /**
-     * @param value  double value
-     * @param places number of decimal points
-     * @return
-     */
-    public static double roundOff(double value, int places) {
-        if (places < 0) {
-            throw new IllegalArgumentException();
-        }
-
-        long factor = (long) Math.pow(10, places);
-        value = value * factor;
-        long tmp = Math.round(value);
-        return (double) tmp / factor;
-    }
-
-
 }

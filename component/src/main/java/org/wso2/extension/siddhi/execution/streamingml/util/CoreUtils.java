@@ -1,6 +1,5 @@
 package org.wso2.extension.siddhi.execution.streamingml.util;
 
-import org.wso2.extension.siddhi.execution.streamingml.classification.hoeffdingtree.util.AdaptiveHoeffdingTreeModel;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -19,42 +18,6 @@ public class CoreUtils {
             Attribute.Type.DOUBLE, Attribute.Type.LONG, Attribute.Type.FLOAT);
 
     private static final List<Attribute.Type> labelTypes = Arrays.asList(Attribute.Type.STRING, Attribute.Type.BOOL);
-
-
-    /**
-     * Index of the Maximum from double array
-     *
-     * @param doubles
-     * @return index of the maximum
-     */
-    public static int argMaxIndex(double[] doubles) {
-        double maximum = 0.0D;
-        int maxIndex = 0;
-        for (int i = 0; i < doubles.length; ++i) {
-            if (i == 0 || doubles[i] > maximum) {
-                maxIndex = i;
-                maximum = doubles[i];
-            }
-        }
-        return maxIndex;
-    }
-
-    /**
-     * Maximum from the double array
-     *
-     * @param doubles
-     * @return
-     */
-    public static double argMax(double[] doubles) {
-        double maximum = 0.0D;
-        for (int i = 0; i < doubles.length; ++i) {
-            if (i == 0 || doubles[i] > maximum) {
-                maximum = doubles[i];
-            }
-        }
-        return maximum;
-    }
-
 
     /**
      * @param inputDefinition
@@ -99,7 +62,7 @@ public class CoreUtils {
     }
 
 
-    public static boolean isNumeric(Attribute.Type attributeType) {
+    private static boolean isNumeric(Attribute.Type attributeType) {
         return numericTypes.contains(attributeType);
     }
 
@@ -141,28 +104,5 @@ public class CoreUtils {
                     + attributeExpressionExecutors[classIndex].getClass().getCanonicalName());
         }
         return classLabelVariableExecutor;
-    }
-
-    /**
-     * @param model
-     * @param noOfFeatures
-     * @return
-     */
-    public static boolean isInitialized(AdaptiveHoeffdingTreeModel model, int noOfFeatures) {
-        boolean initialized;
-        if (model.getStreamHeader() != null) {
-            initialized = true;
-            // validate the model
-            if (noOfFeatures != model.getNoOfFeatures()) {
-                throw new SiddhiAppValidationException(String.format("Model [%s] expects %s " +
-                                "features, but the streamingml:updateHoeffdingTree " +
-                                "specifies %s features.", model.getModelName(), model.getNoOfFeatures(),
-                        noOfFeatures));
-            }
-        } else {
-            initialized = false;
-        }
-        return initialized;
-
     }
 }

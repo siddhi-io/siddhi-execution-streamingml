@@ -45,13 +45,12 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-M48</siddhi.version>
+        <siddhi.version>4.0.0-M61</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
         <slf4j-version>1.7.5</slf4j-version>
         <testng.version>6.8</testng.version>
         <jacoco.version>0.7.9</jacoco.version>
-        <moa.version>2016.04</moa.version>
     </properties>
 
     <scm>

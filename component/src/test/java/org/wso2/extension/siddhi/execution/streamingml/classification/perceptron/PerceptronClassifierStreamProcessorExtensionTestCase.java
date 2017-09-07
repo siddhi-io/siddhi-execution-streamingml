@@ -25,11 +25,11 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -118,7 +118,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
             SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -138,10 +138,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("model.features in 7th parameter is not a numerical "
-                    + "type attribute. Found BOOL. Check the input stream definition"));
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("model.features in 7th parameter is not "
+                    + "a numerical type attribute. Found BOOL. Check the input stream definition"));
         }
     }
 
@@ -159,9 +159,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for the model.bias argument" +
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the "
+                    + "model.bias argument" +
                     "." + " Expected: DOUBLE but found: INT"));
         }
     }
@@ -180,10 +181,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for the model.threshold " +
-                    "argument. Expected: DOUBLE but found: INT"));
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for " +
+                    "the model.threshold argument. Expected: DOUBLE but found: INT"));
         }
     }
 
@@ -201,10 +202,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter value found for the model.threshold " +
-                    "argument. Expected a value between 0 & 1, but found: 1.1"));
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter value found for "
+                    + "the model.threshold argument. Expected a value between 0 & 1, but found: 1.1"));
         }
     }
 
@@ -222,10 +223,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Parameter model.name must be a constant but found org" +
-                    ".wso2.siddhi.core.executor.VariableExpressionExecutor"));
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter model.name must be a constant but "
+                    + "found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -243,9 +244,9 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            logger.error(e);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid number of parameters [0] for " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid number of parameters [0] for " +
                     "streamingml:perceptronClassifier"));
         }
     }
@@ -298,7 +299,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
             SiddhiTestHelper.waitForEvents(200, 2, count, 60000);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -319,9 +320,9 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                     inStreamDefinition + trainingQuery + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e.getMessage().contains("Model [model1] expects 4 features, but the " +
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Model [model1] expects 4 features, but the " +
                     "streamingml:perceptronClassifier specifies 3 features"));
         }
     }
@@ -339,10 +340,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for the model.name argument," +
-                    "" + " required STRING but found DOUBLE"));
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for "
+                    + "the model.name argument, required STRING but found DOUBLE"));
         }
     }
 
@@ -359,9 +360,9 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("7th parameter is not an attribute "
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("7th parameter is not an attribute "
                     + "(VariableExpressionExecutor) present in the stream definition. Found a "
                     + "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"
             ));
@@ -381,9 +382,9 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid number of parameters for " +
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid number of parameters for " +
                     "streamingml:perceptronClassifier. This Stream Processor requires at most 7 parameters, " +
                     "namely, model.name, model.bias, model.threshold, model.features but found 8 parameters"));
         }
@@ -437,7 +438,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
             SiddhiTestHelper.waitForEvents(200, 2, count, 60000);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -459,9 +460,9 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
 
         } catch (Exception e) {
             logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Model [model1.PerceptronTestApp] needs to initialized"
-                    + " prior to be used with streamingml:perceptronClassifier. Perform "
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Model [model1.PerceptronTestApp] "
+                    + "needs to initialized prior to be used with streamingml:perceptronClassifier. Perform "
                     + "streamingml:updatePerceptronClassifier process first"));
         }
     }
@@ -481,9 +482,9 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                     + trainingQuery + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Model [model1] expects 4 features, but the "
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Model [model1] expects 4 features, but the "
                     + "streamingml:perceptronClassifier specifies 3 features"));
         }
     }
@@ -502,10 +503,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter value found for the model.threshold " +
-                    "argument. Expected a value between 0 & 1, but found: -0.1"));
+            logger.error(e.getCause().getMessage());
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter value found for "
+                    + "the model.threshold argument. Expected a value between 0 & 1, but found: -0.1"));
         }
     }
 }

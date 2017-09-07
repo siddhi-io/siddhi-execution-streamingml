@@ -64,10 +64,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>nz.ac.waikato.cms.moa</groupId>
-            <artifactId>moa</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
