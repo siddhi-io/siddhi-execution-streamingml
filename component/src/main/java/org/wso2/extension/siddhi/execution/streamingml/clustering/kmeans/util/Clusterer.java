@@ -125,7 +125,7 @@ public class Clusterer {
 
         int iter = 0;
         if (dataPointsArray.size() != 0 && (model.size() == numberOfClusters)) {
-            boolean centroidShifted = false;
+            boolean centroidShifted;
             while (iter < maximumIterations) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Current model : \n" + model.getModelInfo() + "\nclustering iteration : " + iter);
@@ -243,8 +243,10 @@ public class Clusterer {
                         double[] weightedCoordinates = new double[dimensionality];
                         double[] oldCoordinates = oldClusterList.get(i).getCentroid().getCoordinates();
                         double[] newCoordinates = intermediateClusterList.get(i).getCentroid().getCoordinates();
-                        Arrays.setAll(weightedCoordinates, j -> Math.round(((1 - decayRate) * oldCoordinates[j] +
-                                decayRate * newCoordinates[j]) * 10000.0) / 10000.0);
+                        for (int j = 0; j < dimensionality; j++) {
+                            weightedCoordinates[j] = Math.round(((1 - decayRate) * oldCoordinates[j] + decayRate *
+                                    newCoordinates[j]) * 10000.0) / 10000.0;
+                        }
                         intermediateClusterList.get(i).getCentroid().setCoordinates(weightedCoordinates);
                     } else {
                         intermediateClusterList.get(i).getCentroid().setCoordinates(
@@ -332,9 +334,15 @@ public class Clusterer {
             double[] total;
             total = new double[dimensionality];
             for (DataPoint d: c.getDataPointsInCluster()) {
-                Arrays.setAll(total, i -> total[i] + d.getCoordinates()[i]);
+                double[] coordinatesOfd = d.getCoordinates();
+                for (int i = 0; i < dimensionality; i++) {
+                    total[i] += coordinatesOfd[i];
+                }
             }
-            Arrays.setAll(total, i -> Math.round((total[i] / c.getDataPointsInCluster().size()) * 10000.0) / 10000.0);
+            int numberOfMembers = c.getDataPointsInCluster().size();
+            for (int i = 0; i < dimensionality; i++) {
+                total[i] = Math.round((total[i] / numberOfMembers) * 10000.0) / 10000.0;
+            }
 
             DataPoint d1 = new DataPoint();
             d1.setCoordinates(total);
