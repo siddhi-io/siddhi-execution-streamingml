@@ -140,7 +140,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                         .getAttribute().getName());
               
                 if (!CoreUtils.isLabelType(labelAttributeType)) {
-                    throw new SiddhiAppValidationException(String.format("[model.label] %s in " +
+                    throw new SiddhiAppCreationException(String.format("[model.label] %s in " +
                                     "updatePerceptronClassifier should be either a %s or a %s (true/false). But found"
                                     + " %s", labelVariableExpressionExecutor.getAttribute().getName(),
                             Attribute.Type.BOOL, Attribute.Type.STRING, labelAttributeType.name()));
