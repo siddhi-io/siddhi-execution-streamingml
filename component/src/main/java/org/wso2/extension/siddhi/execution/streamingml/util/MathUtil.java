@@ -23,6 +23,7 @@ package org.wso2.extension.siddhi.execution.streamingml.util;
 public class MathUtil {
     /**
      * Dot product of two 'double' vectors.
+     *
      * @param vector1 vector 1
      * @param vector2 vector 2
      * @return the dot product.
@@ -56,5 +57,4 @@ public class MathUtil {
         dist = Math.round(dist * 10000.0) / 10000.0;
         return dist;
     }
-
 }

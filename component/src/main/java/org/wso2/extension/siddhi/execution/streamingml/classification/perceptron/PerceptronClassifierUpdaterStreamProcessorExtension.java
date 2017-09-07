@@ -21,6 +21,7 @@ package org.wso2.extension.siddhi.execution.streamingml.classification.perceptro
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModel;
 import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModelsHolder;
+import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -70,7 +71,7 @@ import java.util.Map;
                         type = {DataType.DOUBLE, DataType.INT})},
         returnAttributes = {
                 @ReturnAttribute(name = "featureWeight", description = "Weight of the <feature" +
-                ".name> of the " + "model.", type = {DataType.DOUBLE})},
+                        ".name> of the " + "model.", type = {DataType.DOUBLE})},
         examples = {
                 @Example(syntax = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double," +
                         " attribute_3 double, attribute_4 " + "string );\n\n" +
@@ -137,11 +138,12 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                 // label attribute should be bool or string types
                 Attribute.Type labelAttributeType = inputDefinition.getAttributeType(labelVariableExpressionExecutor
                         .getAttribute().getName());
-                if (!(labelAttributeType == Attribute.Type.BOOL || labelAttributeType == Attribute.Type.STRING)) {
-                    throw new SiddhiAppCreationException(String.format("[model.label] %s in " +
-                            "updatePerceptronClassifier should be either a %s or a %s (true/false). But found" + " "
-                            + "%s", labelVariableExpressionExecutor.getAttribute().getName(), Attribute.Type.BOOL,
-                            Attribute.Type.STRING, labelAttributeType.name()));
+              
+                if (!CoreUtils.isLabelType(labelAttributeType)) {
+                    throw new SiddhiAppValidationException(String.format("[model.label] %s in " +
+                                    "updatePerceptronClassifier should be either a %s or a %s (true/false). But found"
+                                    + " %s", labelVariableExpressionExecutor.getAttribute().getName(),
+                            Attribute.Type.BOOL, Attribute.Type.STRING, labelAttributeType.name()));
                 }
             } else {
                 throw new SiddhiAppCreationException("model.label attribute in updatePerceptronClassifier should "
@@ -163,12 +165,14 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                 // set number of features
                 numberOfFeatures = attributeExpressionLength - 3;
                 // feature values
-                extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 3);
+                featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
+                        attributeExpressionExecutors, 3, numberOfFeatures);
             } else if (attributeExpressionExecutors[2] instanceof VariableExpressionExecutor) {
                 // set number of features
                 numberOfFeatures = attributeExpressionLength - 2;
                 // feature values
-                extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 2);
+                featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
+                        attributeExpressionExecutors, 2, numberOfFeatures);
             } else {
                 throw new SiddhiAppCreationException("3rd Parameter must either be a constant (learning.rate) or "
                         + "an attribute of the stream (model" + ".features), but found a " +
@@ -190,7 +194,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
         if (model.getFeatureSize() != -1) {
             // validate the model
             if (numberOfFeatures != model.getFeatureSize()) {
-                PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
                 throw new SiddhiAppCreationException(String.format("Model [%s] expects %s features, but the " +
                         "streamingml:updatePerceptronClassifier specifies %s features", modelPrefix, model
                         .getFeatureSize(), numberOfFeatures));
@@ -206,30 +209,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
         }
 
         return attributes;
-    }
-
-    private void extractAndValidateFeatures(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, int startIndex) {
-        // feature values start
-        for (int i = startIndex; i < attributeExpressionLength; i++) {
-            if (attributeExpressionExecutors[i] instanceof VariableExpressionExecutor) {
-                featureVariableExpressionExecutors.add((VariableExpressionExecutor) attributeExpressionExecutors[i]);
-                // other attributes should be double type.
-                String attributeName = ((VariableExpressionExecutor) attributeExpressionExecutors[i]).getAttribute()
-                        .getName();
-                Attribute.Type featureAttributeType = inputDefinition.getAttributeType(attributeName);
-                if (!(featureAttributeType == Attribute.Type.DOUBLE || featureAttributeType == Attribute.Type.INT)) {
-                    throw new SiddhiAppCreationException(String.format("model.features in " +
-                            "updatePerceptronClassifier should be of type %s or %s. But there's an " + "attribute" +
-                            " called " + "%s of type %s", Attribute.Type.DOUBLE, Attribute.Type.INT, attributeName,
-                            featureAttributeType.name()));
-                }
-            } else {
-                throw new SiddhiAppCreationException("Parameter[" + (i + 1) + "] of updatePerceptronClassifier must" +
-                        " be an attribute present in the stream, but found a " + attributeExpressionExecutors[i]
-                        .getClass().getCanonicalName());
-            }
-        }
     }
 
     /**
