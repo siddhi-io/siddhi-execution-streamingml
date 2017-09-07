@@ -244,8 +244,7 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                 }
             }
         } else {
-
-            throw new SiddhiAppValidationException(String.format("Model [%s] needs to initialized "
+            throw new SiddhiAppCreationException(String.format("Model [%s] needs to initialized "
                     + "prior to be used with streamingml:perceptronClassifier. "
                     + "Perform streamingml:updatePerceptronClassifier process first.", modelName));
 
