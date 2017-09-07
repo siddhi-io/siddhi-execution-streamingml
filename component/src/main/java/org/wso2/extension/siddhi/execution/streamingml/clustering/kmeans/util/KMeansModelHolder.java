@@ -39,6 +39,10 @@ public class KMeansModelHolder {
         return kMeansModelMap;
     }
 
+    public void deleteKMeansModel(String modelName) {
+        kMeansModelMap.remove(modelName);
+    }
+
     public void setKMeansModelMap(Map<String, KMeansModel> kMeansModelMap) {
         this.kMeansModelMap = kMeansModelMap;
     }

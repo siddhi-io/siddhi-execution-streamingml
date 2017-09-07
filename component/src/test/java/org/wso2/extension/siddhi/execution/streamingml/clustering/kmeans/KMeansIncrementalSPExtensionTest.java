@@ -25,11 +25,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import java.io.BufferedReader;
 import java.io.File;
@@ -59,14 +56,6 @@ public class KMeansIncrementalSPExtensionTest {
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
 
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
@@ -114,14 +103,6 @@ public class KMeansIncrementalSPExtensionTest {
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
-
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
         try {
@@ -168,14 +149,6 @@ public class KMeansIncrementalSPExtensionTest {
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
-
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
         try {
@@ -204,14 +177,6 @@ public class KMeansIncrementalSPExtensionTest {
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
 
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
@@ -474,14 +439,6 @@ public class KMeansIncrementalSPExtensionTest {
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
-
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
         try {
@@ -514,14 +471,6 @@ public class KMeansIncrementalSPExtensionTest {
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
 
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
@@ -579,14 +528,6 @@ public class KMeansIncrementalSPExtensionTest {
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream1 + query1);
 
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
-
         siddhiAppRuntime.start();
         InputHandler inputHandler1 = siddhiAppRuntime.getInputHandler("InputStream1");
         try {
@@ -602,12 +543,6 @@ public class KMeansIncrementalSPExtensionTest {
 
             siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream2 + query2);
             InputHandler inputHandler2 = siddhiAppRuntime.getInputHandler("InputStream2");
-            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
-                @Override
-                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timestamp, inEvents, removeEvents);
-                }
-            });
 
             inputHandler2.send(new Object[]{23.7947, 20.8627});
             inputHandler2.send(new Object[]{5.8456, 6.8879});
@@ -644,15 +579,6 @@ public class KMeansIncrementalSPExtensionTest {
                         "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
-
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
         try {
@@ -672,12 +598,6 @@ public class KMeansIncrementalSPExtensionTest {
             Thread.sleep(1000);
 
             siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-                @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
-                }
-            });
             siddhiAppRuntime.start();
             siddhiManager.restoreLastState();
             inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
@@ -715,13 +635,6 @@ public class KMeansIncrementalSPExtensionTest {
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
         Scanner scanner = null;
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
@@ -754,16 +667,10 @@ public class KMeansIncrementalSPExtensionTest {
         String query = (
                 "@info(name = 'query1') " +
                         "from InputStream#streamingml:kMeansIncremental('model19', 0.001, 2, x1, x2, x3, x4) " +
-                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x1, x2, x3, x4 " +
+                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, " +
+                        "closestCentroidCoordinate3, closestCentroidCoordinate4 " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                //EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
 
         Scanner scanner = null;
         siddhiAppRuntime.start();
@@ -787,49 +694,5 @@ public class KMeansIncrementalSPExtensionTest {
             siddhiAppRuntime.shutdown();
         }
     }
-
-//    @Test
-//    public void testClusteringLengthWindow2D_20() throws Exception {
-//        logger.info("KMeansIncrementalSPExtension Test - standard dataset at " +
-//                "https://archive.ics.uci.edu/ml/datasets/Skin+Segmentation#");
-//        SiddhiManager siddhiManager = new SiddhiManager();
-//        String inputStream = "define stream InputStream (x1 double, x2 double, x3 double);";
-//
-//        String query = (
-//                "@info(name = 'query1') " +
-//                        "from InputStream#streamingml:kMeansIncremental('model20', 0.001, 2, x1, x2, x3) " +
-//                        "select closestCentroidCoordinate1, closestCentroidCoordinate2, x1, x2, x3 " +
-//                        "insert into OutputStream;");
-//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-//
-//        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-//            @Override
-//            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-//                EventPrinter.print(timeStamp, inEvents, removeEvents);
-//            }
-//        });
-//
-//        Scanner scanner = null;
-//        siddhiAppRuntime.start();
-//        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
-//        try {
-//            File file = new File("src/test/resources/Skin_NonSkin.csv");
-//            FileReader fileReader = new FileReader(file);
-//            BufferedReader bufferedReader = new BufferedReader(fileReader);
-//            scanner = new Scanner(bufferedReader);
-//
-//            while (scanner.hasNext()) {
-//                String eventStr = scanner.nextLine();
-//                String[] event = eventStr.split("\t");
-//                inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]),
-//                        Double.valueOf(event[2])});
-//            }
-//
-//        } catch (Exception e) {
-//            logger.error("error" + e.getCause().getMessage());
-//        } finally {
-//            siddhiAppRuntime.shutdown();
-//        }
-//    }
 
 }

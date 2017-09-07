@@ -28,7 +28,6 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,21 +58,20 @@ public class KMeansMiniBatchSPExtensionTest {
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
 
                 for (Event event: inEvents) {
                     count.incrementAndGet();
 
                     switch (count.get()) {
-                        case 1:
+                        case 20:
                             AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
-                        case 2:
+                        case 21:
                             AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
-                        case 3:
+                        case 22:
                             AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
@@ -134,21 +132,20 @@ public class KMeansMiniBatchSPExtensionTest {
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
 
                 for (Event event: inEvents) {
                     count.incrementAndGet();
 
                     switch (count.get()) {
-                        case 1:
+                        case 20:
                             AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
-                        case 2:
+                        case 21:
                             AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
-                        case 3:
+                        case 22:
                             AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
@@ -206,15 +203,6 @@ public class KMeansMiniBatchSPExtensionTest {
                         "closestCentroidCoordinate3 " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-
-            }
-        });
-
 
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
@@ -295,14 +283,6 @@ public class KMeansMiniBatchSPExtensionTest {
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-
-        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-            }
-        });
-
 
         siddhiAppRuntime.start();
         InputHandler inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
@@ -689,21 +669,20 @@ public class KMeansMiniBatchSPExtensionTest {
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
 
                 for (Event event: inEvents) {
                     count.incrementAndGet();
 
                     switch (count.get()) {
-                        case 1:
+                        case 20:
                             AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
-                        case 2:
+                        case 21:
                             AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
-                        case 3:
+                        case 22:
                             AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
@@ -742,13 +721,6 @@ public class KMeansMiniBatchSPExtensionTest {
 
             siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream2 + query2);
             InputHandler inputHandler2 = siddhiAppRuntime.getInputHandler("InputStream2");
-            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
-                @Override
-                public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timestamp, inEvents, removeEvents);
-                }
-            });
-
 
             inputHandler2.send(new Object[]{25.47, 25.8574});
             inputHandler2.send(new Object[]{20.2568, 28.7882});
@@ -780,21 +752,20 @@ public class KMeansMiniBatchSPExtensionTest {
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
 
                 for (Event event: inEvents) {
                     count.incrementAndGet();
 
                     switch (count.get()) {
-                        case 1:
+                        case 20:
                             AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
-                        case 2:
+                        case 21:
                             AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
-                        case 3:
+                        case 22:
                             AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{
                                     event.getData(0), event.getData(1)});
                             break;
@@ -831,7 +802,7 @@ public class KMeansMiniBatchSPExtensionTest {
             inputHandler.send(new Object[]{2.9951, 3.9887});
 
             siddhiManager.persist();
-            Thread.sleep(1000);
+            Thread.sleep(5000);
             siddhiAppRuntime.shutdown();
             Thread.sleep(1000);
 
@@ -839,20 +810,19 @@ public class KMeansMiniBatchSPExtensionTest {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
                     for (Event event: inEvents) {
                         count.incrementAndGet();
 
                         switch (count.get()) {
-                            case 4:
+                            case 23:
                                 AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
                                         event.getData(0), event.getData(1)});
                                 break;
-                            case 5:
+                            case 24:
                                 AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
                                         event.getData(0), event.getData(1)});
                                 break;
-                            case 6:
+                            case 25:
                                 AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{
                                         event.getData(0), event.getData(1)});
                                 break;
@@ -863,6 +833,7 @@ public class KMeansMiniBatchSPExtensionTest {
             });
             siddhiAppRuntime.start();
             siddhiManager.restoreLastState();
+            Thread.sleep(1000);
             inputHandler = siddhiAppRuntime.getInputHandler("InputStream");
 
             inputHandler.send(new Object[]{25.47, 25.8574});
@@ -914,23 +885,22 @@ public class KMeansMiniBatchSPExtensionTest {
             siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(timeStamp, inEvents, removeEvents);
 
                     for (Event event: inEvents) {
                         count.incrementAndGet();
 
                         switch (count.get()) {
-                            case 1:
+                            case 20:
                                 AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779},
                                         new Object[]{event.getData(0),
                                         event.getData(1)});
                                 break;
-                            case 2:
+                            case 21:
                                 AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779},
                                         new Object[]{event.getData(0),
                                         event.getData(1)});
                                 break;
-                            case 3:
+                            case 22:
                                 AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196},
                                         new Object[]{event.getData(0),
                                         event.getData(1)});

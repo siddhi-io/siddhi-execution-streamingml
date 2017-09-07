@@ -139,8 +139,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("model.features in perceptronClassifier " +
-                    "should be of" + " " +
-                    "type DOUBLE or INT. But there's an attribute called attribute_3 of type BOOL"));
+                    "should be of type DOUBLE or INT. But there's an attribute called attribute_3 of type BOOL"));
         }
     }
 
@@ -161,8 +160,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
-                    "model.bias argument" +
-                    "." + " Expected: DOUBLE but found: INT"));
+                    "model.bias argument. Expected: DOUBLE but found: INT"));
         }
     }
 
@@ -183,8 +181,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
-                    "model.threshold " +
-                    "argument. Expected: DOUBLE but found: INT"));
+                    "model.threshold argument. Expected: DOUBLE but found: INT"));
         }
     }
 
@@ -205,8 +202,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter value found for the " +
-                    "model.threshold " +
-                    "argument. Expected a value between 0 & 1, but found: 1.1"));
+                    "model.threshold argument. Expected a value between 0 & 1, but found: 1.1"));
         }
     }
 
@@ -227,8 +223,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter model.name must be a constant " +
-                    "but found org" +
-                    ".wso2.siddhi.core.executor.VariableExpressionExecutor"));
+                    "but found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -345,8 +340,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
-                    "model.name argument," +
-                    "" + " required STRING but found DOUBLE"));
+                    "model.name argument, required STRING but found DOUBLE"));
         }
     }
 
@@ -366,8 +360,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter[7] of perceptronClassifier " +
-                    "must be an " +
-                    "attribute present in the stream, but found a org.wso2.siddhi.core.executor" + "" +
+                    "must be an attribute present in the stream, but found a org.wso2.siddhi.core.executor" +
                     ".ConstantExpressionExecutor"));
         }
     }
@@ -542,8 +535,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             logger.error(e);
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter value found for the " +
-                    "model.threshold " +
-                    "argument. Expected a value between 0 & 1, but found: -0.1"));
+                    "model.threshold argument. Expected a value between 0 & 1, but found: -0.1"));
         }
     }
 

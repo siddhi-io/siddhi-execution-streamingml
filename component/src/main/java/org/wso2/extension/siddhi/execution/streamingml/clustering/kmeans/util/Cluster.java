@@ -27,8 +27,8 @@ import java.util.List;
  * This class represents a single cluster in the model
  */
 public class Cluster implements Serializable {
+    private static final long serialVersionUID = 1917517756301230642L;
     private DataPoint centroid;
-    static final long serialVersionUID = 1L;
     private List<DataPoint> dataPointsInCluster;
 
     public Cluster(DataPoint centroid) {

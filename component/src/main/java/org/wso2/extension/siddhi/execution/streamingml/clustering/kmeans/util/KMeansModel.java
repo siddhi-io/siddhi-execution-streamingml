@@ -28,13 +28,12 @@ import java.util.List;
  * stores info about the kmeans model
  */
 public class KMeansModel implements Serializable {
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 7997333339345312740L;
     private List<Cluster> clusterList;
     private static final Logger logger = Logger.getLogger(KMeansModel.class.getName());
 
     public KMeansModel() {
         clusterList = new LinkedList<>();
-        //logger.setLevel(Level.ALL);
     }
 
     public KMeansModel(List<Cluster> clusterList) {
