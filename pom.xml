@@ -45,7 +45,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-M48</siddhi.version>
+        <siddhi.version>4.0.0-M61</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
         <slf4j-version>1.7.5</slf4j-version>
@@ -229,51 +229,10 @@
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>2.4</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco.version}</version>
-                    <executions>
-                        <execution>
-                            <id>jacoco-initialize</id>
-                            <goals>
-                                <goal>prepare-agent</goal>
-                            </goals>
-                            <configuration>
-                                <destFile>${basedir}/target/coverage-reports/jacoco.exec</destFile>
-                                <propertyName>surefireArgLine</propertyName>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>jacoco-site</id>
-                            <phase>post-integration-test</phase>
-                            <goals>
-                                <goal>report</goal>
-                            </goals>
-                            <configuration>
-                                <dataFile>${basedir}/target/coverage-reports/jacoco.exec</dataFile>
-                                <outputDirectory>${basedir}/target/coverage-reports/</outputDirectory>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.19.1</version>
-                    <configuration>
-                        <includes>
-                            <include>**/*TestCase.java</include>
-                        </includes>
-                        <reportFormat>brief</reportFormat>
-                        <useFile>false</useFile>
-                        <forkMode>once</forkMode>
-                        <argLine>${surefireArgLine} -ea -Xmx512m</argLine>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
+
     <pluginRepositories>
         <pluginRepository>
             <id>wso2.releases</id>
