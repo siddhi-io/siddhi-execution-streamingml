@@ -26,11 +26,11 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -94,7 +94,7 @@ public class KMeansIncrementalSPExtensionTest {
             inputHandler.send(new Object[]{20.2568, 28.7882});
             inputHandler.send(new Object[]{2.9951, 3.9887});
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -148,7 +148,7 @@ public class KMeansIncrementalSPExtensionTest {
             inputHandler.send(new Object[]{20.2568, 28.7882});
             inputHandler.send(new Object[]{2.9951, 3.9887});
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -185,7 +185,7 @@ public class KMeansIncrementalSPExtensionTest {
             inputHandler.send(new Object[]{28.326, 26.7484});
             inputHandler.send(new Object[]{2.2602, 4.6408});
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -222,7 +222,7 @@ public class KMeansIncrementalSPExtensionTest {
             inputHandler.send(new Object[]{8, 26.7484});
             inputHandler.send(new Object[]{2.2602, 4.6408});
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -245,8 +245,8 @@ public class KMeansIncrementalSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("modelName has to be a constant but found " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("modelName has to be a constant but found " +
                     "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
@@ -268,8 +268,8 @@ public class KMeansIncrementalSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("decayRate has to be a constant but found " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("decayRate has to be a constant but found " +
                     "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
@@ -292,9 +292,9 @@ public class KMeansIncrementalSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("numberOfClusters has to be a constant but found " +
-                    "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("numberOfClusters has to be a constant but " +
+                    "found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -315,9 +315,9 @@ public class KMeansIncrementalSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("The attributes should be variable but found a " +
-                    "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The attributes should be variable but found " +
+                    "a org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
 
@@ -338,8 +338,8 @@ public class KMeansIncrementalSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("The attributes should be variable but found a " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The attributes should be variable but found a " +
                     "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
@@ -361,8 +361,9 @@ public class KMeansIncrementalSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("modelName should be of type String but found LONG"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("modelName should be of type String but " +
+                    "found LONG"));
         }
     }
 
@@ -383,8 +384,9 @@ public class KMeansIncrementalSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("The second query parameter should either be decayRate " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The second query parameter should either be " +
+                    "decayRate " +
                     "or numberOfClusters which should be of type double or int respectively but found LONG"));
         }
     }
@@ -407,8 +409,8 @@ public class KMeansIncrementalSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("decayRate should be in [0,1] but given as 1.4"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("decayRate should be in [0,1] but given as 1.4"));
         }
     }
 
@@ -430,8 +432,9 @@ public class KMeansIncrementalSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("decayRate should be in [0,1] but given as -0.3"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("decayRate should be in [0,1] " +
+                    "but given as -0.3"));
         }
     }
 
@@ -452,8 +455,9 @@ public class KMeansIncrementalSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("numberOfClusters should be of type int but found STRING"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("numberOfClusters should be of type int " +
+                    "but found STRING"));
         }
     }
 
@@ -488,7 +492,7 @@ public class KMeansIncrementalSPExtensionTest {
             inputHandler.send(new Object[]{28.326, 26.7484});
             inputHandler.send(new Object[]{2.2602, 4.6408});
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -546,7 +550,7 @@ public class KMeansIncrementalSPExtensionTest {
             inputHandler.send(new Object[]{20.2568, 28.7882});
             inputHandler.send(new Object[]{2.9951, 3.9887});
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -619,7 +623,7 @@ public class KMeansIncrementalSPExtensionTest {
             inputHandler2.send(new Object[]{20.2568, 28.7882});
             inputHandler2.send(new Object[]{2.9951, 3.9887});
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -692,7 +696,7 @@ public class KMeansIncrementalSPExtensionTest {
             inputHandler.send(new Object[]{20.2568, 28.7882});
             inputHandler.send(new Object[]{2.9951, 3.9887});
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -734,7 +738,7 @@ public class KMeansIncrementalSPExtensionTest {
             }
 
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -778,7 +782,7 @@ public class KMeansIncrementalSPExtensionTest {
             }
 
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -822,7 +826,7 @@ public class KMeansIncrementalSPExtensionTest {
 //            }
 //
 //        } catch (Exception e) {
-//            logger.error("error" + e.getMessage());
+//            logger.error("error" + e.getCause().getMessage());
 //        } finally {
 //            siddhiAppRuntime.shutdown();
 //        }
