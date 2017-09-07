@@ -14,7 +14,7 @@ google_analytics:
 - auto
 pages:
 - Welcome to WSO2 Siddhi Execution StreamingML: index.md
-- License: LICENSE.md
 - API Docs:
   - 1.0.1-SNAPSHOT: api/1.0.1-SNAPSHOT.md
+- License: LICENSE.md
 theme: material
