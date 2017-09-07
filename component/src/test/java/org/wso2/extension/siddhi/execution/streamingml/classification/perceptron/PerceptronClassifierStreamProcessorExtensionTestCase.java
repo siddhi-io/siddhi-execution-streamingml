@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.util.SiddhiTestHelper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+
 /**
  * Testing @{@link PerceptronClassifierStreamProcessorExtension}
  */
@@ -161,9 +162,8 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the "
-                    + "model.bias argument" +
-                    "." + " Expected: DOUBLE but found: INT"));
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
+                    "model.bias argument. Expected: DOUBLE but found: INT"));
         }
     }
 
@@ -342,8 +342,8 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for "
-                    + "the model.name argument, required STRING but found DOUBLE"));
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
+                    "model.name argument, required STRING but found DOUBLE"));
         }
     }
 
@@ -459,11 +459,13 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                     + inStreamDefinition + query + trainingQuery);
 
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Model [model1.PerceptronTestApp] "
                     + "needs to initialized prior to be used with streamingml:perceptronClassifier. Perform "
                     + "streamingml:updatePerceptronClassifier process first"));
+        } finally {
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -507,6 +509,29 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter value found for "
                     + "the model.threshold argument. Expected a value between 0 & 1, but found: -0.1"));
+        }
+    }
+
+    @Test
+    public void testClassificationStreamProcessorExtension17() throws InterruptedException {
+        logger.info("PerceptronClassifierStreamProcessorExtension TestCase - model is visible only within the " +
+                "SiddhiApp");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "@App:name('PerceptronTestApp2') \ndefine stream StreamA (attribute_0 double, " +
+                "attribute_1 double, attribute_2 " + "double, attribute_3 double, attribute_4 string );";
+        String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0," +
+                "0.6, attribute_0, attribute_1, attribute_2) \n" + "insert all events into " + "outputStream;");
+
+        try {
+            SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager.createSiddhiAppRuntime(trainingStream + trainingQuery);
+            // should be successful even though both the apps are using the same model name with different feature
+            // values
+            SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+
+        } catch (Exception e) {
+            logger.error(e);
+            AssertJUnit.fail("Model is visible across Siddhi Apps which is wrong!");
         }
     }
 }

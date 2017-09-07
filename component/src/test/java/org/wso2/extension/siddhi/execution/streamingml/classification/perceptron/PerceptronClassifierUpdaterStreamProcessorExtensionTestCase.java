@@ -102,7 +102,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    logger.error(e.getMessage());
+                    logger.error(e.getCause().getMessage());
                 }
             }
 
