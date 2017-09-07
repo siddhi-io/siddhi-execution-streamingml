@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -41,7 +42,6 @@ import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -138,14 +138,14 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
 
         //expressionExecutors[0] --> modelName
         if (!(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppValidationException("modelName has to be a constant but found " +
+            throw new SiddhiAppCreationException("modelName has to be a constant but found " +
                     this.attributeExpressionExecutors[0].getClass().getCanonicalName());
         }
         String modelName;
         if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
             modelName = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
         } else {
-            throw new SiddhiAppValidationException("modelName should be of type String but found " +
+            throw new SiddhiAppCreationException("modelName should be of type String but found " +
                     attributeExpressionExecutors[0].getReturnType());
         }
 
@@ -160,7 +160,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
                 coordinateStartIndex = 2;
                 numberOfClusters = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
             } else {
-                throw new SiddhiAppValidationException("numberOfClusters has to be a constant but found " +
+                throw new SiddhiAppCreationException("numberOfClusters has to be a constant but found " +
                         this.attributeExpressionExecutors[1].getClass().getCanonicalName());
             }
         } else if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.DOUBLE) {
@@ -171,12 +171,12 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
                 decayRate = (Double) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
 
                 if (decayRate < 0 || decayRate > 1) {
-                    throw new SiddhiAppValidationException("decayRate should be in [0,1] but given as " + decayRate);
+                    throw new SiddhiAppCreationException("decayRate should be in [0,1] but given as " + decayRate);
                 }
 
                 //expressionExecutors[2] --> numberOfClusters
                 if (!(attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
-                    throw new SiddhiAppValidationException("numberOfClusters has to be a constant but found " +
+                    throw new SiddhiAppCreationException("numberOfClusters has to be a constant but found " +
                             this.attributeExpressionExecutors[2].getClass().getCanonicalName());
                 }
                 if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
@@ -184,15 +184,15 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
                     numberOfClusters = (Integer) ((ConstantExpressionExecutor)
                             attributeExpressionExecutors[2]).getValue();
                 } else {
-                    throw new SiddhiAppValidationException("numberOfClusters should be of type int but found " +
+                    throw new SiddhiAppCreationException("numberOfClusters should be of type int but found " +
                             attributeExpressionExecutors[2].getReturnType());
                 }
             } else {
-                throw new SiddhiAppValidationException("decayRate has to be a constant but found " +
+                throw new SiddhiAppCreationException("decayRate has to be a constant but found " +
                         this.attributeExpressionExecutors[1].getClass().getCanonicalName());
             }
         } else {
-            throw new SiddhiAppValidationException("The second query parameter should either be decayRate or " +
+            throw new SiddhiAppCreationException("The second query parameter should either be decayRate or " +
                     "numberOfClusters which should be of type double or int respectively but found " +
                     attributeExpressionExecutors[1].getReturnType());
         }
@@ -203,7 +203,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
         //validating all the attributes to be variables
         for (int i = coordinateStartIndex; i < coordinateStartIndex + dimensionality; i++) {
             if (!(this.attributeExpressionExecutors[i] instanceof VariableExpressionExecutor)) {
-                throw new SiddhiAppValidationException("The attributes should be variable but found a " +
+                throw new SiddhiAppCreationException("The attributes should be variable but found a " +
                         this.attributeExpressionExecutors[i].getClass().getCanonicalName());
             }
         }
@@ -242,7 +242,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
                         Number content = (Number) attributeExpressionExecutors[i].execute(streamEvent);
                         coordinateValuesOfCurrentDataPoint[i - coordinateStartIndex] = content.doubleValue();
                     } catch (ClassCastException e) {
-                        throw new SiddhiAppValidationException("coordinate values should be int/float/double/long " +
+                        throw new SiddhiAppCreationException("coordinate values should be int/float/double/long " +
                                 "but found " +
                                 attributeExpressionExecutors[i].execute(streamEvent).getClass());
                     }

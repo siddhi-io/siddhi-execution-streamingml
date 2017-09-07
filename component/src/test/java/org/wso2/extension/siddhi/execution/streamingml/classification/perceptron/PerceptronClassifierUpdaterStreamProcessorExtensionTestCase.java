@@ -25,11 +25,11 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -96,14 +96,14 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
-                    logger.error(e.getMessage());
+                    logger.error(e.getCause().getMessage());
                 }
             }
 
             Thread.sleep(1100);
             AssertJUnit.assertEquals(8, count);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             scanner.close();
             siddhiAppRuntime.shutdown();
@@ -146,7 +146,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             Thread.sleep(1100);
             AssertJUnit.assertEquals(4, count);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -168,8 +168,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.fail();
         } catch (Exception e) {
             logger.error(e);
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("model.features in updatePerceptronClassifier should be of" +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("model.features in updatePerceptronClassifier " +
+                    "should be of" +
                     " type DOUBLE or INT. But there's an attribute called attribute_3 of type BOOL"));
         }
     }
@@ -191,8 +192,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.fail();
         } catch (Exception e) {
             logger.error(e);
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("[model.label] attribute_4 in updatePerceptronClassifier " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("[model.label] attribute_4 in " +
+                    "updatePerceptronClassifier " +
                     "should be either a BOOL or a STRING (true/false). But found INT"));
         }
     }
@@ -260,7 +262,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             Thread.sleep(1100);
             AssertJUnit.assertEquals(4, count);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -336,7 +338,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             Thread.sleep(1100);
             AssertJUnit.assertEquals(5, count);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -358,9 +360,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.fail();
         } catch (Exception e) {
             logger.error(e);
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for the learning.rate " +
-                    "argument. Expected: DOUBLE but found: INT"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
+                    "learning.rate argument. Expected: DOUBLE but found: INT"));
         }
     }
 
@@ -380,9 +382,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.fail();
         } catch (Exception e) {
             logger.error(e);
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Parameter model.name must be a constant but found org" +
-                    ".wso2.siddhi.core.executor.VariableExpressionExecutor"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter model.name must be a constant but " +
+                    "found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -401,9 +403,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
                     query);
             AssertJUnit.fail();
         } catch (Exception e) {
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             logger.error(e);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid number of parameters [0] for " +
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid number of parameters [0] for " +
                     "streamingml:updatePerceptronClassifier"));
         }
     }
@@ -442,7 +444,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             Thread.sleep(1100);
             AssertJUnit.assertEquals(4, count);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -464,9 +466,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.fail();
         } catch (Exception e) {
             logger.error(e);
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid parameter type found for the model.name argument," +
-                    " required STRING but found DOUBLE"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
+                    "model.name argument, required STRING but found DOUBLE"));
         }
     }
 
@@ -486,8 +488,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.fail();
         } catch (Exception e) {
             logger.error(e);
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Parameter[7] of updatePerceptronClassifier must be an " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter[7] of updatePerceptronClassifier " +
+                    "must be an " +
                     "attribute present in the stream, but found a org.wso2.siddhi.core.executor" +
                     ".ConstantExpressionExecutor"));
         }
@@ -509,8 +512,8 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.fail();
         } catch (Exception e) {
             logger.error(e);
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Invalid number of parameters for " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid number of parameters for " +
                     "streamingml:updatePerceptronClassifier. This Stream Processor requires at most 7 parameters, " +
                     "namely, model.name, model.label, learning.rate, model.features but found 8 parameters"));
         }
@@ -532,8 +535,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.fail();
         } catch (Exception e) {
             logger.error(e);
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("model.label attribute in updatePerceptronClassifier " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("model.label attribute in " +
+                    "updatePerceptronClassifier " +
                     "should be a variable, but found a org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
@@ -572,7 +576,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             Thread.sleep(1100);
             AssertJUnit.assertEquals(4, count);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -612,7 +616,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             Thread.sleep(1100);
             AssertJUnit.assertEquals(4, count);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -686,7 +690,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             Thread.sleep(1100);
             AssertJUnit.assertEquals(5, count);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }

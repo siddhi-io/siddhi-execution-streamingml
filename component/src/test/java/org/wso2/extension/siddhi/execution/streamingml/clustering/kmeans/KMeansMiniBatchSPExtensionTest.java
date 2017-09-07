@@ -25,12 +25,12 @@ import org.testng.annotations.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -66,16 +66,16 @@ public class KMeansMiniBatchSPExtensionTest {
 
                     switch (count.get()) {
                         case 1:
-                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                         case 2:
-                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                         case 3:
-                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                     }
                 }
@@ -111,7 +111,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
             SiddhiTestHelper.waitForEvents(200, 3, count, 5000);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -141,16 +141,16 @@ public class KMeansMiniBatchSPExtensionTest {
 
                     switch (count.get()) {
                         case 1:
-                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                         case 2:
-                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                         case 3:
-                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                     }
                 }
@@ -186,7 +186,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
             SiddhiTestHelper.waitForEvents(200, 3, count, 5000);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -276,7 +276,7 @@ public class KMeansMiniBatchSPExtensionTest {
             inputHandler.send(new Object[]{22.5167, 23.678, 26.1105});
             inputHandler.send(new Object[]{37.9662, 38.1719, 39.4197});
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -330,7 +330,7 @@ public class KMeansMiniBatchSPExtensionTest {
             inputHandler.send(new Object[]{20.2568, 28.7882});
             inputHandler.send(new Object[]{2.9951, 3.9887});
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -353,8 +353,8 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("modelName has to be a constant but found " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("modelName has to be a constant but found " +
                     "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
@@ -376,9 +376,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("2nd parameter can be decayRate/numberOfClusters. " +
-                    "Both has to be a constant but found " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("2nd parameter can be " +
+                    "decayRate/numberOfClusters. Both has to be a constant but found " +
                     "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
@@ -401,8 +401,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("numberOfClusters has to be a constant but found " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("numberOfClusters has to be a " +
+                    "constant but found " +
                     "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
@@ -424,8 +425,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Maximum iterations has to be a constant but found " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Maximum iterations has to be a constant " +
+                    "but found " +
                     "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
@@ -448,8 +450,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("numberOfEventsToRetrain has to be a constant but found " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("numberOfEventsToRetrain has to be a " +
+                    "constant but found " +
                     "org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
@@ -471,9 +474,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("The attributes should be variable but found a " +
-                    "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The attributes should be variable but " +
+                    "found a org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
 
@@ -494,9 +497,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("The attributes should be variable but found a " +
-                    "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The attributes should be variable but " +
+                    "found a org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
 
@@ -514,11 +517,11 @@ public class KMeansMiniBatchSPExtensionTest {
                         "insert into OutputStream;");
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("modelName should be of type String but found INT"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("modelName should be of type String " +
+                    "but found INT"));
         }
     }
 
@@ -539,8 +542,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("The second query parameter should either be decayRate " +
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The second query parameter should either " +
+                    "be decayRate " +
                     "or numberOfClusters which should be of type double or int respectively but found STRING"));
         }
     }
@@ -563,8 +567,8 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("decayRate should be in [0,1] but given as 1.4"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("decayRate should be in [0,1] but given as 1.4"));
         }
     }
 
@@ -586,8 +590,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("decayRate should be in [0,1] but given as -0.3"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("decayRate should be in [0,1] but " +
+                    "given as -0.3"));
         }
     }
 
@@ -608,8 +613,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("numberOfClusters should be of type int but found DOUBLE"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("numberOfClusters should be of type int " +
+                    "but found DOUBLE"));
         }
     }
 
@@ -630,9 +636,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("Maximum iterations should be of type int but found " +
-                    "STRING"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Maximum iterations should be of type int " +
+                    "but found STRING"));
         }
     }
 
@@ -653,9 +659,9 @@ public class KMeansMiniBatchSPExtensionTest {
 
         } catch (Exception e) {
             logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppValidationException);
-            AssertJUnit.assertTrue(e.getMessage().contains("numberOfEventsToRetrain should be of type int but found " +
-                    "LONG"));
+            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("numberOfEventsToRetrain should be of type " +
+                    "int but found LONG"));
         }
     }
 
@@ -690,16 +696,16 @@ public class KMeansMiniBatchSPExtensionTest {
 
                     switch (count.get()) {
                         case 1:
-                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                         case 2:
-                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                         case 3:
-                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                     }
                 }
@@ -750,7 +756,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
             //SiddhiTestHelper.waitForEvents(200, 3, count, 5000);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -781,16 +787,16 @@ public class KMeansMiniBatchSPExtensionTest {
 
                     switch (count.get()) {
                         case 1:
-                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                         case 2:
-                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{25.3827, 25.2779}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                         case 3:
-                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{event.getData(0),
-                                    event.getData(1)});
+                            AssertJUnit.assertArrayEquals(new Double[]{4.3327, 6.4196}, new Object[]{
+                                    event.getData(0), event.getData(1)});
                             break;
                     }
                 }
@@ -866,7 +872,7 @@ public class KMeansMiniBatchSPExtensionTest {
 
             //SiddhiTestHelper.waitForEvents(200, 3, count, 5000);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -954,7 +960,7 @@ public class KMeansMiniBatchSPExtensionTest {
             inputHandler.send(new Object[]{2.9951, 3.9887});
 
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }

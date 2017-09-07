@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -39,7 +40,6 @@ import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -147,7 +147,7 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
 
         if (attributeExpressionLength >= 2) {
             if (attributeExpressionLength > 3 + maxNumberOfFeatures) {
-                throw new SiddhiAppValidationException(String.format("Invalid number of parameters for " +
+                throw new SiddhiAppCreationException(String.format("Invalid number of parameters for " +
                         "streamingml:perceptronClassifier. This Stream Processor requires at most %s " + "parameters," +
                         " namely, model.name, model.bias, model.threshold, model.features but found %s " +
                         "parameters", 3 + maxNumberOfFeatures, attributeExpressionLength));
@@ -158,12 +158,12 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                     // model name = user given name + siddhi app name
                     modelName = modelPrefix + "." + siddhiAppName;
                 } else {
-                    throw new SiddhiAppValidationException("Invalid parameter type found for the model.name argument," +
+                    throw new SiddhiAppCreationException("Invalid parameter type found for the model.name argument," +
                             "" + " required " + Attribute.Type.STRING + " but found " +
                             attributeExpressionExecutors[0].getReturnType().toString());
                 }
             } else {
-                throw new SiddhiAppValidationException("Parameter model.name must be a constant but found " +
+                throw new SiddhiAppCreationException("Parameter model.name must be a constant but found " +
                         attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
 
@@ -173,7 +173,7 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                 if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.DOUBLE) {
                     bias = (double) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
                 } else {
-                    throw new SiddhiAppValidationException("Invalid parameter type found for the model.bias " +
+                    throw new SiddhiAppCreationException("Invalid parameter type found for the model.bias " +
                             "argument. Expected: " + Attribute.Type.DOUBLE + " but found: " +
                             attributeExpressionExecutors[1].getReturnType().toString());
                 }
@@ -184,11 +184,11 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                         threshold = (double) ((ConstantExpressionExecutor) attributeExpressionExecutors[2])
                                 .getValue();
                         if (threshold <= 0 || threshold >= 1) {
-                            throw new SiddhiAppValidationException("Invalid parameter value found for the model" + "" +
+                            throw new SiddhiAppCreationException("Invalid parameter value found for the model" + "" +
                                     ".threshold argument. Expected a value between 0 & 1, but found: " + threshold);
                         }
                     } else {
-                        throw new SiddhiAppValidationException("Invalid parameter type found for the model.threshold " +
+                        throw new SiddhiAppCreationException("Invalid parameter type found for the model.threshold " +
                                 "" + "argument. Expected: " + Attribute.Type.DOUBLE + " but found: " +
                                 attributeExpressionExecutors[2].getReturnType().toString());
                     }
@@ -203,7 +203,7 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                     // feature variables
                     extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 2);
                 } else {
-                    throw new SiddhiAppValidationException("3rd Parameter must either be a constant (model.threshold)" +
+                    throw new SiddhiAppCreationException("3rd Parameter must either be a constant (model.threshold)" +
                             "" + " or an attribute of the stream (model.features), but found a " +
                             attributeExpressionExecutors[2].getClass().getCanonicalName());
                 }
@@ -213,12 +213,12 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                 // feature values
                 extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 1);
             } else {
-                throw new SiddhiAppValidationException("2nd Parameter must either be a constant (model.bias) or " +
+                throw new SiddhiAppCreationException("2nd Parameter must either be a constant (model.bias) or " +
                         "an attribute of the stream (model.features), but found a " + attributeExpressionExecutors[1]
                         .getClass().getCanonicalName());
             }
         } else {
-            throw new SiddhiAppValidationException(String.format("Invalid number of parameters [%s] for " +
+            throw new SiddhiAppCreationException(String.format("Invalid number of parameters [%s] for " +
                     "streamingml:perceptronClassifier", attributeExpressionLength));
         }
 
@@ -238,7 +238,7 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
             if (numberOfFeatures != model.getFeatureSize()) {
                 // clean the model
                 PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
-                throw new SiddhiAppValidationException(String.format("Model [%s] expects %s features, but the " +
+                throw new SiddhiAppCreationException(String.format("Model [%s] expects %s features, but the " +
                         "streamingml:perceptronClassifier specifies %s features", modelPrefix, model.getFeatureSize()
                         , numberOfFeatures));
             }
@@ -264,13 +264,13 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                         .getName();
                 Attribute.Type featureAttributeType = inputDefinition.getAttributeType(attributeName);
                 if (!(featureAttributeType == Attribute.Type.DOUBLE || featureAttributeType == Attribute.Type.INT)) {
-                    throw new SiddhiAppValidationException(String.format("model.features in " + "perceptronClassifier" +
+                    throw new SiddhiAppCreationException(String.format("model.features in " + "perceptronClassifier" +
                             " should be of type %s or %s. But there's an " + "attribute" + " called " + "%s of type " +
                             "%s", Attribute.Type.DOUBLE, Attribute.Type.INT, attributeName, featureAttributeType.name
                             ()));
                 }
             } else {
-                throw new SiddhiAppValidationException("Parameter[" + (i + 1) + "] of perceptronClassifier must" + " " +
+                throw new SiddhiAppCreationException("Parameter[" + (i + 1) + "] of perceptronClassifier must" + " " +
                         "be an attribute present in the stream, but found a " + attributeExpressionExecutors[i]
                         .getClass().getCanonicalName());
             }

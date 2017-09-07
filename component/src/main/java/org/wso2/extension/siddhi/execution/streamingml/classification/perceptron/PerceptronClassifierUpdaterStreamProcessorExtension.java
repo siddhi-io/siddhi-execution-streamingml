@@ -31,6 +31,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -40,7 +41,6 @@ import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,7 +112,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
 
         if (attributeExpressionLength >= 3) {
             if (attributeExpressionLength > 3 + maxNumberOfFeatures) {
-                throw new SiddhiAppValidationException(String.format("Invalid number of parameters for " +
+                throw new SiddhiAppCreationException(String.format("Invalid number of parameters for " +
                         "streamingml:updatePerceptronClassifier. This Stream Processor requires at most %s " +
                         "parameters, namely, model.name, model.label, learning.rate, model.features but found %s " +
                         "parameters", 3 + maxNumberOfFeatures, attributeExpressionLength));
@@ -123,12 +123,12 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                     // model name = user given name + siddhi app name
                     modelName = modelPrefix + "." + siddhiAppName;
                 } else {
-                    throw new SiddhiAppValidationException("Invalid parameter type found for the model.name argument," +
+                    throw new SiddhiAppCreationException("Invalid parameter type found for the model.name argument," +
                             " required " + Attribute.Type.STRING + " but found " + attributeExpressionExecutors[0].
                             getReturnType().toString());
                 }
             } else {
-                throw new SiddhiAppValidationException("Parameter model.name must be a constant" + " but found " +
+                throw new SiddhiAppCreationException("Parameter model.name must be a constant" + " but found " +
                         attributeExpressionExecutors[0].getClass().getCanonicalName());
             }
 
@@ -138,13 +138,13 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                 Attribute.Type labelAttributeType = inputDefinition.getAttributeType(labelVariableExpressionExecutor
                         .getAttribute().getName());
                 if (!(labelAttributeType == Attribute.Type.BOOL || labelAttributeType == Attribute.Type.STRING)) {
-                    throw new SiddhiAppValidationException(String.format("[model.label] %s in " +
+                    throw new SiddhiAppCreationException(String.format("[model.label] %s in " +
                             "updatePerceptronClassifier should be either a %s or a %s (true/false). But found" + " "
                             + "%s", labelVariableExpressionExecutor.getAttribute().getName(), Attribute.Type.BOOL,
                             Attribute.Type.STRING, labelAttributeType.name()));
                 }
             } else {
-                throw new SiddhiAppValidationException("model.label attribute in updatePerceptronClassifier should "
+                throw new SiddhiAppCreationException("model.label attribute in updatePerceptronClassifier should "
                         + "be a variable, but found a " + this.attributeExpressionExecutors[1].getClass()
                         .getCanonicalName());
             }
@@ -155,7 +155,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                     learningRate = (double) ((ConstantExpressionExecutor) attributeExpressionExecutors[2])
                             .getValue();
                 } else {
-                    throw new SiddhiAppValidationException("Invalid parameter type found for the learning.rate " +
+                    throw new SiddhiAppCreationException("Invalid parameter type found for the learning.rate " +
                             "argument. Expected: " + Attribute.Type.DOUBLE + " but found: " +
                             attributeExpressionExecutors[2].getReturnType().toString());
                 }
@@ -170,12 +170,12 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                 // feature values
                 extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 2);
             } else {
-                throw new SiddhiAppValidationException("3rd Parameter must either be a constant (learning.rate) or "
+                throw new SiddhiAppCreationException("3rd Parameter must either be a constant (learning.rate) or "
                         + "an attribute of the stream (model" + ".features), but found a " +
                         attributeExpressionExecutors[2].getClass().getCanonicalName());
             }
         } else {
-            throw new SiddhiAppValidationException(String.format("Invalid number of parameters [%s] for " +
+            throw new SiddhiAppCreationException(String.format("Invalid number of parameters [%s] for " +
                     "streamingml:updatePerceptronClassifier", attributeExpressionLength));
         }
 
@@ -191,7 +191,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
             // validate the model
             if (numberOfFeatures != model.getFeatureSize()) {
                 PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
-                throw new SiddhiAppValidationException(String.format("Model [%s] expects %s features, but the " +
+                throw new SiddhiAppCreationException(String.format("Model [%s] expects %s features, but the " +
                         "streamingml:updatePerceptronClassifier specifies %s features", modelPrefix, model
                         .getFeatureSize(), numberOfFeatures));
             }
@@ -219,13 +219,13 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                         .getName();
                 Attribute.Type featureAttributeType = inputDefinition.getAttributeType(attributeName);
                 if (!(featureAttributeType == Attribute.Type.DOUBLE || featureAttributeType == Attribute.Type.INT)) {
-                    throw new SiddhiAppValidationException(String.format("model.features in " +
+                    throw new SiddhiAppCreationException(String.format("model.features in " +
                             "updatePerceptronClassifier should be of type %s or %s. But there's an " + "attribute" +
                             " called " + "%s of type %s", Attribute.Type.DOUBLE, Attribute.Type.INT, attributeName,
                             featureAttributeType.name()));
                 }
             } else {
-                throw new SiddhiAppValidationException("Parameter[" + (i + 1) + "] of updatePerceptronClassifier must" +
+                throw new SiddhiAppCreationException("Parameter[" + (i + 1) + "] of updatePerceptronClassifier must" +
                         " be an attribute present in the stream, but found a " + attributeExpressionExecutors[i]
                         .getClass().getCanonicalName());
             }
