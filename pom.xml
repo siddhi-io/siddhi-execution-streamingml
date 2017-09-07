@@ -123,11 +123,6 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
             </dependency>
-            <dependency>
-                <groupId>nz.ac.waikato.cms.moa</groupId>
-                <artifactId>moa</artifactId>
-                <version>${moa.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
