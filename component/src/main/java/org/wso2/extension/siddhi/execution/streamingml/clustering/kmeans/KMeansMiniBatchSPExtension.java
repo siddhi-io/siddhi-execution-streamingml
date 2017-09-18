@@ -327,8 +327,8 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
             map.put("untrainedData", dataPointsArray);
             map.put("isModelInitialTrained", isModelInitialTrained);
             map.put("numberOfEventsReceived", numberOfEventsReceived);
-            map.put("kMeansModelMap", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
-            logger.debug("storing kmeans modelmap " + map.get("kMeansModelMap"));
+            map.put("kMeansModel", KMeansModelHolder.getInstance().getClonedKMeansModel(modelName));
+            logger.debug("storing kmeans model " + map.get("kMeansModel"));
             return map;
         }
     }
@@ -339,9 +339,9 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
             dataPointsArray = (LinkedList<DataPoint>) map.get("untrainedData");
             isModelInitialTrained = (Boolean) map.get("isModelInitialTrained");
             numberOfEventsReceived = (Integer) map.get("numberOfEventsReceived");
-            Map<String, KMeansModel> modelMap = (Map<String, KMeansModel>) map.get("kMeansModelMap");
-            KMeansModelHolder.getInstance().setKMeansModelMap(modelMap);
-            clusterer.setModel(modelMap.get(modelName));
+            KMeansModel model = (KMeansModel) map.get("kMeansModel");
+            KMeansModelHolder.getInstance().addKMeansModel(modelName, model);
+            clusterer.setModel(model);
             clusterer.setModelInitialTrained(isModelInitialTrained);
         }
     }

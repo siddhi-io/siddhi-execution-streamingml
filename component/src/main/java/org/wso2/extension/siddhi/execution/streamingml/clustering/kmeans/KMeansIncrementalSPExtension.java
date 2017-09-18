@@ -274,7 +274,8 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
             Map<String, Object> map = new HashMap();
             map.put("untrainedData", dataPointsArray);
             map.put("isModelInitialTrained", isModelInitialTrained);
-            map.put("kMeansModelMap", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
+            map.put("kMeansModel", KMeansModelHolder.getInstance().getClonedKMeansModel(modelName));
+            logger.debug("storing kmeans model " + map.get("kMeansModel"));
             return map;
         }
     }
@@ -284,9 +285,9 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
         synchronized (this) {
             dataPointsArray = (LinkedList<DataPoint>) map.get("untrainedData");
             isModelInitialTrained = (Boolean) map.get("isModelInitialTrained");
-            Map<String, KMeansModel> modelMap = (Map<String, KMeansModel>) map.get("kMeansModelMap");
-            KMeansModelHolder.getInstance().setKMeansModelMap(modelMap);
-            clusterer.setModel(modelMap.get(modelName));
+            KMeansModel model = (KMeansModel) map.get("kMeansModel");
+            KMeansModelHolder.getInstance().addKMeansModel(modelName, model);
+            clusterer.setModel(model);
             clusterer.setModelInitialTrained(isModelInitialTrained);
         }
     }
