@@ -277,13 +277,13 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> currentState = new HashMap<>();
-        currentState.put("PerceptronModelsMap", PerceptronModelsHolder.getInstance().getClonedPerceptronModelMap());
+        currentState.put("PerceptronModel", PerceptronModelsHolder.getInstance().getClonedPerceptronModel(modelName));
         return currentState;
     }
 
     @Override
     public void restoreState(Map<String, Object> state) {
-        PerceptronModelsHolder.getInstance().setPerceptronModelMap((Map<String, PerceptronModel>) state.get
-                ("PerceptronModelsMap"));
+        PerceptronModelsHolder.getInstance().addPerceptronModel(modelName, (PerceptronModel)
+                state.get("PerceptronModel"));
     }
 }

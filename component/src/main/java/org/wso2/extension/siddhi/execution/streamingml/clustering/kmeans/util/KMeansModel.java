@@ -40,6 +40,10 @@ public class KMeansModel implements Serializable {
         this.clusterList = clusterList;
     }
 
+    public KMeansModel(KMeansModel model) {
+        this.clusterList = model.clusterList;
+    }
+
     public synchronized List<Cluster> getClusterList() {
         return clusterList;
     }

@@ -32,9 +32,7 @@ import org.wso2.siddhi.core.util.SiddhiTestHelper;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 public class KMeansMiniBatchSPExtensionTest {
-
     private static final Logger logger = Logger.getLogger(KMeansMiniBatchSPExtensionTest.class);
     private volatile AtomicInteger count;
     @BeforeMethod
@@ -451,12 +449,12 @@ public class KMeansMiniBatchSPExtensionTest {
                         "insert into OutputStream;");
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The attributes should be variable but " +
-                    "found a org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("6th parameter is not an attribute " +
+                    "(VariableExpressionExecutor) present in the stream definition. Found a " +
+                    "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
 
@@ -478,8 +476,9 @@ public class KMeansMiniBatchSPExtensionTest {
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The attributes should be variable but " +
-                    "found a org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("7th parameter is not an attribute " +
+                    "(VariableExpressionExecutor) present in the stream definition. Found a " +
+                    "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
 
