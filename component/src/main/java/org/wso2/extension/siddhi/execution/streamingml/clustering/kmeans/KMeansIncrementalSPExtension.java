@@ -23,6 +23,7 @@ import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.Cl
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.DataPoint;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.KMeansModel;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.KMeansModelHolder;
+import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
@@ -121,13 +122,13 @@ import java.util.Map;
 )
 public class KMeansIncrementalSPExtension extends StreamProcessor {
     private double decayRate;
-    private int coordinateStartIndex;
     private LinkedList<DataPoint> dataPointsArray;
     private double[] coordinateValuesOfCurrentDataPoint;
     private boolean isModelInitialTrained;
     private Clusterer clusterer;
     private int dimensionality;
     private String modelName;
+    private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new LinkedList<>();
     private static final Logger logger = Logger.getLogger(KMeansIncrementalSPExtension.class.getName());
 
     @Override
@@ -150,6 +151,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
 
         //expressionExecutors[1] --> numberOfClusters or decayRate
         int numberOfClusters;
+        int coordinateStartIndex;
         if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
             if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
                 if (logger.isDebugEnabled()) {
@@ -199,13 +201,9 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
         dimensionality = attributeExpressionExecutors.length - coordinateStartIndex;
         coordinateValuesOfCurrentDataPoint = new double[dimensionality];
 
-        //validating all the attributes to be variables
-        for (int i = coordinateStartIndex; i < coordinateStartIndex + dimensionality; i++) {
-            if (!(this.attributeExpressionExecutors[i] instanceof VariableExpressionExecutor)) {
-                throw new SiddhiAppCreationException("The attributes should be variable but found a " +
-                        this.attributeExpressionExecutors[i].getClass().getCanonicalName());
-            }
-        }
+        //validating all the features
+        featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
+                attributeExpressionExecutors, coordinateStartIndex, dimensionality);
 
         String siddhiAppName = siddhiAppContext.getName();
         modelName = modelName + "." + siddhiAppName;
@@ -231,10 +229,10 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
                 StreamEvent streamEvent = streamEventChunk.next();
 
                 //validating and getting coordinate values
-                for (int i = coordinateStartIndex; i < coordinateStartIndex + dimensionality; i++) {
+                for (int i = 0; i < dimensionality; i++) {
                     try {
-                        Number content = (Number) attributeExpressionExecutors[i].execute(streamEvent);
-                        coordinateValuesOfCurrentDataPoint[i - coordinateStartIndex] = content.doubleValue();
+                        Number content = (Number) featureVariableExpressionExecutors.get(i).execute(streamEvent);
+                        coordinateValuesOfCurrentDataPoint[i] = content.doubleValue();
                     } catch (ClassCastException e) {
                         throw new SiddhiAppCreationException("coordinate values should be int/float/double/long " +
                                 "but found " +
@@ -276,7 +274,8 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
             Map<String, Object> map = new HashMap();
             map.put("untrainedData", dataPointsArray);
             map.put("isModelInitialTrained", isModelInitialTrained);
-            map.put("kMeansModelMap", KMeansModelHolder.getInstance().getClonedKMeansModelMap());
+            map.put("kMeansModel", KMeansModelHolder.getInstance().getClonedKMeansModel(modelName));
+            logger.debug("storing kmeans model " + map.get("kMeansModel"));
             return map;
         }
     }
@@ -286,9 +285,9 @@ public class KMeansIncrementalSPExtension extends StreamProcessor {
         synchronized (this) {
             dataPointsArray = (LinkedList<DataPoint>) map.get("untrainedData");
             isModelInitialTrained = (Boolean) map.get("isModelInitialTrained");
-            Map<String, KMeansModel> modelMap = (Map<String, KMeansModel>) map.get("kMeansModelMap");
-            KMeansModelHolder.getInstance().setKMeansModelMap(modelMap);
-            clusterer.setModel(modelMap.get(modelName));
+            KMeansModel model = (KMeansModel) map.get("kMeansModel");
+            KMeansModelHolder.getInstance().addKMeansModel(modelName, model);
+            clusterer.setModel(model);
             clusterer.setModelInitialTrained(isModelInitialTrained);
         }
     }

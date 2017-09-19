@@ -44,12 +44,8 @@ public class PerceptronModelsHolder {
         return perceptronModelMap;
     }
 
-    public Map<String, PerceptronModel> getClonedPerceptronModelMap() {
-        Map<String, PerceptronModel> clonedMap = new HashMap<>();
-        for (Map.Entry<String, PerceptronModel> entry : perceptronModelMap.entrySet()) {
-            clonedMap.put(entry.getKey(), new PerceptronModel(entry.getValue()));
-        }
-        return clonedMap;
+    public PerceptronModel getClonedPerceptronModel(String modelName) {
+        return new PerceptronModel(perceptronModelMap.get(modelName));
     }
 
     public void setPerceptronModelMap(Map<String, PerceptronModel> modelsMap) {

@@ -18,7 +18,6 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans;
 
-
 import org.apache.log4j.Logger;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
@@ -42,7 +41,6 @@ public class KMeansIncrementalSPExtensionTest {
     public void init() {
         count = new AtomicInteger(0);
     }
-
 
     @Test
     public void testClusteringLengthWindow2D_0() throws Exception {
@@ -88,7 +86,6 @@ public class KMeansIncrementalSPExtensionTest {
             siddhiAppRuntime.shutdown();
         }
     }
-
 
     @Test
     public void testClusteringLengthWindow2D_1() throws Exception {
@@ -277,12 +274,12 @@ public class KMeansIncrementalSPExtensionTest {
                         "insert into OutputStream;");
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The attributes should be variable but found " +
-                    "a org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("4th parameter is not an attribute " +
+                    "(VariableExpressionExecutor) present in the stream definition. Found a " +
+                    "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
 
@@ -304,7 +301,8 @@ public class KMeansIncrementalSPExtensionTest {
         } catch (Exception e) {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The attributes should be variable but found a " +
+            AssertJUnit.assertTrue(e.getCause().getMessage().contains("5th parameter is not an attribute " +
+                    "(VariableExpressionExecutor) present in the stream definition. Found a " +
                     "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
@@ -657,7 +655,7 @@ public class KMeansIncrementalSPExtensionTest {
         }
     }
 
-    @Test
+    /*@Test
     public void testClusteringLengthWindow2D_19() throws Exception {
         logger.info("KMeansIncrementalSPExtension Test - standard dataset at " +
                 "https://archive.ics.uci.edu/ml/datasets/3D+Road+Network+%28North+Jutland%2C+Denmark%29");
@@ -693,6 +691,6 @@ public class KMeansIncrementalSPExtensionTest {
         } finally {
             siddhiAppRuntime.shutdown();
         }
-    }
+    }*/
 
 }
