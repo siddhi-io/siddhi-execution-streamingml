@@ -42,7 +42,6 @@ import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,9 +138,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                 // label attribute should be bool or string types
                 Attribute.Type labelAttributeType = inputDefinition.getAttributeType(labelVariableExpressionExecutor
                         .getAttribute().getName());
-              
+
                 if (!CoreUtils.isLabelType(labelAttributeType)) {
-                    throw new SiddhiAppValidationException(String.format("[model.label] %s in " +
+                    throw new SiddhiAppCreationException(String.format("[model.label] %s in " +
                                     "updatePerceptronClassifier should be either a %s or a %s (true/false). But found"
                                     + " %s", labelVariableExpressionExecutor.getAttribute().getName(),
                             Attribute.Type.BOOL, Attribute.Type.STRING, labelAttributeType.name()));
