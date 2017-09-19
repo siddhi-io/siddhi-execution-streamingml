@@ -464,8 +464,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Model [model1.PerceptronTestApp] "
                     + "needs to initialized prior to be used with streamingml:perceptronClassifier. Perform "
                     + "streamingml:updatePerceptronClassifier process first"));
-        } finally {
-            siddhiAppRuntime.shutdown();
         }
     }
 
