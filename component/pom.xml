@@ -91,7 +91,8 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.wso2.extension.siddhi.execution.streamingml.classification.*,
-                            org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.*
+                            org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.*,
+                            org.wso2.extension.siddhi.execution.streamingml.util.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
