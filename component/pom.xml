@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.wso2.extension.siddhi.execution.streamingml</groupId>
         <artifactId>siddhi-execution-streamingml-parent</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -44,12 +44,6 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jacoco</groupId>
-            <artifactId>org.jacoco.agent</artifactId>
-            <classifier>runtime</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -97,7 +91,8 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.wso2.extension.siddhi.execution.streamingml.classification.*,
-                            org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.*
+                            org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.*,
+                            org.wso2.extension.siddhi.execution.streamingml.util.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional

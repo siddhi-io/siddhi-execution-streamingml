@@ -27,7 +27,7 @@
 
     <groupId>org.wso2.extension.siddhi.execution.streamingml</groupId>
     <artifactId>siddhi-execution-streamingml-parent</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Siddhi Execution Streaming ML Extension Parent</name>
     <url>http://wso2.org</url>
@@ -45,7 +45,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-M61</siddhi.version>
+        <siddhi.version>4.0.0-M79</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
         <slf4j-version>1.7.5</slf4j-version>
@@ -111,12 +111,6 @@
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jacoco</groupId>
-                <artifactId>org.jacoco.agent</artifactId>
-                <classifier>runtime</classifier>
-                <version>${jacoco.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>

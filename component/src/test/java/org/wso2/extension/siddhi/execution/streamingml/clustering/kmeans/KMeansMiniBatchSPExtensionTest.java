@@ -877,6 +877,8 @@ public class KMeansMiniBatchSPExtensionTest {
 
             siddhiManager.persist();
             Thread.sleep(1000);
+
+
             siddhiAppRuntime.shutdown();
             Thread.sleep(1000);
 
