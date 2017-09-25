@@ -19,10 +19,9 @@
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.Clusterer;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.DataPoint;
+import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.KMeansClusterer;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.KMeansModel;
-import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.KMeansModelHolder;
 import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
@@ -35,6 +34,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -64,9 +64,9 @@ import java.util.concurrent.ExecutorService;
                 "D.Sculley, Google, Inc.). ",
         parameters = {
                 @Parameter(
-                        name = "model.name",
-                        description = "The name for the model that is going to be created/reused for prediction",
-                        type = {DataType.STRING}
+                        name = "no.of.clusters",
+                        description = "The assumed number of natural clusters (numberOfClusters) in the data set.",
+                        type = {DataType.INT}
                 ),
                 @Parameter(
                         name = "decay.rate",
@@ -78,20 +78,19 @@ import java.util.concurrent.ExecutorService;
                         defaultValue = "0.01"
                 ),
                 @Parameter(
-                        name = "no.of.clusters",
-                        description = "The assumed number of natural clusters (numberOfClusters) in the data set.",
-                        type = {DataType.INT}
-                ),
-                @Parameter(
-                        name = "max.iterations",
+                        name = "maximum.iterations",
                         description = "Number of iterations, the process iterates until the number of maximum " +
                                 "iterations is reached or the centroids do not change",
-                        type = {DataType.INT}
+                        type = {DataType.INT},
+                        optional = true,
+                        defaultValue = "50"
                 ),
                 @Parameter(
                         name = "no.of.events.to.retrain",
                         description = "number of events to recalculate cluster centers. ",
-                        type = DataType.INT
+                        type = DataType.INT,
+                        optional = true,
+                        defaultValue = "20"
                 ),
                 @Parameter(
                         name = "model.features",
@@ -120,32 +119,36 @@ import java.util.concurrent.ExecutorService;
         },
         examples = {
                 @Example(
-                        syntax = "define stream InputStream (modelFeature1 double, modelFeature2 double);" +
-                                "from InputStream#streamingml:kmeansminibatch(modelName, numberOfClusters, " +
-                                "maxIterations," +
-                                " numberOfEventsToRetrain, decayRate, modelFeature1, modelFeature2)\"\n" +
-                                "select modelFeature1, modelFeature2, euclideanDistanceToClosestCentroid, " +
-                                "closestCentroidCoordinate1, closestCentroidCoordinate2\"\n" +
-                                "insert into OutputStream",
-                        description = "modelName ='model1', numberOfClusters=2, numberOfEventsToRetrain = 5, " +
-                                "maxIterations=10" +
-                                " decayRate=0.2. This will cluster the collected data points within the window " +
-                                "for every 5 events" +
-                                "and give output after the first 5 events. Retraining will also happen after " +
-                                "every 5 events"
+                        syntax = "define stream InputStream (x double, y double);\n" +
+                                "@info(name = 'query1')\n" +
+                                "from InputStream#streamingml:kMeansMiniBatch(2, 0.2, 10, 20, x, y)\n" +
+                                "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y\n" +
+                                "insert into OutputStream;",
+                        description = "This is an example where user gives all three hyper parameters. first 20 " +
+                                "events will be consumed to build the model and from the 21st event prediction " +
+                                "would start"
                 ),
+                @Example(
+                        syntax = "define stream InputStream (x double, y double);\n" +
+                                "@info(name = 'query1')\n" +
+                                "from InputStream#streamingml:kMeansMiniBatch(2, x, y)\n" +
+                                "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y\n" +
+                                "insert into OutputStream;",
+                        description = "This is an example where user has not specified hyper params. So default " +
+                                "values will be used."
+                )
         }
 )
 public class KMeansMiniBatchSPExtension extends StreamProcessor {
-    private double decayRate;
-    private int numberOfEventsToRetrain;
+    private double decayRate = 0.01;
+    private int numberOfEventsToRetrain = 20;
     private int numberOfEventsReceived;
     private LinkedList<DataPoint> dataPointsArray;
     private double[] coordinateValuesOfCurrentDataPoint;
-    private boolean isModelInitialTrained;
-    private Clusterer clusterer;
+    private int maximumIterations = 50;
+    private int numberOfClusters;
+    private KMeansModel kMeansModel;
     private int dimensionality;
-    private String modelName;
     private ExecutorService executorService;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new LinkedList<>();
     private static final Logger logger = Logger.getLogger(KMeansMiniBatchSPExtension.class.getName());
@@ -154,108 +157,95 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
                                    SiddhiAppContext siddhiAppContext) {
-        dataPointsArray = new LinkedList<>();
-        int numberOfClusters;
-
-        //expressionExecutors[0] --> modelName
-        if (!(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppCreationException("modelName has to be a constant but found " +
-                    this.attributeExpressionExecutors[0].getClass().getCanonicalName());
-        }
-
-        if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
-            modelName = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
-        } else {
-            throw new SiddhiAppCreationException("modelName should be of type String but found " +
-                    attributeExpressionExecutors[0].getReturnType());
-        }
-
-        //expressionExecutors[1] --> decayRate or numberOfClusters
-        if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppCreationException("2nd parameter can be decayRate/numberOfClusters. " +
-                    "Both has to be a constant but found " +
-                    this.attributeExpressionExecutors[1].getClass().getCanonicalName());
-        }
+        final int minConstantParams = 1;
+        final int maxConstantParams = 4;
+        final int minNumberOfFeatures = 1;
         int coordinateStartIndex;
-        if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.DOUBLE) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Decay rate is specified." + siddhiAppContext.getName());
-            }
-            decayRate = (Double) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
-            if (decayRate < 0 || decayRate > 1) {
-                throw new SiddhiAppCreationException("decayRate should be in [0,1] but given as " + decayRate);
-            }
-            coordinateStartIndex = 5;
+        int maxNoOfFeatures = inputDefinition.getAttributeList().size();
+        dataPointsArray = new LinkedList<>();
 
-            //expressionExecutors[2] --> numberOfClusters
+        if (attributeExpressionLength < minConstantParams + minNumberOfFeatures ||
+                attributeExpressionLength > maxConstantParams + maxNoOfFeatures) {
+            throw new SiddhiAppCreationException("Invalid number of parameters. User can either choose to give " +
+                    "all 3 hyper parameters or none at all.");
+        }
+
+        //expressionExecutors[0] --> numberOfClusters
+        if (!(attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor)) {
+            throw new SiddhiAppCreationException("1st query parameter is numberOfClusters which has to be constant" +
+                    "but found " + this.attributeExpressionExecutors[0].getClass().getCanonicalName());
+        }
+        if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
+            numberOfClusters = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
+        } else {
+            throw new SiddhiAppCreationException("The first query parameter should numberOfClusters which should " +
+                    "be of type int but found " + attributeExpressionExecutors[0].getReturnType());
+        }
+
+        if (attributeExpressionExecutors[1] instanceof VariableExpressionExecutor) {
+            coordinateStartIndex = 1;
+
+        } else {
+            coordinateStartIndex = 4;
+            //expressionExecutors[1] --> decayRate
+            if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
+                throw new SiddhiAppCreationException("Decay rate has to be a constant but found " +
+                        this.attributeExpressionExecutors[1].getClass().getCanonicalName());
+            }
+            if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.DOUBLE) {
+                decayRate = (double) ((ConstantExpressionExecutor)
+                        attributeExpressionExecutors[1]).getValue();
+                if (decayRate < 0 || decayRate > 1) {
+                    throw new SiddhiAppCreationException("Decay rate should be in [0,1] but given as " + decayRate);
+                }
+            } else {
+                throw new SiddhiAppCreationException("Decay rate should be of type int but found " +
+                        attributeExpressionExecutors[1].getReturnType());
+            }
+
+            //expressionExecutors[2] --> maximumIterations
             if (!(attributeExpressionExecutors[2] instanceof ConstantExpressionExecutor)) {
-                throw new SiddhiAppCreationException("numberOfClusters has to be a constant but found " +
+                throw new SiddhiAppCreationException("Maximum iterations has to be a constant but found " +
                         this.attributeExpressionExecutors[2].getClass().getCanonicalName());
             }
             if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.INT) {
-                numberOfClusters = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[2]).getValue();
+                maximumIterations = (Integer) ((ConstantExpressionExecutor)
+                        attributeExpressionExecutors[2]).getValue();
+                if (maximumIterations <= 0) {
+                    throw new SiddhiAppCreationException("maxIterations should be a positive integer " +
+                            "but found " + maximumIterations);
+                }
             } else {
-                throw new SiddhiAppCreationException("numberOfClusters should be of type int but found " +
+                throw new SiddhiAppCreationException("Maximum iterations should be of type int but found " +
                         attributeExpressionExecutors[2].getReturnType());
             }
 
-        } else if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.INT) {
-            decayRate = 0.01;
-            if (logger.isDebugEnabled()) {
-                logger.debug("Decay rate is not specified. using default " + decayRate);
+            //expressionExecutors[3] --> numberOfEventsToRetrain
+            if (!(attributeExpressionExecutors[3] instanceof ConstantExpressionExecutor)) {
+                throw new SiddhiAppCreationException("numberOfEventsToRetrain has to be a constant but found " +
+                        this.attributeExpressionExecutors[3].getClass().getCanonicalName());
             }
-            coordinateStartIndex = 4;
-            numberOfClusters = (Integer) ((ConstantExpressionExecutor) attributeExpressionExecutors[1]).getValue();
-        } else {
-            throw new SiddhiAppCreationException("The second query parameter should either be decayRate or " +
-                    "numberOfClusters which should be of type double or int respectively but found " +
-                    attributeExpressionExecutors[1].getReturnType());
-        }
-
-        //expressionExecutors[coordinateStartIndex-2] --> maxIterations
-        if (!(attributeExpressionExecutors[coordinateStartIndex - 2] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppCreationException("Maximum iterations has to be a constant but found " +
-                    this.attributeExpressionExecutors[coordinateStartIndex - 2].getClass().getCanonicalName());
-        }
-        int maxIterations;
-        if (attributeExpressionExecutors[coordinateStartIndex - 2].getReturnType() == Attribute.Type.INT) {
-            maxIterations = (Integer) ((ConstantExpressionExecutor)
-                    attributeExpressionExecutors[coordinateStartIndex - 2]).getValue();
-        } else {
-            throw new SiddhiAppCreationException("Maximum iterations should be of type int but found " +
-                    attributeExpressionExecutors[coordinateStartIndex - 2].getReturnType());
-        }
-
-        //expressionExecutors[coordinateStartIndex-1] --> numberOfEventsToRetrain
-        if (!(attributeExpressionExecutors[coordinateStartIndex - 1] instanceof ConstantExpressionExecutor)) {
-            throw new SiddhiAppCreationException("numberOfEventsToRetrain has to be a constant but found " +
-                    this.attributeExpressionExecutors[coordinateStartIndex - 1].getClass().getCanonicalName());
-        }
-        if (attributeExpressionExecutors[coordinateStartIndex - 1].getReturnType() == Attribute.Type.INT) {
-            numberOfEventsToRetrain = (Integer) ((ConstantExpressionExecutor)
-                    attributeExpressionExecutors[coordinateStartIndex - 1]).getValue();
-            if (numberOfEventsToRetrain <= 0) {
-                throw new SiddhiAppCreationException("numberOfEventsToRetrain should be a positive integer " +
-                        "but found " + numberOfEventsToRetrain);
+            if (attributeExpressionExecutors[3].getReturnType() == Attribute.Type.INT) {
+                numberOfEventsToRetrain = (Integer) ((ConstantExpressionExecutor)
+                        attributeExpressionExecutors[3]).getValue();
+                if (numberOfEventsToRetrain <= 0) {
+                    throw new SiddhiAppCreationException("numberOfEventsToRetrain should be a positive integer " +
+                            "but found " + numberOfEventsToRetrain);
+                }
+            } else {
+                throw new SiddhiAppCreationException("numberOfEventsToRetrain should be of type int but found " +
+                        attributeExpressionExecutors[3].getReturnType());
             }
-        } else {
-            throw new SiddhiAppCreationException("numberOfEventsToRetrain should be of type int but found " +
-                    attributeExpressionExecutors[coordinateStartIndex - 1].getReturnType());
         }
 
-        dimensionality = attributeExpressionExecutors.length - coordinateStartIndex;
+        dimensionality = attributeExpressionLength - coordinateStartIndex;
         coordinateValuesOfCurrentDataPoint = new double[dimensionality];
 
         //validating all the features
         featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
                 attributeExpressionExecutors, coordinateStartIndex, dimensionality);
 
-        String siddhiAppName = siddhiAppContext.getName();
-        modelName = modelName + "." + siddhiAppName;
-        if (logger.isDebugEnabled()) {
-            logger.debug("model name is " + modelName);
-        }
-        clusterer = new Clusterer(numberOfClusters, maxIterations, modelName, siddhiAppName, dimensionality);
+        kMeansModel = new KMeansModel();
 
         executorService = siddhiAppContext.getExecutorService();
 
@@ -281,7 +271,7 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
                         Number content = (Number) featureVariableExpressionExecutors.get(i).execute(streamEvent);
                         coordinateValuesOfCurrentDataPoint[i] = content.doubleValue();
                     } catch (ClassCastException e) {
-                        throw new SiddhiAppCreationException("coordinate values should be int/float/double/long " +
+                        throw new SiddhiAppRuntimeException("coordinate values should be int/float/double/long " +
                                 "but found " +
                                 attributeExpressionExecutors[i].execute(streamEvent).getClass());
                     }
@@ -292,19 +282,19 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
                 currentDataPoint.setCoordinates(coordinateValuesOfCurrentDataPoint);
                 dataPointsArray.add(currentDataPoint);
 
+                if (kMeansModel.isTrained()) {
+                    logger.debug("Populating output");
+                    complexEventPopulater.populateComplexEvent(streamEvent,
+                            KMeansClusterer.getAssociatedCentroidInfo(currentDataPoint, kMeansModel));
+                }
+
                 //handling the training
                 if (numberOfEventsReceived % numberOfEventsToRetrain == 0) {
-                    clusterer.train(new LinkedList<>(dataPointsArray), numberOfEventsToRetrain, decayRate,
-                            executorService);
+                    KMeansClusterer.train(new LinkedList<>(dataPointsArray), numberOfEventsToRetrain, decayRate,
+                            executorService, kMeansModel, numberOfClusters, maximumIterations, dimensionality);
                     dataPointsArray.clear();
                 }
 
-                isModelInitialTrained = clusterer.isModelInitialTrained();
-                if (isModelInitialTrained) {
-                    logger.debug("Populating output");
-                    complexEventPopulater.populateComplexEvent(streamEvent,
-                            clusterer.getAssociatedCentroidInfo(currentDataPoint));
-                }
             }
         }
         nextProcessor.process(streamEventChunk);
@@ -312,12 +302,10 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
 
     @Override
     public void start() {
-
     }
 
     @Override
     public void stop() {
-        KMeansModelHolder.getInstance().deleteKMeansModel(modelName);
     }
 
     @Override
@@ -325,9 +313,8 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
         synchronized (this) {
             Map<String, Object> map = new HashMap();
             map.put("untrainedData", dataPointsArray);
-            map.put("isModelInitialTrained", isModelInitialTrained);
             map.put("numberOfEventsReceived", numberOfEventsReceived);
-            map.put("kMeansModel", KMeansModelHolder.getInstance().getClonedKMeansModel(modelName));
+            map.put("kMeansModel", kMeansModel);
             logger.debug("storing kmeans model " + map.get("kMeansModel"));
             return map;
         }
@@ -337,12 +324,8 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
     public void restoreState(Map<String, Object> map) {
         synchronized (this) {
             dataPointsArray = (LinkedList<DataPoint>) map.get("untrainedData");
-            isModelInitialTrained = (Boolean) map.get("isModelInitialTrained");
             numberOfEventsReceived = (Integer) map.get("numberOfEventsReceived");
-            KMeansModel model = (KMeansModel) map.get("kMeansModel");
-            KMeansModelHolder.getInstance().addKMeansModel(modelName, model);
-            clusterer.setModel(model);
-            clusterer.setModelInitialTrained(isModelInitialTrained);
+            kMeansModel = (KMeansModel) map.get("kMeansModel");
         }
     }
 }

@@ -29,7 +29,7 @@ public class DataPoint implements Serializable {
     private static final long serialVersionUID = -3694544849918946452L;
     private double[] coordinates;
 
-    public double[] getCoordinates() {
+    double[] getCoordinates() {
         if (coordinates != null) {
             return coordinates.clone();
         } else {
