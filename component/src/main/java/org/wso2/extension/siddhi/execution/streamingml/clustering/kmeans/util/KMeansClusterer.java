@@ -30,98 +30,52 @@ import java.util.concurrent.Future;
 /**
  * class containing all mathematical logic needed to perform kmeans
  */
-public class Clusterer {
-    private int numberOfClusters;
-    private int maximumIterations;
-    private boolean isInitialTrained = false;
-    private String siddhiAppName;
-    private KMeansModel model;
-    private int dimensionality;
-    private static final Logger logger = Logger.getLogger(Clusterer.class.getName());
+public class KMeansClusterer {
+    private static final Logger logger = Logger.getLogger(KMeansClusterer.class.getName());
 
-    /**
-     * Initialize no. of cluster centers, no. of iterations
-     */
-    public Clusterer(int numberOfClusters, int maximumIterations, String modelName, String siddhiAppName,
-                     int dimensionality) {
-        model = KMeansModelHolder.getInstance().getKMeansModel(modelName);
-        if (model == null) {
-            model = new KMeansModel();
-            KMeansModelHolder.getInstance().addKMeansModel(modelName, model);
-            if (logger.isDebugEnabled()) {
-                logger.debug("New model is created with name " + modelName);
-            }
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Reusing an existing model with name " + modelName);
-            }
-            if (model.size() == numberOfClusters) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Existing model " + modelName + " is trained");
-                }
-                isInitialTrained = true;
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Existing model " + modelName + " is not trained");
-                }
-            }
-        }
-        this.numberOfClusters = numberOfClusters;
-        this.maximumIterations = maximumIterations;
-        this.siddhiAppName = siddhiAppName;
-        this.dimensionality = dimensionality;
-    }
-
-
-    public boolean isModelInitialTrained() {
-        return isInitialTrained;
-    }
-
-    public void setModelInitialTrained(boolean b) {
-        isInitialTrained = b;
-    }
-
-    public void train(LinkedList<DataPoint> dataPointsArray, int numberOfEventsToRetrain, double decayRate,
-                      ExecutorService executorService) {
-        if ((!isInitialTrained)) {
-            cluster(dataPointsArray);
+    public static void train(LinkedList<DataPoint> dataPointsArray, int numberOfEventsToRetrain, double decayRate,
+                      ExecutorService executorService, KMeansModel model, int numberOfClusters,
+                      int maximumIterations, int dimensionality) {
+        if ((!model.isTrained())) {
+            cluster(dataPointsArray, model, numberOfClusters, maximumIterations, dimensionality);
             dataPointsArray.clear();
-            isInitialTrained = true;
+            model.setTrained();
         } else {
-            periodicTraining(numberOfEventsToRetrain, decayRate, executorService, dataPointsArray);
+            periodicTraining(numberOfEventsToRetrain, decayRate, executorService, dataPointsArray, model,
+                    numberOfClusters, maximumIterations, dimensionality);
         }
     }
 
-    private void periodicTraining(int numberOfEventsToRetrain, double decayRate, ExecutorService executorService,
-                                  LinkedList<DataPoint> dataPointsArray) {
-        int minBatchSizeToTriggerSeparateThread = 100; //TODO: test and tune to optimum value
+    private static void periodicTraining(int numberOfEventsToRetrain, double decayRate, ExecutorService executorService,
+                                  LinkedList<DataPoint> dataPointsArray, KMeansModel model, int numberOfClusters,
+                                  int maximumIterations, int dimensionality) {
+        int minBatchSizeToTriggerSeparateThread = 20; //TODO: test and tune to optimum value
         if (numberOfEventsToRetrain < minBatchSizeToTriggerSeparateThread) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Traditional training in " + siddhiAppName);
+                logger.debug("Traditional training");
             }
-            updateCluster(dataPointsArray, decayRate);
+            updateCluster(dataPointsArray, decayRate, model, numberOfClusters, maximumIterations, dimensionality);
             dataPointsArray.clear();
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("Seperate thread training in " + siddhiAppName);
+                logger.debug("Seperate thread training");
             }
-            Trainer trainer = new Trainer(this, dataPointsArray, decayRate);
+            Trainer trainer = new Trainer(dataPointsArray, decayRate, model, numberOfClusters, maximumIterations,
+                    dimensionality);
             Future f = executorService.submit(trainer);
         }
     }
 
-    public void setModel(KMeansModel m) {
-        model = m;
-    }
 
     /**
      * Perform clustering
      */
-    public void cluster(List<DataPoint> dataPointsArray) {
+    private static void cluster(List<DataPoint> dataPointsArray, KMeansModel model, int numberOfClusters,
+                        int maximumIterations, int dimensionality) {
         if (logger.isDebugEnabled()) {
             logger.debug("initial Clustering");
         }
-        buildModel(dataPointsArray);
+        buildModel(dataPointsArray, model, numberOfClusters);
 
         int iter = 0;
         if (dataPointsArray.size() != 0 && (model.size() == numberOfClusters)) {
@@ -130,11 +84,11 @@ public class Clusterer {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Current model : \n" + model.getModelInfo() + "\nclustering iteration : " + iter);
                 }
-                assignToCluster(dataPointsArray);
+                assignToCluster(dataPointsArray, model);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Current model : \n" + model.getModelInfo());
                 }
-                List<Cluster> newClusterList = calculateNewClusters();
+                List<Cluster> newClusterList = calculateNewClusters(model, dimensionality);
 
                 centroidShifted = !model.getClusterList().equals(newClusterList);
                 if (logger.isDebugEnabled()) {
@@ -150,7 +104,7 @@ public class Clusterer {
         }
     }
 
-    public String printClusterList(List<Cluster> clusterList) {
+    private static String printClusterList(List<Cluster> clusterList) {
         StringBuilder s = new StringBuilder();
         for (Cluster c: clusterList) {
             s.append(Arrays.toString(c.getCentroid().getCoordinates()));
@@ -158,7 +112,7 @@ public class Clusterer {
         return s.toString();
     }
 
-    public void buildModel(List<DataPoint> dataPointsArray) {
+    private static void buildModel(List<DataPoint> dataPointsArray, KMeansModel model, int numberOfClusters) {
         int distinctCount = model.size();
         for (DataPoint currentDataPoint : dataPointsArray) {
             if (distinctCount >= numberOfClusters) {
@@ -178,11 +132,9 @@ public class Clusterer {
      * in real time. This method takes in the new set of datapoints and decayRate as inputs
      * and calculates the centroids of the new set. Then new centroids are calculated using
      * newAvg = oldAvg + decayRate * batchAvg
-     *
-     * @param dataPointsArray
-     * @param decayRate       should be in [0,1]
      */
-    public void updateCluster(List<DataPoint> dataPointsArray, double decayRate) {
+    static void updateCluster(List<DataPoint> dataPointsArray, double decayRate, KMeansModel model,
+                              int numberOfClusters, int maximumIterations, int dimensionality) {
         if (logger.isDebugEnabled()) {
             logger.debug("Updating cluster");
             logger.debug("model at the start of this update : ");
@@ -195,7 +147,7 @@ public class Clusterer {
         if (dataPointsArray.size() != 0) {
             //when number of elements in centroid list is less than numberOfClusters
             if (model.size() < numberOfClusters) {
-                buildModel(dataPointsArray);
+                buildModel(dataPointsArray, model, numberOfClusters);
             }
             if (model.size() == numberOfClusters) {
                 ArrayList<Cluster> oldClusterList = new ArrayList<>(numberOfClusters);
@@ -212,8 +164,8 @@ public class Clusterer {
                 boolean centroidShifted = false;
                 while (iter < maximumIterations) {
 
-                    assignToCluster(dataPointsArray);
-                    List<Cluster> newClusterList = calculateNewClusters();
+                    assignToCluster(dataPointsArray, model);
+                    List<Cluster> newClusterList = calculateNewClusters(model, dimensionality);
                     centroidShifted = !intermediateClusterList.equals(newClusterList);
                     if (logger.isDebugEnabled()) {
                         s = new StringBuilder();
@@ -263,13 +215,12 @@ public class Clusterer {
 
     /**
      * finds the nearest centroid to each data point in the input array
-     * @param dataPointsArray arraylist containing datapoints for which we need to assign centroids
      */
-    private void assignToCluster(List<DataPoint> dataPointsArray) {
+    private static void assignToCluster(List<DataPoint> dataPointsArray, KMeansModel model) {
         logger.debug("Running function assignToCluster");
         model.clearClusterMembers();
         for (DataPoint currentDataPoint : dataPointsArray) {
-            Cluster associatedCluster = findAssociatedCluster(currentDataPoint);
+            Cluster associatedCluster = findAssociatedCluster(currentDataPoint, model);
             logger.debug("Associated cluster of " + Arrays.toString(currentDataPoint.getCoordinates()) + " is " +
              Arrays.toString(associatedCluster.getCentroid().getCoordinates()));
             associatedCluster.addToCluster(currentDataPoint);
@@ -278,11 +229,9 @@ public class Clusterer {
 
     /**
      * finds the nearest centroid to a given DataPoint
-     *
-     * @param currentDatapoint input DataPoint to which we need to find nearest centroid
      * @return centroid - the nearest centroid to the input DataPoint
      */
-    private Cluster findAssociatedCluster(DataPoint currentDatapoint) {
+    private static Cluster findAssociatedCluster(DataPoint currentDatapoint, KMeansModel model) {
         double minDistance = MathUtil.euclideanDistance(model.getCoordinatesOfCentroidOfCluster(0),
                 currentDatapoint.getCoordinates());
         Cluster associatedCluster = model.getClusterList().get(0);
@@ -302,11 +251,10 @@ public class Clusterer {
      * similar to findAssociatedCluster method but return an Object[] array with the distance
      * to closest centroid and the coordinates of the closest centroid
      *
-     * @param currentDatapoint the input dataPoint for which the closest centroid needs to be found
      * @return an Object[] array as mentioned above
      */
-    public Object[] getAssociatedCentroidInfo(DataPoint currentDatapoint) {
-        Cluster associatedCluster = findAssociatedCluster(currentDatapoint);
+    public static Object[] getAssociatedCentroidInfo(DataPoint currentDatapoint, KMeansModel model) {
+        Cluster associatedCluster = findAssociatedCluster(currentDatapoint, model);
         double minDistance = MathUtil.euclideanDistance(currentDatapoint.getCoordinates(),
                 associatedCluster.getCentroid().getCoordinates());
         List<Double> associatedCentroidInfoList = new ArrayList<Double>();
@@ -327,7 +275,7 @@ public class Clusterer {
      *
      * @return returns an array list of coordinate objects each representing a centroid
      */
-    private List<Cluster> calculateNewClusters() {
+    private static List<Cluster> calculateNewClusters(KMeansModel model, int dimensionality) {
         List<Cluster> newClusterList = new LinkedList<>();
 
         for (Cluster c: model.getClusterList()) {

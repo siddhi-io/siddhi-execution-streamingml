@@ -18,6 +18,7 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import java.util.List;
 
@@ -26,21 +27,30 @@ import java.util.List;
  */
 public class Trainer implements Runnable {
     private static final Logger logger = Logger.getLogger(Trainer.class.getName());
-    private Clusterer clusterer;
     private List<DataPoint> dataPointsArray;
     private double decayRate;
+    private KMeansModel model;
+    private int numberOfClusters;
+    private int maximumIterations;
+    private int dimensionality;
 
-    public Trainer(Clusterer clusterer, List<DataPoint> dataPointsArray, double decayRate) {
-        this.clusterer = clusterer;
+    Trainer(List<DataPoint> dataPointsArray, double decayRate, KMeansModel model,
+            int numberOfClusters, int maximumIterations, int dimensionality) {
         this.dataPointsArray = dataPointsArray;
         this.decayRate = decayRate;
+        this.model = model;
+        this.numberOfClusters = numberOfClusters;
+        this.maximumIterations = maximumIterations;
+        this.dimensionality = dimensionality;
     }
 
     @Override
     public void run() {
+        logger.setLevel(Level.ALL);
         if (logger.isDebugEnabled()) {
             logger.debug("running trainer thread");
         }
-        clusterer.updateCluster(dataPointsArray, decayRate);
+        KMeansClusterer.updateCluster(dataPointsArray, decayRate, model, numberOfClusters, maximumIterations,
+                dimensionality);
     }
 }
