@@ -65,7 +65,7 @@ import java.util.concurrent.ExecutorService;
         parameters = {
                 @Parameter(
                         name = "no.of.clusters",
-                        description = "The assumed number of natural clusters (numberOfClusters) in the data set.",
+                        description = "The assumed number of natural clusters in the data set.",
                         type = {DataType.INT}
                 ),
                 @Parameter(

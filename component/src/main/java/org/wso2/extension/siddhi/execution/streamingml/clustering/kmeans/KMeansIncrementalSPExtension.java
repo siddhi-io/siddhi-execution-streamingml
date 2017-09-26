@@ -56,14 +56,14 @@ import java.util.Map;
         namespace = "streamingml",
         description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and " +
                 "the dimensionality is calculated from number of parameters. " +
-                "All data points to be processed by an instance of class KMeansClusterer should be of the same " +
+                "All data points to be processed by a query should be of the same " +
                 "dimensionality. The Euclidean distance is taken as the distance metric. " +
                 "The algorithm resembles Sequential K-Means Clustering at " +
                 "https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm ",
         parameters = {
                 @Parameter(
                         name = "no.of.clusters",
-                        description = "The assumed number of natural clusters (numberOfClusters) in the data set.",
+                        description = "The assumed number of natural clusters in the data set.",
                         type = {DataType.INT}
                 ),
                 @Parameter(
