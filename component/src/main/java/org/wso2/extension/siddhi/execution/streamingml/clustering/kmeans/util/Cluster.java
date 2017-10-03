@@ -31,32 +31,28 @@ public class Cluster implements Serializable {
     private DataPoint centroid;
     private List<DataPoint> dataPointsInCluster;
 
-    public Cluster(DataPoint centroid) {
+    Cluster(DataPoint centroid) {
         this.centroid = centroid;
         dataPointsInCluster = new LinkedList<>();
     }
 
-    public DataPoint getCentroid() {
+    DataPoint getCentroid() {
         return centroid;
     }
 
-    public void setCentroid(DataPoint centroid) {
-        this.centroid = centroid;
-    }
-
-    public List<DataPoint> getDataPointsInCluster() {
+    List<DataPoint> getDataPointsInCluster() {
         return dataPointsInCluster;
     }
 
-    public void clearDataPointsInCluster() {
+    void clearDataPointsInCluster() {
         dataPointsInCluster.clear();
     }
 
-    public void addToCluster(DataPoint currentDataPoint) {
+    void addToCluster(DataPoint currentDataPoint) {
         dataPointsInCluster.add(currentDataPoint);
     }
 
-    public String getMemberInfo() {
+    String getMemberInfo() {
         StringBuilder s = new StringBuilder();
         for (DataPoint d: dataPointsInCluster) {
             s.append(Arrays.toString(d.getCoordinates()));
