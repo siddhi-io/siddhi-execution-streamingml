@@ -213,34 +213,6 @@
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>2.4</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco.version}</version>
-                    <executions>
-                        <execution>
-                            <id>jacoco-initialize</id>
-                            <goals>
-                                <goal>prepare-agent</goal>
-                            </goals>
-                            <configuration>
-                                <destFile>${basedir}/target/coverage-reports/jacoco.exec</destFile>
-                                <propertyName>surefireArgLine</propertyName>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>jacoco-site</id>
-                            <phase>post-integration-test</phase>
-                            <goals>
-                                <goal>report</goal>
-                            </goals>
-                            <configuration>
-                                <dataFile>${basedir}/target/coverage-reports/jacoco.exec</dataFile>
-                                <outputDirectory>${basedir}/target/coverage-reports/</outputDirectory>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
