@@ -1,90 +1,6 @@
-# API Docs - v1.0.7-SNAPSHOT
+# API Docs - v1.0.7
 
 ## Streamingml
-
-### kMeansIncremental *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a>*
-
-<p style="word-wrap: break-word">Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed by a query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles Sequential K-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm </p>
-
-<span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
-```
-streamingml:kMeansIncremental(<INT> no.of.clusters, <DOUBLE> decay.rate, <DOUBLE|FLOAT|INT|LONG> model.features)
-```
-
-<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
-<table>
-    <tr>
-        <th>Name</th>
-        <th style="min-width: 20em">Description</th>
-        <th>Default Value</th>
-        <th>Possible Data Types</th>
-        <th>Optional</th>
-        <th>Dynamic</th>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">no.of.clusters</td>
-        <td style="vertical-align: top; word-wrap: break-word">The assumed number of natural clusters in the data set.</td>
-        <td style="vertical-align: top"></td>
-        <td style="vertical-align: top">INT</td>
-        <td style="vertical-align: top">No</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">decay.rate</td>
-        <td style="vertical-align: top; word-wrap: break-word">this is the decay rate of old data compared to new data. Value of this will be in [0,1]. 0 means only old data used and1 will mean that only new data is used</td>
-        <td style="vertical-align: top">0.01</td>
-        <td style="vertical-align: top">DOUBLE</td>
-        <td style="vertical-align: top">Yes</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">model.features</td>
-        <td style="vertical-align: top; word-wrap: break-word">This is a variable length argument. Depending on the dimensionality of data points we will receive coordinates as features along each axis.</td>
-        <td style="vertical-align: top"></td>
-        <td style="vertical-align: top">DOUBLE<br>FLOAT<br>INT<br>LONG</td>
-        <td style="vertical-align: top">No</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-</table>
-<span id="extra-return-attributes" class="md-typeset" style="display: block; font-weight: bold;">Extra Return Attributes</span>
-<table>
-    <tr>
-        <th>Name</th>
-        <th style="min-width: 20em">Description</th>
-        <th>Possible Types</th>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">euclideanDistanceToClosestCentroid</td>
-        <td style="vertical-align: top; word-wrap: break-word">Represents the Euclidean distance between the current data point and the closest centroid.</td>
-        <td style="vertical-align: top">DOUBLE</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">closestCentroidCoordinate</td>
-        <td style="vertical-align: top; word-wrap: break-word">This is a variable length attribute. Depending on the dimensionality(D) we will return closestCentroidCoordinate1, closestCentroidCoordinate2,... closestCentroidCoordinateD which are the d dimensional coordinates of the closest centroid from the model to the current event. This is the prediction result and this represents the cluster to which the current event belongs to.</td>
-        <td style="vertical-align: top">DOUBLE</td>
-    </tr>
-</table>
-
-<span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
-```
-define stream InputStream (x double, y double);
-@info(name = 'query1')
-from InputStream#streamingml:kMeansIncremental(2, 0.2, x, y)
-select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
-insert into OutputStream;
-```
-<p style="word-wrap: break-word">This is an example where user provides the decay rate. First two events will be used to initiate the model since the required number of clusters is specified as 2. After the first event itself prediction would start.</p>
-
-<span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
-```
-define stream InputStream (x double, y double);
-@info(name = 'query1')
-from InputStream#streamingml:kMeansIncremental(2, x, y)
-select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
-insert into OutputStream;
-```
-<p style="word-wrap: break-word">This is an example where user doesnt give the decay rate so the default value will be used</p>
 
 ### kMeansMiniBatch *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a>*
 
@@ -185,6 +101,90 @@ select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
 insert into OutputStream;
 ```
 <p style="word-wrap: break-word">This is an example where user has not specified hyper params. So default values will be used.</p>
+
+### kMeansIncremental *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a>*
+
+<p style="word-wrap: break-word">Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed by a query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles Sequential K-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm </p>
+
+<span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span>
+```
+streamingml:kMeansIncremental(<INT> no.of.clusters, <DOUBLE> decay.rate, <DOUBLE|FLOAT|INT|LONG> model.features)
+```
+
+<span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Default Value</th>
+        <th>Possible Data Types</th>
+        <th>Optional</th>
+        <th>Dynamic</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">no.of.clusters</td>
+        <td style="vertical-align: top; word-wrap: break-word">The assumed number of natural clusters in the data set.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">INT</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">decay.rate</td>
+        <td style="vertical-align: top; word-wrap: break-word">this is the decay rate of old data compared to new data. Value of this will be in [0,1]. 0 means only old data used and1 will mean that only new data is used</td>
+        <td style="vertical-align: top">0.01</td>
+        <td style="vertical-align: top">DOUBLE</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">model.features</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is a variable length argument. Depending on the dimensionality of data points we will receive coordinates as features along each axis.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">DOUBLE<br>FLOAT<br>INT<br>LONG</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+</table>
+<span id="extra-return-attributes" class="md-typeset" style="display: block; font-weight: bold;">Extra Return Attributes</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Possible Types</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">euclideanDistanceToClosestCentroid</td>
+        <td style="vertical-align: top; word-wrap: break-word">Represents the Euclidean distance between the current data point and the closest centroid.</td>
+        <td style="vertical-align: top">DOUBLE</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">closestCentroidCoordinate</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is a variable length attribute. Depending on the dimensionality(D) we will return closestCentroidCoordinate1, closestCentroidCoordinate2,... closestCentroidCoordinateD which are the d dimensional coordinates of the closest centroid from the model to the current event. This is the prediction result and this represents the cluster to which the current event belongs to.</td>
+        <td style="vertical-align: top">DOUBLE</td>
+    </tr>
+</table>
+
+<span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span>
+```
+define stream InputStream (x double, y double);
+@info(name = 'query1')
+from InputStream#streamingml:kMeansIncremental(2, 0.2, x, y)
+select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
+insert into OutputStream;
+```
+<p style="word-wrap: break-word">This is an example where user provides the decay rate. First two events will be used to initiate the model since the required number of clusters is specified as 2. After the first event itself prediction would start.</p>
+
+<span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span>
+```
+define stream InputStream (x double, y double);
+@info(name = 'query1')
+from InputStream#streamingml:kMeansIncremental(2, x, y)
+select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
+insert into OutputStream;
+```
+<p style="word-wrap: break-word">This is an example where user doesnt give the decay rate so the default value will be used</p>
 
 ### updatePerceptronClassifier *<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a>*
 
