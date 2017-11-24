@@ -16,7 +16,7 @@
     
     
       
-        <title>1.0.7 - Siddhi-Execution-StreamingML</title>
+        <title>1.0.9 - Siddhi-Execution-StreamingML</title>
       
     
     
@@ -84,7 +84,7 @@
                 </span>
               
             
-            1.0.7
+            1.0.9
           
         </span>
       </div>
@@ -181,30 +181,6 @@
           
           
 
-
-  <li class="md-nav__item">
-    <a href="../1.0.9/" title="1.0.9" class="md-nav__link">
-      1.0.9
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../1.0.8/" title="1.0.8" class="md-nav__link">
-      1.0.8
-    </a>
-  </li>
-
-        
-          
-          
-          
-
   
 
 
@@ -216,11 +192,11 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="toc">
-        1.0.7
+        1.0.9
       </label>
     
-    <a href="./" title="1.0.7" class="md-nav__link md-nav__link--active">
-      1.0.7
+    <a href="./" title="1.0.9" class="md-nav__link md-nav__link--active">
+      1.0.9
     </a>
     
       
@@ -242,13 +218,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#kmeansminibatch-stream-processor" title="kMeansMiniBatch (Stream Processor)" class="md-nav__link">
-    kMeansMiniBatch (Stream Processor)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#kmeansincremental-stream-processor" title="kMeansIncremental (Stream Processor)" class="md-nav__link">
     kMeansIncremental (Stream Processor)
   </a>
@@ -256,8 +225,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#updateperceptronclassifier-stream-processor" title="updatePerceptronClassifier (Stream Processor)" class="md-nav__link">
-    updatePerceptronClassifier (Stream Processor)
+  <a href="#kmeansminibatch-stream-processor" title="kMeansMiniBatch (Stream Processor)" class="md-nav__link">
+    kMeansMiniBatch (Stream Processor)
   </a>
   
 </li>
@@ -265,6 +234,13 @@
           <li class="md-nav__item">
   <a href="#perceptronclassifier-stream-processor" title="perceptronClassifier (Stream Processor)" class="md-nav__link">
     perceptronClassifier (Stream Processor)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updateperceptronclassifier-stream-processor" title="updatePerceptronClassifier (Stream Processor)" class="md-nav__link">
+    updatePerceptronClassifier (Stream Processor)
   </a>
   
 </li>
@@ -280,6 +256,30 @@
   
 </nav>
     
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../1.0.8/" title="1.0.8" class="md-nav__link">
+      1.0.8
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../1.0.7/" title="1.0.7" class="md-nav__link">
+      1.0.7
+    </a>
   </li>
 
         
@@ -341,13 +341,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#kmeansminibatch-stream-processor" title="kMeansMiniBatch (Stream Processor)" class="md-nav__link">
-    kMeansMiniBatch (Stream Processor)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#kmeansincremental-stream-processor" title="kMeansIncremental (Stream Processor)" class="md-nav__link">
     kMeansIncremental (Stream Processor)
   </a>
@@ -355,8 +348,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#updateperceptronclassifier-stream-processor" title="updatePerceptronClassifier (Stream Processor)" class="md-nav__link">
-    updatePerceptronClassifier (Stream Processor)
+  <a href="#kmeansminibatch-stream-processor" title="kMeansMiniBatch (Stream Processor)" class="md-nav__link">
+    kMeansMiniBatch (Stream Processor)
   </a>
   
 </li>
@@ -364,6 +357,13 @@
           <li class="md-nav__item">
   <a href="#perceptronclassifier-stream-processor" title="perceptronClassifier (Stream Processor)" class="md-nav__link">
     perceptronClassifier (Stream Processor)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updateperceptronclassifier-stream-processor" title="updatePerceptronClassifier (Stream Processor)" class="md-nav__link">
+    updatePerceptronClassifier (Stream Processor)
   </a>
   
 </li>
@@ -388,8 +388,89 @@
               
                 
                 
-                <h1 id="api-docs-v107">API Docs - v1.0.7</h1>
+                <h1 id="api-docs-v109">API Docs - v1.0.9</h1>
 <h2 id="streamingml">Streamingml</h2>
+<h3 id="kmeansincremental-stream-processor">kMeansIncremental <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em></h3>
+<p style="word-wrap: break-word">Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed by a query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles Sequential K-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm </p>
+
+<p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
+<pre><code>streamingml:kMeansIncremental(&lt;INT&gt; no.of.clusters, &lt;DOUBLE&gt; decay.rate, &lt;DOUBLE|FLOAT|INT|LONG&gt; model.features)
+</code></pre>
+
+<p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Default Value</th>
+        <th>Possible Data Types</th>
+        <th>Optional</th>
+        <th>Dynamic</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">no.of.clusters</td>
+        <td style="vertical-align: top; word-wrap: break-word">The assumed number of natural clusters in the data set.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">INT</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">decay.rate</td>
+        <td style="vertical-align: top; word-wrap: break-word">this is the decay rate of old data compared to new data. Value of this will be in [0,1]. 0 means only old data used and1 will mean that only new data is used</td>
+        <td style="vertical-align: top">0.01</td>
+        <td style="vertical-align: top">DOUBLE</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">model.features</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is a variable length argument. Depending on the dimensionality of data points we will receive coordinates as features along each axis.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">DOUBLE<br>FLOAT<br>INT<br>LONG</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+</table>
+<span id="extra-return-attributes" class="md-typeset" style="display: block; font-weight: bold;">Extra Return Attributes</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Possible Types</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">euclideanDistanceToClosestCentroid</td>
+        <td style="vertical-align: top; word-wrap: break-word">Represents the Euclidean distance between the current data point and the closest centroid.</td>
+        <td style="vertical-align: top">DOUBLE</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">closestCentroidCoordinate</td>
+        <td style="vertical-align: top; word-wrap: break-word">This is a variable length attribute. Depending on the dimensionality(D) we will return closestCentroidCoordinate1, closestCentroidCoordinate2,... closestCentroidCoordinateD which are the d dimensional coordinates of the closest centroid from the model to the current event. This is the prediction result and this represents the cluster to which the current event belongs to.</td>
+        <td style="vertical-align: top">DOUBLE</td>
+    </tr>
+</table></p>
+<p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
+<pre><code>define stream InputStream (x double, y double);
+@info(name = 'query1')
+from InputStream#streamingml:kMeansIncremental(2, 0.2, x, y)
+select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
+insert into OutputStream;
+</code></pre>
+
+<p style="word-wrap: break-word">This is an example where user provides the decay rate. First two events will be used to initiate the model since the required number of clusters is specified as 2. After the first event itself prediction would start.</p>
+
+<p><span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span></p>
+<pre><code>define stream InputStream (x double, y double);
+@info(name = 'query1')
+from InputStream#streamingml:kMeansIncremental(2, x, y)
+select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
+insert into OutputStream;
+</code></pre>
+
+<p style="word-wrap: break-word">This is an example where user doesnt give the decay rate so the default value will be used</p>
+
 <h3 id="kmeansminibatch-stream-processor">kMeansMiniBatch <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em></h3>
 <p style="word-wrap: break-word">Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed in a single query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). </p>
 
@@ -487,169 +568,6 @@ insert into OutputStream;
 
 <p style="word-wrap: break-word">This is an example where user has not specified hyper params. So default values will be used.</p>
 
-<h3 id="kmeansincremental-stream-processor">kMeansIncremental <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em></h3>
-<p style="word-wrap: break-word">Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed by a query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles Sequential K-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm </p>
-
-<p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
-<pre><code>streamingml:kMeansIncremental(&lt;INT&gt; no.of.clusters, &lt;DOUBLE&gt; decay.rate, &lt;DOUBLE|FLOAT|INT|LONG&gt; model.features)
-</code></pre>
-
-<p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
-<table>
-    <tr>
-        <th>Name</th>
-        <th style="min-width: 20em">Description</th>
-        <th>Default Value</th>
-        <th>Possible Data Types</th>
-        <th>Optional</th>
-        <th>Dynamic</th>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">no.of.clusters</td>
-        <td style="vertical-align: top; word-wrap: break-word">The assumed number of natural clusters in the data set.</td>
-        <td style="vertical-align: top"></td>
-        <td style="vertical-align: top">INT</td>
-        <td style="vertical-align: top">No</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">decay.rate</td>
-        <td style="vertical-align: top; word-wrap: break-word">this is the decay rate of old data compared to new data. Value of this will be in [0,1]. 0 means only old data used and1 will mean that only new data is used</td>
-        <td style="vertical-align: top">0.01</td>
-        <td style="vertical-align: top">DOUBLE</td>
-        <td style="vertical-align: top">Yes</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">model.features</td>
-        <td style="vertical-align: top; word-wrap: break-word">This is a variable length argument. Depending on the dimensionality of data points we will receive coordinates as features along each axis.</td>
-        <td style="vertical-align: top"></td>
-        <td style="vertical-align: top">DOUBLE<br>FLOAT<br>INT<br>LONG</td>
-        <td style="vertical-align: top">No</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-</table>
-<span id="extra-return-attributes" class="md-typeset" style="display: block; font-weight: bold;">Extra Return Attributes</span>
-<table>
-    <tr>
-        <th>Name</th>
-        <th style="min-width: 20em">Description</th>
-        <th>Possible Types</th>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">euclideanDistanceToClosestCentroid</td>
-        <td style="vertical-align: top; word-wrap: break-word">Represents the Euclidean distance between the current data point and the closest centroid.</td>
-        <td style="vertical-align: top">DOUBLE</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">closestCentroidCoordinate</td>
-        <td style="vertical-align: top; word-wrap: break-word">This is a variable length attribute. Depending on the dimensionality(D) we will return closestCentroidCoordinate1, closestCentroidCoordinate2,... closestCentroidCoordinateD which are the d dimensional coordinates of the closest centroid from the model to the current event. This is the prediction result and this represents the cluster to which the current event belongs to.</td>
-        <td style="vertical-align: top">DOUBLE</td>
-    </tr>
-</table></p>
-<p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
-<pre><code>define stream InputStream (x double, y double);
-@info(name = 'query1')
-from InputStream#streamingml:kMeansIncremental(2, 0.2, x, y)
-select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
-insert into OutputStream;
-</code></pre>
-
-<p style="word-wrap: break-word">This is an example where user provides the decay rate. First two events will be used to initiate the model since the required number of clusters is specified as 2. After the first event itself prediction would start.</p>
-
-<p><span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span></p>
-<pre><code>define stream InputStream (x double, y double);
-@info(name = 'query1')
-from InputStream#streamingml:kMeansIncremental(2, x, y)
-select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
-insert into OutputStream;
-</code></pre>
-
-<p style="word-wrap: break-word">This is an example where user doesnt give the decay rate so the default value will be used</p>
-
-<h3 id="updateperceptronclassifier-stream-processor">updatePerceptronClassifier <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em></h3>
-<p style="word-wrap: break-word">This extension builds/updates a linear binary classification Perceptron model.</p>
-
-<p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
-<pre><code>streamingml:updatePerceptronClassifier(&lt;STRING&gt; model.name, &lt;BOOL|STRING&gt; model.label, &lt;DOUBLE&gt; learning.rate, &lt;DOUBLE|INT&gt; model.features)
-</code></pre>
-
-<p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
-<table>
-    <tr>
-        <th>Name</th>
-        <th style="min-width: 20em">Description</th>
-        <th>Default Value</th>
-        <th>Possible Data Types</th>
-        <th>Optional</th>
-        <th>Dynamic</th>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">model.name</td>
-        <td style="vertical-align: top; word-wrap: break-word">The name of the model to be built/updated.</td>
-        <td style="vertical-align: top"></td>
-        <td style="vertical-align: top">STRING</td>
-        <td style="vertical-align: top">No</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">model.label</td>
-        <td style="vertical-align: top; word-wrap: break-word">The attribute of the label or the class of the dataset.</td>
-        <td style="vertical-align: top"></td>
-        <td style="vertical-align: top">BOOL<br>STRING</td>
-        <td style="vertical-align: top">No</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">learning.rate</td>
-        <td style="vertical-align: top; word-wrap: break-word">The learning rate of the Perceptron algorithm.</td>
-        <td style="vertical-align: top">0.1</td>
-        <td style="vertical-align: top">DOUBLE</td>
-        <td style="vertical-align: top">Yes</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">model.features</td>
-        <td style="vertical-align: top; word-wrap: break-word">Features of the model that need to be attributes of the stream.</td>
-        <td style="vertical-align: top"></td>
-        <td style="vertical-align: top">DOUBLE<br>INT</td>
-        <td style="vertical-align: top">No</td>
-        <td style="vertical-align: top">No</td>
-    </tr>
-</table>
-<span id="extra-return-attributes" class="md-typeset" style="display: block; font-weight: bold;">Extra Return Attributes</span>
-<table>
-    <tr>
-        <th>Name</th>
-        <th style="min-width: 20em">Description</th>
-        <th>Possible Types</th>
-    </tr>
-    <tr>
-        <td style="vertical-align: top">featureWeight</td>
-        <td style="vertical-align: top; word-wrap: break-word">Weight of the &lt;feature.name&gt; of the model.</td>
-        <td style="vertical-align: top">DOUBLE</td>
-    </tr>
-</table></p>
-<p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
-<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
-<pre><code>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, attribute_4 string );
-
-from StreamA#streamingml:updatePerceptronClassifier('model1', attribute_4, 0.01, attribute_0, attribute_1, attribute_2, attribute_3) 
-insert all events into outputStream;
-</code></pre>
-
-<p style="word-wrap: break-word">This query builds/updates a Perceptron model named <code>model1</code> with a <code>0.01</code> learning rate using <code>attribute_0</code>, <code>attribute_1</code>, <code>attribute_2</code>, and <code>attribute_3</code> as features, and <code>attribute_4</code> as the label. Updated weights of the model are emitted to the OutputStream stream.</p>
-
-<p><span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span></p>
-<pre><code>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double,attribute_3 double, attribute_4 string );
-
- from StreamA#streamingml:updatePerceptronClassifier('model1', attribute_4, attribute_0, attribute_1, attribute_2, attribute_3) 
-insert all events into outputStream;
-</code></pre>
-
-<p style="word-wrap: break-word">This query builds/updates a Perceptron model named <code>model1</code> with a default <code>0.1</code> learning rate using <code>attribute_0</code>, <code>attribute_1</code>, <code>attribute_2</code>, and <code>attribute_3</code> as features, and <code>attribute_4</code> as the label. The updated weights of the model are appended to the outputStream.</p>
-
 <h3 id="perceptronclassifier-stream-processor">perceptronClassifier <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em></h3>
 <p style="word-wrap: break-word">This extension predicts using a linear binary classification Perceptron model.</p>
 
@@ -745,6 +663,88 @@ insert all events into OutputStream;
 </code></pre>
 
 <p style="word-wrap: break-word">This query uses a Perceptron model named <code>model1</code> with a default 0.0 bias to predict the label of the feature vector represented by <code>attribute_0</code>, <code>attribute_1</code>, and <code>attribute_2</code>. The predicted probability is emitted to the OutputStream stream along with the feature vector. As a result, the OutputStream is defined as follows: (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, prediction bool, confidenceLevel double).</p>
+
+<h3 id="updateperceptronclassifier-stream-processor">updatePerceptronClassifier <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em></h3>
+<p style="word-wrap: break-word">This extension builds/updates a linear binary classification Perceptron model.</p>
+
+<p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
+<pre><code>streamingml:updatePerceptronClassifier(&lt;STRING&gt; model.name, &lt;BOOL|STRING&gt; model.label, &lt;DOUBLE&gt; learning.rate, &lt;DOUBLE|INT&gt; model.features)
+</code></pre>
+
+<p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Default Value</th>
+        <th>Possible Data Types</th>
+        <th>Optional</th>
+        <th>Dynamic</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">model.name</td>
+        <td style="vertical-align: top; word-wrap: break-word">The name of the model to be built/updated.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">model.label</td>
+        <td style="vertical-align: top; word-wrap: break-word">The attribute of the label or the class of the dataset.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">BOOL<br>STRING</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">learning.rate</td>
+        <td style="vertical-align: top; word-wrap: break-word">The learning rate of the Perceptron algorithm.</td>
+        <td style="vertical-align: top">0.1</td>
+        <td style="vertical-align: top">DOUBLE</td>
+        <td style="vertical-align: top">Yes</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">model.features</td>
+        <td style="vertical-align: top; word-wrap: break-word">Features of the model that need to be attributes of the stream.</td>
+        <td style="vertical-align: top"></td>
+        <td style="vertical-align: top">DOUBLE<br>INT</td>
+        <td style="vertical-align: top">No</td>
+        <td style="vertical-align: top">No</td>
+    </tr>
+</table>
+<span id="extra-return-attributes" class="md-typeset" style="display: block; font-weight: bold;">Extra Return Attributes</span>
+<table>
+    <tr>
+        <th>Name</th>
+        <th style="min-width: 20em">Description</th>
+        <th>Possible Types</th>
+    </tr>
+    <tr>
+        <td style="vertical-align: top">featureWeight</td>
+        <td style="vertical-align: top; word-wrap: break-word">Weight of the &lt;feature.name&gt; of the model.</td>
+        <td style="vertical-align: top">DOUBLE</td>
+    </tr>
+</table></p>
+<p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
+<span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
+<pre><code>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, attribute_4 string );
+
+from StreamA#streamingml:updatePerceptronClassifier('model1', attribute_4, 0.01, attribute_0, attribute_1, attribute_2, attribute_3) 
+insert all events into outputStream;
+</code></pre>
+
+<p style="word-wrap: break-word">This query builds/updates a Perceptron model named <code>model1</code> with a <code>0.01</code> learning rate using <code>attribute_0</code>, <code>attribute_1</code>, <code>attribute_2</code>, and <code>attribute_3</code> as features, and <code>attribute_4</code> as the label. Updated weights of the model are emitted to the OutputStream stream.</p>
+
+<p><span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span></p>
+<pre><code>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double,attribute_3 double, attribute_4 string );
+
+ from StreamA#streamingml:updatePerceptronClassifier('model1', attribute_4, attribute_0, attribute_1, attribute_2, attribute_3) 
+insert all events into outputStream;
+</code></pre>
+
+<p style="word-wrap: break-word">This query builds/updates a Perceptron model named <code>model1</code> with a default <code>0.1</code> learning rate using <code>attribute_0</code>, <code>attribute_1</code>, <code>attribute_2</code>, and <code>attribute_3</code> as features, and <code>attribute_4</code> as the label. The updated weights of the model are appended to the outputStream.</p>
                 
                   
                 
@@ -763,7 +763,7 @@ insert all events into OutputStream;
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../1.0.8/" title="1.0.8" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../.." title="Welcome to WSO2 Siddhi Execution StreamingML" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -772,19 +772,19 @@ insert all events into OutputStream;
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                1.0.8
+                Welcome to WSO2 Siddhi Execution StreamingML
               </span>
             </div>
           </a>
         
         
-          <a href="../latest/" title="latest" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../1.0.8/" title="1.0.8" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                latest
+                1.0.8
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
