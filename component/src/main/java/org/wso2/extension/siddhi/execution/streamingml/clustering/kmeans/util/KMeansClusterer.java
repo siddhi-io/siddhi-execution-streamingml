@@ -63,6 +63,9 @@ public class KMeansClusterer {
             Trainer trainer = new Trainer(dataPointsArray, decayRate, model, numberOfClusters, maximumIterations,
                     dimensionality);
             Future f = executorService.submit(trainer);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Pending future tasks done: " + f.isDone());
+            }
         }
     }
 
