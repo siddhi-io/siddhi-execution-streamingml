@@ -152,7 +152,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 bool, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "2,0.5, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -173,7 +172,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 bool, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0,2, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -194,7 +192,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0,1.1," +
                 " attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -215,7 +212,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier(attribute_4, " + "0.0," +
                 "1.1, attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -236,7 +232,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier() \n" + "insert all " +
                 "events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -309,7 +304,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0, " +
                 "attribute_0, attribute_1, attribute_2) \n" + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(trainingStream +
                     inStreamDefinition + trainingQuery + query);
@@ -331,7 +325,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier(0.2, " + "0.0, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
@@ -351,7 +344,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('m1', " + "0.0, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3, 2) \n" + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
@@ -373,7 +365,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('m1', " + "0.0, 0.5, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3, 2) \n" + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
         } catch (Exception e) {
@@ -469,7 +460,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 + "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0, 0.5,"
                 + "attribute_0, attribute_1, attribute_2) \n" + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(trainingStream + inStreamDefinition
                     + trainingQuery + query);
@@ -513,7 +503,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "attribute_1 double, attribute_2 " + "double, attribute_3 double, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0," +
                 "0.6, attribute_0, attribute_1, attribute_2) \n" + "insert all events into " + "outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager.createSiddhiAppRuntime(trainingStream + trainingQuery);
             // should be successful even though both the apps are using the same model name with different feature
