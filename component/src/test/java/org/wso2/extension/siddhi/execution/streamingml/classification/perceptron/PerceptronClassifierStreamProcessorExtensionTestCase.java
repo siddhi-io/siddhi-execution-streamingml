@@ -118,15 +118,13 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             inputHandler1.send(new Object[]{0.33, 0.23, 0.632, 0.992});
 
             SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension2() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension2() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - Features are not of type double");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -134,7 +132,6 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 bool, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0,0.5," +
                 " attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -147,7 +144,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension3() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension3() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - bias is not double");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -168,7 +165,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension4() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension4() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - threshold is not double");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -189,7 +186,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension5() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension5() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - threshold is greater than 1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -210,7 +207,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension6() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension6() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - invalid model name");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -231,7 +228,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension7() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension7() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - incorrect initialization");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -298,15 +295,13 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             inputHandler1.send(new Object[]{0.33, 0.23, 0.632, 0.992});
 
             SiddhiTestHelper.waitForEvents(200, 2, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension9() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension9() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - Incompatible model");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -328,7 +323,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension10() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension10() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - invalid model name type");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -348,7 +343,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension11() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension11() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - incorrect order of parameters");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -370,7 +365,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension12() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension12() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - more parameters than needed");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -437,15 +432,13 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
             inputHandler1.send(new Object[]{0.33, 0.23, 0.632, 0.992});
 
             SiddhiTestHelper.waitForEvents(200, 2, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension14() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension14() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - init predict first and then "
                 + "update model");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -468,7 +461,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension15() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension15() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - Incompatible model (reverse)");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -490,7 +483,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension16() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension16() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - threshold is less than 0");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -511,7 +504,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension17() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension17() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - model is visible only within the " +
                 "SiddhiApp");
         SiddhiManager siddhiManager = new SiddhiManager();
