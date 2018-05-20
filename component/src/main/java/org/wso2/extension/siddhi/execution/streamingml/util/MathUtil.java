@@ -30,7 +30,7 @@ public class MathUtil {
     public static double dot(double[] vector1, double[] vector2) {
         if (vector1.length != vector2.length) {
             throw new IllegalArgumentException("The dimensions needs to be equal. " +
-                    "But found "+vector1.length+" and "+vector2.length);
+                    "But found " + vector1.length + " and " + vector2.length);
         }
         double sum = 0;
         for (int i = 0; i < vector1.length; i++) {
