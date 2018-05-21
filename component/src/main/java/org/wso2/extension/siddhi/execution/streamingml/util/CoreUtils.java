@@ -61,15 +61,23 @@ public class CoreUtils {
         return featureVariableExpressionExecutors;
     }
 
-
+    /**
+     * Check feature attribute to be a numeric
+     * @param attributeType feature attribute type
+     * @return true/false
+     */
     private static boolean isNumeric(Attribute.Type attributeType) {
         return numericTypes.contains(attributeType);
     }
 
+    /**
+     * Check label attribute to be a valid type
+     * @param attributeType label feature attribute type
+     * @return true/false
+     */
     public static boolean isLabelType(Attribute.Type attributeType) {
         return labelTypes.contains(attributeType);
     }
-
 
     /**
      * Validate and extract Class label executor
