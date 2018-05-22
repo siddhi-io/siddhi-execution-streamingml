@@ -35,9 +35,11 @@ import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,7 +58,8 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension1() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension1() throws InterruptedException, FileNotFoundException,
+            UnsupportedEncodingException {
         logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - Assert updated weights");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -98,17 +101,13 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
                 String[] event = eventStr.split(",");
                 inputHandler.send(new Object[]{Double.valueOf(event[0]), Double.valueOf(event[1]), Double.valueOf
                         (event[2]), Double.valueOf(event[3]), event[4]});
-
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
                     logger.error(e.getCause().getMessage());
                 }
             }
-
             SiddhiTestHelper.waitForEvents(200, 8, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             if (scanner != null) {
                 scanner.close();
@@ -152,15 +151,13 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{0.75, 0.1, "false", 0.58, 0.71});
 
             SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension3() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension3() {
         logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - Features are not of type double");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -169,7 +166,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier('model1', "
                 + "attribute_4, 0.01, attribute_0, attribute_1, attribute_2, attribute_3) \n"
                 + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -182,7 +178,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension4() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension4() {
         logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - Label is not of type string or "
                 + "bool");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -192,7 +188,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier('model1'," +
                 "attribute_4,0.01, attribute_0, attribute_1, attribute_2, attribute_3)" +
                 "\ninsert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -249,6 +244,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
 
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+
                 count.incrementAndGet();
                 if (count.get() == 3) {
                     AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.1, 0.65, 0.92, "false", 0.003, 0.0175,
@@ -265,8 +261,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{0.75, 0.1, 0.58, 0.71, "false"});
 
             SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -322,6 +316,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
 
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+
                     count.incrementAndGet();
                     if (count.get() == 5) {
                         // weights should be restored and should be following
@@ -338,17 +333,14 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
             // send a new event
             inputHandler.send(new Object[]{0.8, 0.1, 0.65, 0.92, "false"});
-
             SiddhiTestHelper.waitForEvents(200, 5, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension8() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension8() {
         logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - learning rate is not double");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -357,7 +349,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier('model1'," +
                 "attribute_4, 1, attribute_0, attribute_1, attribute_2, attribute_3) " +
                 "\ninsert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -370,7 +361,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension9() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension9() {
         logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - invalid model name");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -379,7 +370,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier(attribute_4,"
                 + "attribute_4, attribute_0, attribute_1, attribute_2, attribute_3)"
                 + "\ninsert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -392,7 +382,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension10() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension10() {
         logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - incorrect initialization");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -400,7 +390,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
                 "double, attribute_3 int, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier() \n" +
                 "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                     query);
@@ -446,15 +435,14 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{0.75, 0.1, 0.58, 0.71, "false"});
 
             SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension12() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension12() {
+
         logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - invalid model name type");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -463,7 +451,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier(0.2,attribute_4, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3)" +
                 "\ninsert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -476,7 +463,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension13() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension13() {
         logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - incorrect order of parameters");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -485,7 +472,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier('m1',attribute_4,"
                 + "1.0, attribute_0, attribute_1, attribute_2, 2)\n"
                 + "insert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -499,7 +485,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension14() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension14() {
         logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - more parameters than needed");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -508,7 +494,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier('m1',attribute_4," +
                 "1.0, attribute_0, attribute_1, attribute_2, attribute_3, 2)" +
                 "\ninsert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -522,7 +507,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension15() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension15() {
         logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - model.label is not an attribute");
         SiddhiManager siddhiManager = new SiddhiManager();
 
@@ -531,7 +516,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
         String query = ("@info(name = 'query1') from StreamA#streamingml:updatePerceptronClassifier('m1',2," +
                 "1.0, attribute_0, attribute_1, attribute_2, attribute_3)" +
                 "\ninsert all events into outputStream;");
-
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
             AssertJUnit.fail();
@@ -577,8 +561,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{0.75, 0.1, 0.58, 0.71, false});
 
             SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -617,8 +599,6 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{0.75, 0.1, 0.58, 0.71, false});
 
             SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
@@ -690,15 +670,13 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             inputHandler.send(new Object[]{0.1, 0.8, 0.2, 0.03, "true"});
 
             SiddhiTestHelper.waitForEvents(200, 5, count, 60000);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
         } finally {
             siddhiAppRuntime.shutdown();
         }
     }
 
     @Test
-    public void testClassificationStreamProcessorExtension19() throws InterruptedException {
+    public void testClassificationStreamProcessorExtension19() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - model is visible only within the " +
                 "SiddhiApp");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -721,11 +699,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             // should be successful even though both the apps are using the same model name with different feature
             // values
             SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
             AssertJUnit.fail("Model is visible across Siddhi Apps which is wrong!");
         }
     }
-
 }

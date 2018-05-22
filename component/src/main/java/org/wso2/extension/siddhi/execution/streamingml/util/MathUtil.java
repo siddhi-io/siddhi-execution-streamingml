@@ -23,26 +23,24 @@ package org.wso2.extension.siddhi.execution.streamingml.util;
 public class MathUtil {
     /**
      * Dot product of two 'double' vectors.
-     *
      * @param vector1 vector 1
      * @param vector2 vector 2
      * @return the dot product.
      */
     public static double dot(double[] vector1, double[] vector2) {
         if (vector1.length != vector2.length) {
-            throw new IllegalArgumentException("The dimensions have to be equal!");
+            throw new IllegalArgumentException("The dimensions needs to be equal. " +
+                    "But found " + vector1.length + " and " + vector2.length);
         }
-
         double sum = 0;
         for (int i = 0; i < vector1.length; i++) {
             sum += vector1[i] * vector2[i];
         }
-
         return sum;
     }
 
     /**
-     * finds the euclidean distance between two input points of equal dimension
+     * Finds the euclidean distance between two input points of equal dimension
      * @param point1 input point one
      * @param point2 input point two
      * @return euclidean distance between point1 and point2

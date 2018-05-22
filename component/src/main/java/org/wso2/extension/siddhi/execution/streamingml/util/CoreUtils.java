@@ -16,15 +16,15 @@ import java.util.List;
 public class CoreUtils {
     private static final List<Attribute.Type> numericTypes = Arrays.asList(Attribute.Type.INT,
             Attribute.Type.DOUBLE, Attribute.Type.LONG, Attribute.Type.FLOAT);
-
     private static final List<Attribute.Type> labelTypes = Arrays.asList(Attribute.Type.STRING, Attribute.Type.BOOL);
 
     /**
-     * @param inputDefinition
-     * @param attributeExpressionExecutors
-     * @param startIndex                   starting index
-     * @param noOfFeatures
-     * @return
+     * Validate and extract feature attribute executors
+     * @param inputDefinition the incoming stream definition
+     * @param attributeExpressionExecutors the executors of each function parameters
+     * @param startIndex starting index of the feature attributes
+     * @param noOfFeatures number of feature attributes
+     * @return list of VariableExpressionExecutors
      */
     public static List<VariableExpressionExecutor> extractAndValidateFeatures(
             AbstractDefinition inputDefinition, ExpressionExecutor[]
@@ -61,21 +61,30 @@ public class CoreUtils {
         return featureVariableExpressionExecutors;
     }
 
-
+    /**
+     * Check feature attribute to be a numeric
+     * @param attributeType feature attribute type
+     * @return true/false
+     */
     private static boolean isNumeric(Attribute.Type attributeType) {
         return numericTypes.contains(attributeType);
     }
 
+    /**
+     * Check label attribute to be a valid type
+     * @param attributeType label feature attribute type
+     * @return true/false
+     */
     public static boolean isLabelType(Attribute.Type attributeType) {
         return labelTypes.contains(attributeType);
     }
 
-
     /**
-     * @param inputDefinition
-     * @param attributeExpressionExecutors
-     * @param classIndex
-     * @return
+     * Validate and extract Class label executor
+     * @param inputDefinition the incoming stream definition
+     * @param attributeExpressionExecutors the executors of each function parameters
+     * @param classIndex index of the class label attribute
+     * @return class label VariableExpressionExecutor
      */
     public static VariableExpressionExecutor extractAndValidateClassLabel
     (AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, int classIndex) {
