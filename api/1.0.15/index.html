@@ -16,7 +16,7 @@
     
     
       
-        <title>1.0.8 - Siddhi-Execution-StreamingML</title>
+        <title>1.0.15 - Siddhi-Execution-StreamingML</title>
       
     
     
@@ -84,7 +84,7 @@
                 </span>
               
             
-            1.0.8
+            1.0.15
           
         </span>
       </div>
@@ -181,11 +181,81 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../1.0.15/" title="1.0.15" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        1.0.15
+      </label>
+    
+    <a href="./" title="1.0.15" class="md-nav__link md-nav__link--active">
       1.0.15
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#streamingml" title="Streamingml" class="md-nav__link">
+    Streamingml
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kmeansincremental-stream-processor" title="kMeansIncremental (Stream Processor)" class="md-nav__link">
+    kMeansIncremental (Stream Processor)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kmeansminibatch-stream-processor" title="kMeansMiniBatch (Stream Processor)" class="md-nav__link">
+    kMeansMiniBatch (Stream Processor)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#perceptronclassifier-stream-processor" title="perceptronClassifier (Stream Processor)" class="md-nav__link">
+    perceptronClassifier (Stream Processor)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updateperceptronclassifier-stream-processor" title="updatePerceptronClassifier (Stream Processor)" class="md-nav__link">
+    updatePerceptronClassifier (Stream Processor)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -265,81 +335,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-      
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="toc">
-        1.0.8
-      </label>
-    
-    <a href="./" title="1.0.8" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../1.0.8/" title="1.0.8" class="md-nav__link">
       1.0.8
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#streamingml" title="Streamingml" class="md-nav__link">
-    Streamingml
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#kmeansincremental-stream-processor" title="kMeansIncremental (Stream Processor)" class="md-nav__link">
-    kMeansIncremental (Stream Processor)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#kmeansminibatch-stream-processor" title="kMeansMiniBatch (Stream Processor)" class="md-nav__link">
-    kMeansMiniBatch (Stream Processor)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#perceptronclassifier-stream-processor" title="perceptronClassifier (Stream Processor)" class="md-nav__link">
-    perceptronClassifier (Stream Processor)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#updateperceptronclassifier-stream-processor" title="updatePerceptronClassifier (Stream Processor)" class="md-nav__link">
-    updatePerceptronClassifier (Stream Processor)
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-      
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
         
@@ -460,7 +460,7 @@
               
                 
                 
-                <h1 id="api-docs-v108">API Docs - v1.0.8</h1>
+                <h1 id="api-docs-v1015">API Docs - v1.0.15</h1>
 <h2 id="streamingml">Streamingml</h2>
 <h3 id="kmeansincremental-stream-processor">kMeansIncremental <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em></h3>
 <p style="word-wrap: break-word">Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed by a query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles Sequential K-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm </p>
@@ -835,7 +835,7 @@ insert all events into outputStream;
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../1.0.9/" title="1.0.9" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../.." title="Welcome to WSO2 Siddhi Execution StreamingML" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -844,19 +844,19 @@ insert all events into outputStream;
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                1.0.9
+                Welcome to WSO2 Siddhi Execution StreamingML
               </span>
             </div>
           </a>
         
         
-          <a href="../1.0.7/" title="1.0.7" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../1.0.14/" title="1.0.14" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                1.0.7
+                1.0.14
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
