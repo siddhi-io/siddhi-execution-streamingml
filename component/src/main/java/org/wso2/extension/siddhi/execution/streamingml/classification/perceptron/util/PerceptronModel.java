@@ -42,6 +42,12 @@ public class PerceptronModel implements Serializable {
         this.learningRate = model.learningRate;
     }
 
+    /**
+     * Mehod to update weight of perceptron model
+     * @param label target class/label value
+     * @param features array of feature attributes to train
+     * @return array of updated weights
+     */
     public double[] update(Boolean label, double[] features) {
         boolean predictedLabel = this.classify(this.getPredictionProbability(features));
 
@@ -69,17 +75,29 @@ public class PerceptronModel implements Serializable {
         return evaluation > this.threshold ? true : false;
     }
 
-
+    /**
+     * Classify the feature set into class
+     * @param features set of feature attributed
+     * @return prediction and its probability
+     */
     public Object[] classify(double[] features) {
         double evaluation = getPredictionProbability(features);
         boolean prediction = classify(evaluation);
         return new Object[]{prediction, evaluation};
     }
 
+    /**
+     * Initialize model's weights
+     * @param size
+     */
     public void initWeights(int size) {
         this.weights = new double[size];
     }
 
+    /**
+     * Get model's feature set size
+     * @return Size of the feature vector
+     */
     public int getFeatureSize() {
         if (weights == null) {
             return -1;
@@ -87,14 +105,26 @@ public class PerceptronModel implements Serializable {
         return weights.length;
     }
 
+    /**
+     * Set a bias for the model
+     * @param bias bias to shift the decision boundary
+     */
     public void setBias(double bias) {
         this.bias = bias;
     }
 
+    /**
+     * Set a threshold to the model
+     * @param threshold boundary for the prediction
+     */
     public void setThreshold(double threshold) {
         this.threshold = threshold;
     }
 
+    /**
+     * Set a learning rate to the model
+     * @param learningRate To avoid the local optima
+     */
     public void setLearningRate(double learningRate) {
         this.learningRate = learningRate;
     }
