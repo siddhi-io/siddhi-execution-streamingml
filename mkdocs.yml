@@ -10,7 +10,7 @@ repo_name: Siddhi-Execution-StreamingML
 repo_url: https://github.com/wso2-extensions/siddhi-execution-streamingml
 copyright: Copyright &copy; 2011 - 2018 WSO2
 theme:
-  name: 'material'
+  name: material
   logo: images/siddhi-logo-w.svg
   favicon: images/favicon.ico
   palette:
@@ -32,6 +32,7 @@ markdown_extensions:
 pages:
 - Welcome: index.md
 - API Docs:
+  - 1.0.20: api/1.0.20.md
   - 1.0.19: api/1.0.19.md
   - 1.0.18: api/1.0.18.md
   - 1.0.17: api/1.0.17.md
@@ -47,4 +48,3 @@ pages:
   - 1.0.7: api/1.0.7.md
   - latest: api/latest.md
 - License: LICENSE.md
-
