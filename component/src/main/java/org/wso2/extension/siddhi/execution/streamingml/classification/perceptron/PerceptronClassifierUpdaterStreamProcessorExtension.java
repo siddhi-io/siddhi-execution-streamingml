@@ -246,7 +246,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                 double[] features = new double[numberOfFeatures];
                 for (int i = 0; i < numberOfFeatures; i++) {
                     // attributes cannot ever be any other type than int or double as we've validated the query at init
-                    features[i] = (double) featureVariableExpressionExecutors.get(i).execute(event);
+                    features[i] = ((Number) featureVariableExpressionExecutors.get(i).execute(event)).doubleValue();
                 }
 
                 double[] weights = PerceptronModelsHolder.getInstance().getPerceptronModel(modelName).update(Boolean

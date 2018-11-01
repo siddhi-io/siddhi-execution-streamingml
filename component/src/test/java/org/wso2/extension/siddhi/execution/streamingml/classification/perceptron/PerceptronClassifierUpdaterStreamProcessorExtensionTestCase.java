@@ -704,4 +704,45 @@ public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.fail("Model is visible across Siddhi Apps which is wrong!");
         }
     }
+
+    @Test
+    public void testClassificationStreamProcessorExtension20() throws InterruptedException {
+        logger.info("PerceptronClassifierUpdaterStreamProcessorExtension TestCase - Features are both int and double");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
+                "int, attribute_3 double, attribute_4 string );";
+        String query = ("@info(name = 'query1') " +
+                "from StreamA#streamingml:updatePerceptronClassifier('model1',attribute_4, " +
+                "0.01, attribute_0, attribute_1, attribute_2, attribute_3) \n" +
+                "insert all events into outputStream;");
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                count.incrementAndGet();
+                EventPrinter.print(inEvents);
+                if (count.get() == 3) {
+                    AssertJUnit.assertArrayEquals(new Object[]{0.8, 0.1, 1, 0.92, "false", 0.003, 0.0175,
+                            0.03, 0.0013}, inEvents[0]
+                            .getData());
+                }
+            }
+        });
+        try {
+            InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
+            siddhiAppRuntime.start();
+            inputHandler.send(new Object[]{0.1, 0.8, 1, 0.03, "true"});
+            inputHandler.send(new Object[]{0.2, 0.95, 2, 0.1, "true"});
+            inputHandler.send(new Object[]{0.8, 0.1, 1, 0.92, "false"});
+            inputHandler.send(new Object[]{0.75, 0.1, 3, 0.71, "false"});
+
+            SiddhiTestHelper.waitForEvents(200, 4, count, 60000);
+        } finally {
+            siddhiAppRuntime.shutdown();
+        }
+    }
+
 }
