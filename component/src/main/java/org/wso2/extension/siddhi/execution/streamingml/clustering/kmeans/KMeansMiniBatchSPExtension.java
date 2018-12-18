@@ -56,11 +56,11 @@ import java.util.concurrent.ExecutorService;
 @Extension(
         name = "kMeansMiniBatch",
         namespace = "streamingml",
-        description = "Performs K-Means clustering on a streaming data set. Data points can be of " +
-                "any dimension and the dimensionality is calculated from number of parameters. " +
-                "All data points to be processed in a single query should be of the" +
+        description = "This function performs K-Means clustering on a streaming data set. Data points can be of " +
+                "any dimension and the dimensionality is calculated from the number of parameters. " +
+                "All the data points that are processed in a single query should be of the" +
                 " same dimensionality. The Euclidean distance is taken as the distance metric. " +
-                "The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by " +
+                "The algorithm resembles mini-batch K-Means (refer 'Web-Scale K-Means Clustering' by " +
                 "D.Sculley, Google, Inc.). ",
         parameters = {
                 @Parameter(
@@ -70,24 +70,24 @@ import java.util.concurrent.ExecutorService;
                 ),
                 @Parameter(
                         name = "decay.rate",
-                        description = "this is the decay rate of old data compared to new data. " +
-                                "Value of this will be in [0,1]. 0 means only old data used and" +
-                                "1 will mean that only new data is used",
+                        description = "This is the decay rate of the old data as compared to that of the new data. " +
+                                "The value is shown as [0,1]. 0 indicates that only old data is used and" +
+                                "1 indicates that only new data is used.",
                         optional = true,
                         type = {DataType.DOUBLE},
                         defaultValue = "0.01"
                 ),
                 @Parameter(
                         name = "maximum.iterations",
-                        description = "Number of iterations, the process iterates until the number of maximum " +
-                                "iterations is reached or the centroids do not change",
+                        description = "The number of times for which the process iterates until" +
+                                " the number of maximum iteration is reached or the centroids do not change.",
                         type = {DataType.INT},
                         optional = true,
                         defaultValue = "50"
                 ),
                 @Parameter(
                         name = "no.of.events.to.retrain",
-                        description = "number of events to recalculate cluster centers. ",
+                        description = "The number of events to recalculate the cluster centers. ",
                         type = DataType.INT,
                         optional = true,
                         defaultValue = "20"
@@ -95,7 +95,7 @@ import java.util.concurrent.ExecutorService;
                 @Parameter(
                         name = "model.features",
                         description = "This is a variable length argument. Depending on the dimensionality of " +
-                                "data points we will receive coordinates as features along each axis.",
+                                "data points, the function receives coordinates as features along each axis.",
                         type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG}
                 )
 
@@ -103,17 +103,18 @@ import java.util.concurrent.ExecutorService;
         returnAttributes = {
                 @ReturnAttribute(
                         name = "euclideanDistanceToClosestCentroid",
-                        description = "Represents the Euclidean distance between the current data point and the " +
+                        description = "This represents the Euclidean distance between the current data point and the " +
                                 "closest centroid.",
                         type = {DataType.DOUBLE}
                 ),
                 @ReturnAttribute(
                         name = "closestCentroidCoordinate",
                         description = "This is a variable length attribute. Depending on the dimensionality(d) " +
-                                "we will return closestCentroidCoordinate1 to closestCentroidCoordinated which are " +
-                                "the d dimensional coordinates of the closest centroid from the model to the " +
-                                "current event. This is the prediction result and this represents the cluster to" +
-                                "which the current event belongs to.",
+                                "it returns values starting from closestCentroidCoordinate1 to " +
+                                "closestCentroidCoordinated. These are the 'd' dimensional coordinates of the " +
+                                "closest centroid from the model to the " +
+                                "current event. The obtained value is the prediction result " +
+                                "and it represents the cluster to which the current event belongs.",
                         type = {DataType.DOUBLE}
                 )
         },
@@ -124,9 +125,10 @@ import java.util.concurrent.ExecutorService;
                                 "from InputStream#streamingml:kMeansMiniBatch(2, 0.2, 10, 20, x, y)\n" +
                                 "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y\n" +
                                 "insert into OutputStream;",
-                        description = "This is an example where user gives all three hyper parameters. first 20 " +
-                                "events will be consumed to build the model and from the 21st event prediction " +
-                                "would start"
+                        description = "This is an example where user has given all the three hyper parameters. " +
+                                "The first 20 events are consumed to build the model and the prediction " +
+                                "starts from the 21st event "
+
                 ),
                 @Example(
                         syntax = "define stream InputStream (x double, y double);\n" +
@@ -134,8 +136,8 @@ import java.util.concurrent.ExecutorService;
                                 "from InputStream#streamingml:kMeansMiniBatch(2, x, y)\n" +
                                 "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y\n" +
                                 "insert into OutputStream;",
-                        description = "This is an example where user has not specified hyper params. So default " +
-                                "values will be used."
+                        description = "This is an example where user has not specified any hyper param, hence " +
+                                "the default values are used."
                 )
         }
 )

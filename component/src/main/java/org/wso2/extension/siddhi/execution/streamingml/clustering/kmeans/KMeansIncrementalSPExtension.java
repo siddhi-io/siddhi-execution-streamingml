@@ -54,11 +54,13 @@ import java.util.Map;
 @Extension(
         name = "kMeansIncremental",
         namespace = "streamingml",
-        description = "Performs K-Means clustering on a streaming data set. Data points can be of any dimension and " +
-                "the dimensionality is calculated from number of parameters. " +
-                "All data points to be processed by a query should be of the same " +
+        description = "This function performs K-Means clustering on a streaming data set. " +
+                "Data points can be of any dimension and " +
+                "the dimensionality is calculated from the number of parameters. " +
+                "All the data points that are processed should be of the same " +
                 "dimensionality. The Euclidean distance is taken as the distance metric. " +
-                "The algorithm resembles Sequential K-Means Clustering at " +
+                "The algorithm resembles the Sequential K-Means Clustering. See the link given below for " +
+                "further details on this.\n " +
                 "https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm ",
         parameters = {
                 @Parameter(
@@ -68,17 +70,17 @@ import java.util.Map;
                 ),
                 @Parameter(
                         name = "decay.rate",
-                        description = "this is the decay rate of old data compared to new data. " +
-                                "Value of this will be in [0,1]. 0 means only old data used and" +
-                                "1 will mean that only new data is used",
+                        description = "This is the decay rate of the old data compared to that of the new data. " +
+                                "The value is shown as [0,1]. 0 indicates that only old data is used and" +
+                                "1 indicates that only new data is used.",
                         optional = true,
                         type = {DataType.DOUBLE},
                         defaultValue = "0.01"
                 ),
                 @Parameter(
                         name = "model.features",
-                        description = "This is a variable length argument. Depending on the dimensionality of data " +
-                                "points we will receive coordinates as features along each axis.",
+                        description = "This is a variable length argument. Depending on the dimensionality of the " +
+                                "data points, we receive coordinates as features along each axis.",
                         type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG}
                 )
 
@@ -86,17 +88,18 @@ import java.util.Map;
         returnAttributes = {
                 @ReturnAttribute(
                         name = "euclideanDistanceToClosestCentroid",
-                        description = "Represents the Euclidean distance between the current data point and the " +
+                        description = "This represents the Euclidean distance between the current data point and the " +
                                 "closest centroid.",
                         type = {DataType.DOUBLE}
                 ),
                 @ReturnAttribute(
                         name = "closestCentroidCoordinate",
                         description = "This is a variable length attribute. Depending on the dimensionality(D) " +
-                                "we will return closestCentroidCoordinate1, closestCentroidCoordinate2,... " +
-                                "closestCentroidCoordinateD which are the d dimensional coordinates of the closest " +
+                                "the function returns values as closestCentroidCoordinate1, " +
+                                "closestCentroidCoordinate2,...closestCentroidCoordinateD," +
+                                " which are the d dimensional coordinates of the closest " +
                                 "centroid from the model to the current event. This is the prediction result and " +
-                                "this represents the cluster to which the current event belongs to.",
+                                "this represents the cluster to which the current event belongs.",
                         type = {DataType.DOUBLE}
                 )
         },
@@ -107,9 +110,10 @@ import java.util.Map;
                                 "from InputStream#streamingml:kMeansIncremental(2, 0.2, x, y)\n" +
                                 "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y\n" +
                                 "insert into OutputStream;",
-                        description = "This is an example where user provides the decay rate. First two events will " +
-                                "be used to initiate the model since the required number of clusters is specified as " +
-                                "2. After the first event itself prediction would start."
+                        description = "This is an example where user has provided the decay rate. " +
+                                "First two events are used to initiate the model since the required" +
+                                " number of clusters is specified as " +
+                                "two. However, the prediction starts after the first event itself."
                 ),
                 @Example(
                         syntax = "define stream InputStream (x double, y double);\n" +
@@ -117,8 +121,8 @@ import java.util.Map;
                                 "from InputStream#streamingml:kMeansIncremental(2, x, y)\n" +
                                 "select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y\n" +
                                 "insert into OutputStream;",
-                        description = "This is an example where user doesnt give the decay rate so the default " +
-                                "value will be used"
+                        description = "This is an example where the user has not given the decay rate, hence " +
+                                "the default value is used."
                 )
         }
 )
