@@ -58,6 +58,14 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>${nd4j.backend}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.log4j.wso2</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -113,6 +121,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
+                            org.wso2.extension.siddhi.execution.streamingml.bayesian.*,
                             org.wso2.extension.siddhi.execution.streamingml.classification.*,
                             org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.*,
                             org.wso2.extension.siddhi.execution.streamingml.util.*
@@ -120,6 +129,12 @@
                         <Import-Package>
                             *;resolution:=optional
                         </Import-Package>
+                        <Private-Package>
+                            org.nd4j.*,
+                            com.rits.cloning.*,
+                            org.bytedeco.*,
+                            org.objenesis.*
+                        </Private-Package>
                         <Include-Resource>
                             META-INF=target/classes/META-INF
                         </Include-Resource>

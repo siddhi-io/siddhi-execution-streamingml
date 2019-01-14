@@ -66,7 +66,7 @@ public class CoreUtils {
      * @param attributeType feature attribute type
      * @return true/false
      */
-    private static boolean isNumeric(Attribute.Type attributeType) {
+    public static boolean isNumeric(Attribute.Type attributeType) {
         return numericTypes.contains(attributeType);
     }
 

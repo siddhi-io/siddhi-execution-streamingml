@@ -27,6 +27,11 @@
             <class name="org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.PerceptronClassifierStreamProcessorExtensionTestCase"/>
             <class name="org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.KMeansMiniBatchSPExtensionTest"/>
             <class name="org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.KMeansIncrementalSPExtensionTest"/>
+            <class name="org.wso2.extension.siddhi.execution.streamingml.bayesian.classification.BayesianClassificationStreamProcessorExtensionTestCase"/>
+            <class name="org.wso2.extension.siddhi.execution.streamingml.bayesian.classification.BayesianClassificationUpdaterStreamProcessorExtensionTestCase"/>
+            <class name="org.wso2.extension.siddhi.execution.streamingml.bayesian.regression.BayesianRegressionStreamProcessorExtensionTestCase"/>
+            <class name="org.wso2.extension.siddhi.execution.streamingml.bayesian.regression.BayesianRegressionUpdaterStreamProcessorExtensionTestCase"/>
+
         </classes>
     </test>
 </suite>
