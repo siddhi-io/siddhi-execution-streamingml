@@ -53,6 +53,8 @@
         <jacoco.version>0.7.9</jacoco.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <nd4j.backend>nd4j-native</nd4j.backend>
+        <nd4j.version>1.0.0-beta3</nd4j.version>
     </properties>
 
     <scm>
@@ -118,6 +120,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.nd4j</groupId>
+                <artifactId>${nd4j.backend}</artifactId>
+                <version>${nd4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
