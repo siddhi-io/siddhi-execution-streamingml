@@ -18,34 +18,37 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.classification.perceptron;
 
+import io.siddhi.annotation.Example;
+import io.siddhi.annotation.Extension;
+import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ReturnAttribute;
+import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiQueryContext;
+import io.siddhi.core.event.ComplexEventChunk;
+import io.siddhi.core.event.stream.MetaStreamEvent;
+import io.siddhi.core.event.stream.StreamEvent;
+import io.siddhi.core.event.stream.StreamEventCloner;
+import io.siddhi.core.event.stream.holder.StreamEventClonerHolder;
+import io.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.executor.ConstantExpressionExecutor;
+import io.siddhi.core.executor.ExpressionExecutor;
+import io.siddhi.core.executor.VariableExpressionExecutor;
+import io.siddhi.core.query.processor.ProcessingMode;
+import io.siddhi.core.query.processor.Processor;
+import io.siddhi.core.query.processor.stream.StreamProcessor;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.query.api.definition.AbstractDefinition;
+import io.siddhi.query.api.definition.Attribute;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModel;
 import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModelsHolder;
 import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Predict using a linear binary classification Perceptron model built via
@@ -128,17 +131,25 @@ import java.util.Map;
                 )
         }
 )
-public class PerceptronClassifierStreamProcessorExtension extends StreamProcessor {
+public class PerceptronClassifierStreamProcessorExtension extends StreamProcessor<State> {
 
     private static Logger logger = Logger.getLogger(PerceptronClassifierStreamProcessorExtension.class);
     private String modelName;
     private int numberOfFeatures;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
 
+    private ArrayList<Attribute> attributes;
+
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
-        String siddhiAppName = siddhiAppContext.getName();
+    protected StateFactory<State> init(MetaStreamEvent metaStreamEvent,
+                                       AbstractDefinition abstractDefinition,
+                                       ExpressionExecutor[] expressionExecutors,
+                                       ConfigReader configReader,
+                                       StreamEventClonerHolder streamEventClonerHolder,
+                                       boolean b,
+                                       boolean b1,
+                                       SiddhiQueryContext siddhiQueryContext) {
+        String siddhiAppName = siddhiQueryContext.getSiddhiAppContext().getName();
         PerceptronModel model;
         String modelPrefix;
         double bias = -1, threshold = -1;
@@ -213,7 +224,7 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                 // set number of features
                 numberOfFeatures = attributeExpressionLength - 1;
                 // feature values
-              /*  extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 1);*/
+                /*  extractAndValidateFeatures(inputDefinition, attributeExpressionExecutors, 1);*/
                 featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
                         attributeExpressionExecutors, 1, numberOfFeatures);
             } else {
@@ -238,9 +249,10 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
             if (model.getFeatureSize() != -1) {
                 // validate the model
                 if (numberOfFeatures != model.getFeatureSize()) {
-                    throw new SiddhiAppCreationException(String.format("Model [%s] expects %s features, but the " +
-                        "streamingml:perceptronClassifier specifies %s features", modelPrefix, model.getFeatureSize()
-                        , numberOfFeatures));
+                    throw new SiddhiAppCreationException(
+                            String.format("Model [%s] expects %s features, but the streamingml:perceptronClassifier " +
+                                            "specifies %s features",
+                                    modelPrefix, model.getFeatureSize(), numberOfFeatures));
                 }
             }
         } else {
@@ -250,28 +262,35 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
 
         }
 
-        List<Attribute> attributes = new ArrayList<>();
+        attributes = new ArrayList<>();
         attributes.add(new Attribute("prediction", Attribute.Type.BOOL));
         attributes.add(new Attribute("confidenceLevel", Attribute.Type.DOUBLE));
+        return null;
+    }
 
+    @Override
+    public List<Attribute> getReturnAttributes() {
         return attributes;
     }
 
-    /**
-     * Process events received by PerceptronClassifierUpdaterStreamProcessorExtension
-     *
-     * @param streamEventChunk      the event chunk that need to be processed
-     * @param nextProcessor         the next processor to which the success events need to be passed
-     * @param streamEventCloner     helps to clone the incoming event for local storage or modification
-     * @param complexEventPopulater helps to populate the events with the resultant attributes
-     */
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
-                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+    public void start() {
+    }
 
+    @Override
+    public void stop() {
+        PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
+    }
+
+    @Override
+    protected void process(ComplexEventChunk<StreamEvent> complexEventChunk,
+                           Processor processor,
+                           StreamEventCloner streamEventCloner,
+                           ComplexEventPopulater complexEventPopulater,
+                           State state) {
         synchronized (this) {
-            while (streamEventChunk.hasNext()) {
-                StreamEvent event = streamEventChunk.next();
+            while (complexEventChunk.hasNext()) {
+                StreamEvent event = complexEventChunk.next();
                 if (logger.isDebugEnabled()) {
                     logger.debug(String.format("Event received; Model name: %s Event:%s", modelName, event));
                 }
@@ -287,24 +306,11 @@ public class PerceptronClassifierStreamProcessorExtension extends StreamProcesso
                 complexEventPopulater.populateComplexEvent(event, data);
             }
         }
-        nextProcessor.process(streamEventChunk);
+        nextProcessor.process(complexEventChunk);
     }
 
     @Override
-    public void start() {
-    }
-
-    @Override
-    public void stop() {
-        PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
-    }
-
-    @Override
-    public Map<String, Object> currentState() {
-        return new HashMap<>();
-    }
-
-    @Override
-    public void restoreState(Map<String, Object> state) {
+    public ProcessingMode getProcessingMode() {
+        return ProcessingMode.BATCH;
     }
 }

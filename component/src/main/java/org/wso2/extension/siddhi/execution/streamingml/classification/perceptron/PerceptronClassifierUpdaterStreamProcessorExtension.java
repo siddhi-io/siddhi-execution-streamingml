@@ -18,30 +18,35 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.classification.perceptron;
 
+import io.siddhi.annotation.Example;
+import io.siddhi.annotation.Extension;
+import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ReturnAttribute;
+import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiQueryContext;
+import io.siddhi.core.event.ComplexEventChunk;
+import io.siddhi.core.event.stream.MetaStreamEvent;
+import io.siddhi.core.event.stream.StreamEvent;
+import io.siddhi.core.event.stream.StreamEventCloner;
+import io.siddhi.core.event.stream.holder.StreamEventClonerHolder;
+import io.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.exception.SiddhiAppRuntimeException;
+import io.siddhi.core.executor.ConstantExpressionExecutor;
+import io.siddhi.core.executor.ExpressionExecutor;
+import io.siddhi.core.executor.VariableExpressionExecutor;
+import io.siddhi.core.query.processor.ProcessingMode;
+import io.siddhi.core.query.processor.Processor;
+import io.siddhi.core.query.processor.stream.StreamProcessor;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.query.api.definition.AbstractDefinition;
+import io.siddhi.query.api.definition.Attribute;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModel;
 import org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModelsHolder;
 import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,7 +98,8 @@ import java.util.Map;
                                 "the model are appended to the outputStream.")
         }
 )
-public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamProcessor {
+public class PerceptronClassifierUpdaterStreamProcessorExtension
+        extends StreamProcessor<PerceptronClassifierUpdaterStreamProcessorExtension.ExtensionState> {
 
     private static Logger logger = Logger.getLogger(PerceptronClassifierUpdaterStreamProcessorExtension.class);
     private String modelName;
@@ -101,10 +107,18 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
     private VariableExpressionExecutor labelVariableExpressionExecutor;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
 
+    private ArrayList<Attribute> attributes;
+
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
-        String siddhiAppName = siddhiAppContext.getName();
+    protected StateFactory<ExtensionState> init(MetaStreamEvent metaStreamEvent,
+                                                AbstractDefinition abstractDefinition,
+                                                ExpressionExecutor[] expressionExecutors,
+                                                ConfigReader configReader,
+                                                StreamEventClonerHolder streamEventClonerHolder,
+                                                boolean b,
+                                                boolean b1,
+                                                SiddhiQueryContext siddhiQueryContext) {
+        String siddhiAppName = siddhiQueryContext.getSiddhiAppContext().getName();
         PerceptronModel model;
         String modelPrefix;
         double learningRate = -1;
@@ -201,30 +215,43 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
             model.initWeights(numberOfFeatures);
         }
 
-        List<Attribute> attributes = new ArrayList<>();
+        attributes = new ArrayList<>();
         for (int i = 0; i < numberOfFeatures; i++) {
             attributes.add(new Attribute(featureVariableExpressionExecutors.get(i).getAttribute().getName() +
                     ".weight", Attribute.Type.DOUBLE));
         }
 
+        return () -> new ExtensionState(modelName);
+    }
+
+    @Override
+    public List<Attribute> getReturnAttributes() {
         return attributes;
     }
 
-    /**
-     * Process events received by PerceptronClassifierUpdaterStreamProcessorExtension
-     *
-     * @param streamEventChunk      the event chunk that need to be processed
-     * @param nextProcessor         the next processor to which the success events need to be passed
-     * @param streamEventCloner     helps to clone the incoming event for local storage or modification
-     * @param complexEventPopulater helps to populate the events with the resultant attributes
-     */
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
-                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+    public ProcessingMode getProcessingMode() {
+        return ProcessingMode.BATCH;
+    }
 
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+        PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
+    }
+
+    @Override
+    protected void process(ComplexEventChunk<StreamEvent> complexEventChunk,
+                           Processor processor,
+                           StreamEventCloner streamEventCloner,
+                           ComplexEventPopulater complexEventPopulater,
+                           ExtensionState extensionState) {
         synchronized (this) {
-            while (streamEventChunk.hasNext()) {
-                StreamEvent event = streamEventChunk.next();
+            while (complexEventChunk.hasNext()) {
+                StreamEvent event = complexEventChunk.next();
                 if (logger.isDebugEnabled()) {
                     logger.debug(String.format("Event received; Model name: %s Event:%s", modelName, event));
                 }
@@ -260,28 +287,38 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension extends StreamP
                 complexEventPopulater.populateComplexEvent(event, data);
             }
         }
-        nextProcessor.process(streamEventChunk);
+        nextProcessor.process(complexEventChunk);
     }
 
-    @Override
-    public void start() {
-    }
+    static class ExtensionState extends State {
 
-    @Override
-    public void stop() {
-        PerceptronModelsHolder.getInstance().deletePerceptronModel(modelName);
-    }
+        private static final String KEY_PERCEPTRON_MODEL = "PerceptronModel";
 
-    @Override
-    public Map<String, Object> currentState() {
-        Map<String, Object> currentState = new HashMap<>();
-        currentState.put("PerceptronModel", PerceptronModelsHolder.getInstance().getClonedPerceptronModel(modelName));
-        return currentState;
-    }
+        private final Map<String, Object> state;
 
-    @Override
-    public void restoreState(Map<String, Object> state) {
-        PerceptronModelsHolder.getInstance().addPerceptronModel(modelName, (PerceptronModel)
-                state.get("PerceptronModel"));
+        private final String modelName;
+
+        private ExtensionState(String modelName) {
+            state = new HashMap<>();
+            this.modelName = modelName;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return false;
+        }
+
+        @Override
+        public Map<String, Object> snapshot() {
+            state.put(KEY_PERCEPTRON_MODEL,
+                    PerceptronModelsHolder.getInstance().getClonedPerceptronModel(modelName));
+            return state;
+        }
+
+        @Override
+        public void restore(Map<String, Object> map) {
+            PerceptronModelsHolder.getInstance().addPerceptronModel(modelName, (PerceptronModel)
+                    state.get(KEY_PERCEPTRON_MODEL));
+        }
     }
 }

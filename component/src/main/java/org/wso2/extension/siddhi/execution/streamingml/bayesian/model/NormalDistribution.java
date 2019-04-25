@@ -17,10 +17,10 @@
  */
 package org.wso2.extension.siddhi.execution.streamingml.bayesian.model;
 
+import io.siddhi.core.exception.SiddhiAppCreationException;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
 /**
  * implements Gaussian distribution.

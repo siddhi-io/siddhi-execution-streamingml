@@ -19,6 +19,7 @@
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
 import org.apache.log4j.Logger;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedList;

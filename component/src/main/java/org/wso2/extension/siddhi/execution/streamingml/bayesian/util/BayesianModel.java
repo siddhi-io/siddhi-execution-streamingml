@@ -17,6 +17,7 @@
  */
 package org.wso2.extension.siddhi.execution.streamingml.bayesian.util;
 
+import io.siddhi.core.exception.SiddhiAppCreationException;
 import org.apache.log4j.Logger;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -28,7 +29,6 @@ import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.learning.config.IUpdater;
 import org.nd4j.linalg.learning.config.Nadam;
 import org.nd4j.linalg.learning.config.Sgd;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
 import java.io.Serializable;
 

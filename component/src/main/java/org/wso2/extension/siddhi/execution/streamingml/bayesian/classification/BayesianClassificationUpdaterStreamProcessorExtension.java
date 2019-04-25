@@ -17,30 +17,35 @@
  */
 package org.wso2.extension.siddhi.execution.streamingml.bayesian.classification;
 
+import io.siddhi.annotation.Example;
+import io.siddhi.annotation.Extension;
+import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ReturnAttribute;
+import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiQueryContext;
+import io.siddhi.core.event.ComplexEventChunk;
+import io.siddhi.core.event.stream.MetaStreamEvent;
+import io.siddhi.core.event.stream.StreamEvent;
+import io.siddhi.core.event.stream.StreamEventCloner;
+import io.siddhi.core.event.stream.holder.StreamEventClonerHolder;
+import io.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.executor.ConstantExpressionExecutor;
+import io.siddhi.core.executor.ExpressionExecutor;
+import io.siddhi.core.executor.VariableExpressionExecutor;
+import io.siddhi.core.query.processor.ProcessingMode;
+import io.siddhi.core.query.processor.Processor;
+import io.siddhi.core.query.processor.stream.StreamProcessor;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.query.api.definition.AbstractDefinition;
+import io.siddhi.query.api.definition.Attribute;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.bayesian.classification.util.SoftmaxRegressionModelHolder;
 import org.wso2.extension.siddhi.execution.streamingml.bayesian.util.BayesianModel;
 import org.wso2.extension.siddhi.execution.streamingml.bayesian.util.SoftmaxRegression;
 import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,7 +131,8 @@ import java.util.Map;
         }
 
 )
-public class BayesianClassificationUpdaterStreamProcessorExtension extends StreamProcessor {
+public class BayesianClassificationUpdaterStreamProcessorExtension
+        extends StreamProcessor<BayesianClassificationUpdaterStreamProcessorExtension.ExtensionState> {
 
     private static Logger logger = Logger.getLogger(BayesianClassificationUpdaterStreamProcessorExtension.class);
     private String modelName;
@@ -134,20 +140,18 @@ public class BayesianClassificationUpdaterStreamProcessorExtension extends Strea
     private VariableExpressionExecutor targetVariableExpressionExecutor;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
 
+    private ArrayList<Attribute> attributes;
 
-    /**
-     * The initialization method for {@link StreamProcessor}, which will be called before other methods and validate
-     * the all configuration and getting the initial values.
-     *
-     * @param attributeExpressionExecutors are the executors of each attributes in the Function
-     * @param siddhiAppContext             Siddhi app runtime context
-     */
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition,
-                                   ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                   SiddhiAppContext siddhiAppContext) {
-
-        String siddhiAppName = siddhiAppContext.getName();
+    protected StateFactory<ExtensionState> init(MetaStreamEvent metaStreamEvent,
+                                                AbstractDefinition abstractDefinition,
+                                                ExpressionExecutor[] attributeExpressionExecutors,
+                                                ConfigReader configReader,
+                                                StreamEventClonerHolder streamEventClonerHolder,
+                                                boolean b,
+                                                boolean b1,
+                                                SiddhiQueryContext siddhiQueryContext) {
+        String siddhiAppName = siddhiQueryContext.getSiddhiAppContext().getName();
         SoftmaxRegression model;
         String modelPrefix;
 
@@ -167,7 +171,8 @@ public class BayesianClassificationUpdaterStreamProcessorExtension extends Strea
                         "streamingml:updateBayesianClassification. This Stream Processor requires at most %s " +
                         "parameters, namely, model.name, no.of.classes, model.target, model.samples[optional], " +
                         "model.optimizer[optional], " + "learning.rate[optional], model.features. but found %s " +
-                        "parameters", maxNumberOfHyperParameters + maxNumberOfFeatures, attributeExpressionLength));
+                        "parameters", maxNumberOfHyperParameters + maxNumberOfFeatures,
+                        attributeExpressionLength));
             }
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
@@ -305,7 +310,6 @@ public class BayesianClassificationUpdaterStreamProcessorExtension extends Strea
                     attributeExpressionLength, minNumberOfAttributes));
         }
 
-
         // if no model exists, then create a new model
         model = new SoftmaxRegression(numberOfClasses);
         SoftmaxRegressionModelHolder.getInstance().addSoftmaxRegressionModel(modelName, model);
@@ -336,28 +340,21 @@ public class BayesianClassificationUpdaterStreamProcessorExtension extends Strea
             model.initiateModel();
         }
 
-        List<Attribute> attributes = new ArrayList<>();
+        attributes = new ArrayList<>();
         attributes.add(new Attribute("loss", Attribute.Type.DOUBLE));
 
-        return attributes;
+        return () -> new ExtensionState(modelName);
     }
 
-
-    /**
-     * Process events received by BayesianClassificationUpdateStreamingProcessorExtension.
-     *
-     * @param streamEventChunk      the event chunk that need to be processed
-     * @param nextProcessor         the next processor to which the success events need to be passed
-     * @param streamEventCloner     helps to clone the incoming event for local storage or modification
-     * @param complexEventPopulater helps to populate the events with the resultant attributes
-     */
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
-                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-
+    protected void process(ComplexEventChunk<StreamEvent> complexEventChunk,
+                           Processor processor,
+                           StreamEventCloner streamEventCloner,
+                           ComplexEventPopulater complexEventPopulater,
+                           ExtensionState extensionState) {
         synchronized (this) {
-            while (streamEventChunk.hasNext()) {
-                StreamEvent event = streamEventChunk.next();
+            while (complexEventChunk.hasNext()) {
+                StreamEvent event = complexEventChunk.next();
                 if (logger.isDebugEnabled()) {
                     logger.debug(String.format("Event received; Model name: %s Event:%s", modelName, event));
                 }
@@ -380,7 +377,7 @@ public class BayesianClassificationUpdaterStreamProcessorExtension extends Strea
                 complexEventPopulater.populateComplexEvent(event, data);
             }
         }
-        nextProcessor.process(streamEventChunk);
+        nextProcessor.process(complexEventChunk);
     }
 
 
@@ -392,7 +389,6 @@ public class BayesianClassificationUpdaterStreamProcessorExtension extends Strea
      */
     @Override
     public void start() {
-
     }
 
     /**
@@ -405,32 +401,46 @@ public class BayesianClassificationUpdaterStreamProcessorExtension extends Strea
         SoftmaxRegressionModelHolder.getInstance().deleteSoftmaxRegressionModel(modelName);
     }
 
-    /**
-     * Used to collect the serializable state of the processing element, that need to be.
-     * persisted for reconstructing the element to the same state on a different point of time
-     *
-     * @return stateful objects of the processing element as an map
-     */
     @Override
-    public Map<String, Object> currentState() {
-        Map<String, Object> currentState = new HashMap<>();
-        currentState.put("SoftmaxRegressionModel", SoftmaxRegressionModelHolder.getInstance()
-                .getClonedSoftmaxRegressionModel(modelName));
-        return currentState;
+    public List<Attribute> getReturnAttributes() {
+        return attributes;
     }
 
-    /**
-     * Used to restore serialized state of the processing element, for reconstructing.
-     * the element to the same state as if was on a previous point of time.
-     *
-     * @param state the stateful objects of the processing element as a map.
-     *              This is the same map that is created upon calling currentState() method.
-     */
     @Override
-    public void restoreState(Map<String, Object> state) {
-        SoftmaxRegression model = (SoftmaxRegression) state.get("SoftmaxRegressionModel");
-        model.initiateModel();
-        SoftmaxRegressionModelHolder.getInstance().addSoftmaxRegressionModel(modelName, model);
+    public ProcessingMode getProcessingMode() {
+        return ProcessingMode.BATCH;
     }
 
+    static class ExtensionState extends State {
+
+        private static final String KEY_SOFTMAX_REGRESSION_MODEL = "SoftmaxRegressionModel";
+
+        private final Map<String, Object> state;
+
+        private final String modelName;
+
+        private ExtensionState(String modelName) {
+            state = new HashMap<>();
+            this.modelName = modelName;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return false;
+        }
+
+        @Override
+        public Map<String, Object> snapshot() {
+            state.put(KEY_SOFTMAX_REGRESSION_MODEL,
+                    SoftmaxRegressionModelHolder.getInstance().getClonedSoftmaxRegressionModel(modelName));
+            return state;
+        }
+
+        @Override
+        public void restore(Map<String, Object> map) {
+            SoftmaxRegression model = (SoftmaxRegression) state.get(KEY_SOFTMAX_REGRESSION_MODEL);
+            model.initiateModel();
+            SoftmaxRegressionModelHolder.getInstance().addSoftmaxRegressionModel(modelName, model);
+        }
+    }
 }

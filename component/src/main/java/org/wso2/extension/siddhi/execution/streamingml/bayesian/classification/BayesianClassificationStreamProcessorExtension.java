@@ -17,33 +17,37 @@
  */
 package org.wso2.extension.siddhi.execution.streamingml.bayesian.classification;
 
+import io.siddhi.annotation.Example;
+import io.siddhi.annotation.Extension;
+import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ReturnAttribute;
+import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiQueryContext;
+import io.siddhi.core.event.ComplexEventChunk;
+import io.siddhi.core.event.stream.MetaStreamEvent;
+import io.siddhi.core.event.stream.StreamEvent;
+import io.siddhi.core.event.stream.StreamEventCloner;
+import io.siddhi.core.event.stream.holder.StreamEventClonerHolder;
+import io.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.executor.ConstantExpressionExecutor;
+import io.siddhi.core.executor.ExpressionExecutor;
+import io.siddhi.core.executor.VariableExpressionExecutor;
+import io.siddhi.core.query.processor.ProcessingMode;
+import io.siddhi.core.query.processor.Processor;
+import io.siddhi.core.query.processor.stream.StreamProcessor;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.query.api.definition.AbstractDefinition;
+import io.siddhi.query.api.definition.Attribute;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.bayesian.classification.util.SoftmaxRegressionModelHolder;
 import org.wso2.extension.siddhi.execution.streamingml.bayesian.util.SoftmaxRegression;
 import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Predict using a Bayesian Softmax regression model built via
@@ -116,30 +120,25 @@ import java.util.Map;
 )
 
 
-public class BayesianClassificationStreamProcessorExtension extends StreamProcessor {
+public class BayesianClassificationStreamProcessorExtension extends StreamProcessor<State> {
 
     private static Logger logger = Logger.getLogger(BayesianClassificationStreamProcessorExtension.class);
     private String modelName;
     private int numberOfFeatures;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
     private SoftmaxRegression model;
+    private List<Attribute> attributes;
 
-
-    /**
-     * The initialization method for {@link BayesianClassificationStreamProcessorExtension},
-     * which will be called before other methods and validate
-     * the all configuration and getting the initial values.
-     *
-     * @param attributeExpressionExecutors are the executors of each attributes in the Function
-     * @param configReader                 this hold the {@link StreamProcessor} extensions configuration reader.
-     * @param siddhiAppContext             Siddhi app runtime context
-     */
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition,
-                                   ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                   SiddhiAppContext siddhiAppContext) {
-
-        String siddhiAppName = siddhiAppContext.getName();
+    protected StateFactory<State> init(MetaStreamEvent metaStreamEvent,
+                                       AbstractDefinition abstractDefinition,
+                                       ExpressionExecutor[] expressionExecutors,
+                                       ConfigReader configReader,
+                                       StreamEventClonerHolder streamEventClonerHolder,
+                                       boolean b,
+                                       boolean b1,
+                                       SiddhiQueryContext siddhiQueryContext) {
+        String siddhiAppName = siddhiQueryContext.getSiddhiAppContext().getName();
         String modelPrefix;
         int predictionSamples = -1;
         int maxNumberOfFeatures = inputDefinition.getAttributeList().size();
@@ -211,7 +210,7 @@ public class BayesianClassificationStreamProcessorExtension extends StreamProces
             }
         } else {
             throw new SiddhiAppCreationException(String.format("Invalid number of parameters [%s] for " +
-                    "streamingml:bayesianClassification. Expect at least %s parameters",
+                            "streamingml:bayesianClassification. Expect at least %s parameters",
                     attributeExpressionLength, minNumberOfAttributes));
         }
 
@@ -236,20 +235,35 @@ public class BayesianClassificationStreamProcessorExtension extends StreamProces
 
         }
 
-        List<Attribute> attributes = new ArrayList<>();
+        attributes = new ArrayList<>();
         attributes.add(new Attribute("prediction", Attribute.Type.DOUBLE));
         attributes.add(new Attribute("confidence", Attribute.Type.DOUBLE));
 
+        return null;
+    }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    public List<Attribute> getReturnAttributes() {
         return attributes;
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
-                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-
+    protected void process(ComplexEventChunk<StreamEvent> complexEventChunk,
+                           Processor processor,
+                           StreamEventCloner streamEventCloner,
+                           ComplexEventPopulater complexEventPopulater,
+                           State state) {
         synchronized (this) {
-            while (streamEventChunk.hasNext()) {
-                StreamEvent event = streamEventChunk.next();
+            while (complexEventChunk.hasNext()) {
+                StreamEvent event = complexEventChunk.next();
                 if (logger.isDebugEnabled()) {
                     logger.debug(String.format("Event received; Model name: %s Event:%s", modelName, event));
                 }
@@ -270,52 +284,11 @@ public class BayesianClassificationStreamProcessorExtension extends StreamProces
                 complexEventPopulater.populateComplexEvent(event, data);
             }
         }
-        nextProcessor.process(streamEventChunk);
-
+        nextProcessor.process(complexEventChunk);
     }
 
-
-    /**
-     * This will be called only once and this can be used to acquire
-     * required resources for the processing element.
-     * This will be called after initializing the system and before
-     * starting to process the events.
-     */
     @Override
-    public void start() {
-
-    }
-
-    /**
-     * This will be called only once and this can be used to release
-     * the acquired resources for processing.
-     * This will be called before shutting down the system.
-     */
-    @Override
-    public void stop() {
-
-    }
-
-    /**
-     * Used to collect the serializable state of the processing element, that need to be.
-     * persisted for reconstructing the element to the same state on a different point of time
-     *
-     * @return stateful objects of the processing element as an map
-     */
-    @Override
-    public Map<String, Object> currentState() {
-        return null;
-    }
-
-    /**
-     * Used to restore serialized state of the processing element, for reconstructing
-     * the element to the same state as if was on a previous point of time.
-     *
-     * @param state the stateful objects of the processing element as a map.
-     *              This is the same map that is created upon calling currentState() method.
-     */
-    @Override
-    public void restoreState(Map<String, Object> state) {
-
+    public ProcessingMode getProcessingMode() {
+        return ProcessingMode.BATCH;
     }
 }
