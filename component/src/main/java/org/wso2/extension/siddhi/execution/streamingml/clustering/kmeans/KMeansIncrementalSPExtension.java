@@ -274,11 +274,8 @@ public class KMeansIncrementalSPExtension extends StreamProcessor<KMeansIncremen
 
         private static final String KEY_UNTRAINED_DATA = "untrainedData";
         private static final String KEY_K_MEANS_MODEL = "kMeansModel";
-
         private final Map<String, Object> state;
-
         private KMeansModel kMeansModel;
-
         private LinkedList<DataPoint> dataPoints;
 
         private ExtensionState(KMeansModel kMeansModel, LinkedList<DataPoint> dataPoints) {

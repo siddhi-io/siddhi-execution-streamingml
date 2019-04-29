@@ -293,9 +293,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension
     static class ExtensionState extends State {
 
         private static final String KEY_PERCEPTRON_MODEL = "PerceptronModel";
-
         private final Map<String, Object> state;
-
         private final String modelName;
 
         private ExtensionState(String modelName) {

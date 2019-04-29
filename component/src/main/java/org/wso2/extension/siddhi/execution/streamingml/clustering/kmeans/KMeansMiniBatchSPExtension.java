@@ -339,13 +339,9 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor<KMeansMiniBatchS
         private static final String KEY_UNTRAINED_DATA = "untrainedData";
         private static final String KEY_K_MEANS_MODEL = "kMeansModel";
         private static final String KEY_NUMBER_OF_EVENTS_RECEIVED = "numberOfEventsReceived";
-
         private final Map<String, Object> state;
-
         private KMeansModel kMeansModel;
-
         private LinkedList<DataPoint> dataPoints;
-
         private int numberOfEventsReceived;
 
         private ExtensionState(KMeansModel kMeansModel, LinkedList<DataPoint> dataPoints) {

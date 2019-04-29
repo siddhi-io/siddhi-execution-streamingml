@@ -414,9 +414,7 @@ public class BayesianClassificationUpdaterStreamProcessorExtension
     static class ExtensionState extends State {
 
         private static final String KEY_SOFTMAX_REGRESSION_MODEL = "SoftmaxRegressionModel";
-
         private final Map<String, Object> state;
-
         private final String modelName;
 
         private ExtensionState(String modelName) {

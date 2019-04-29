@@ -381,9 +381,7 @@ public class BayesianRegressionUpdaterStreamProcessorExtension
     static class ExtensionState extends State {
 
         private static final String KEY_BAYSEIAN_REGRESSION_MODEL = "BayesianRegressionModel";
-
         private final Map<String, Object> state;
-
         private final String modelName;
 
         private ExtensionState(String modelName) {
