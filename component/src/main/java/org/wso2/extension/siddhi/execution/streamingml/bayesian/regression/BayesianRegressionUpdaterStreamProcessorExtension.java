@@ -17,30 +17,35 @@
  */
 package org.wso2.extension.siddhi.execution.streamingml.bayesian.regression;
 
+import io.siddhi.annotation.Example;
+import io.siddhi.annotation.Extension;
+import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ReturnAttribute;
+import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiQueryContext;
+import io.siddhi.core.event.ComplexEventChunk;
+import io.siddhi.core.event.stream.MetaStreamEvent;
+import io.siddhi.core.event.stream.StreamEvent;
+import io.siddhi.core.event.stream.StreamEventCloner;
+import io.siddhi.core.event.stream.holder.StreamEventClonerHolder;
+import io.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.executor.ConstantExpressionExecutor;
+import io.siddhi.core.executor.ExpressionExecutor;
+import io.siddhi.core.executor.VariableExpressionExecutor;
+import io.siddhi.core.query.processor.ProcessingMode;
+import io.siddhi.core.query.processor.Processor;
+import io.siddhi.core.query.processor.stream.StreamProcessor;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.query.api.definition.AbstractDefinition;
+import io.siddhi.query.api.definition.Attribute;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.bayesian.regression.util.LinearRegressionModelHolder;
 import org.wso2.extension.siddhi.execution.streamingml.bayesian.util.BayesianModel;
 import org.wso2.extension.siddhi.execution.streamingml.bayesian.util.LinearRegression;
 import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,7 +125,8 @@ import java.util.Map;
         }
 
 )
-public class BayesianRegressionUpdaterStreamProcessorExtension extends StreamProcessor {
+public class BayesianRegressionUpdaterStreamProcessorExtension
+        extends StreamProcessor<BayesianRegressionUpdaterStreamProcessorExtension.ExtensionState> {
 
     private static Logger logger = Logger.getLogger(BayesianRegressionUpdaterStreamProcessorExtension.class);
     private String modelName;
@@ -128,20 +134,18 @@ public class BayesianRegressionUpdaterStreamProcessorExtension extends StreamPro
     private VariableExpressionExecutor targetVariableExpressionExecutor;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
 
+    private ArrayList<Attribute> attributes;
 
-    /**
-     * The initialization method for {@link StreamProcessor}, which will be called before other methods and validate
-     * the all configuration and getting the initial values.
-     *
-     * @param attributeExpressionExecutors are the executors of each attributes in the Function
-     * @param siddhiAppContext             Siddhi app runtime context
-     */
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition,
-                                   ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                   SiddhiAppContext siddhiAppContext) {
-
-        String siddhiAppName = siddhiAppContext.getName();
+    protected StateFactory<ExtensionState> init(MetaStreamEvent metaStreamEvent,
+                                                AbstractDefinition abstractDefinition,
+                                                ExpressionExecutor[] attributeExpressionExecutors,
+                                                ConfigReader configReader,
+                                                StreamEventClonerHolder streamEventClonerHolder,
+                                                boolean b,
+                                                boolean b1,
+                                                SiddhiQueryContext siddhiQueryContext) {
+        String siddhiAppName = siddhiQueryContext.getSiddhiAppContext().getName();
         LinearRegression model;
         String modelPrefix;
 
@@ -306,27 +310,21 @@ public class BayesianRegressionUpdaterStreamProcessorExtension extends StreamPro
             model.initiateModel();
         }
 
-        List<Attribute> attributes = new ArrayList<>();
+        attributes = new ArrayList<>();
         attributes.add(new Attribute("loss", Attribute.Type.DOUBLE));
 
-        return attributes;
+        return () -> new ExtensionState(modelName);
     }
 
-    /**
-     * Process events received by BayesianRegressionUpdateStreamingProcessorExtension.
-     *
-     * @param streamEventChunk      the event chunk that need to be processed
-     * @param nextProcessor         the next processor to which the success events need to be passed
-     * @param streamEventCloner     helps to clone the incoming event for local storage or modification
-     * @param complexEventPopulater helps to populate the events with the resultant attributes
-     */
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
-                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-
+    protected void process(ComplexEventChunk<StreamEvent> complexEventChunk,
+                           Processor processor,
+                           StreamEventCloner streamEventCloner,
+                           ComplexEventPopulater complexEventPopulater,
+                           ExtensionState extensionState) {
         synchronized (this) {
-            while (streamEventChunk.hasNext()) {
-                StreamEvent event = streamEventChunk.next();
+            while (complexEventChunk.hasNext()) {
+                StreamEvent event = complexEventChunk.next();
                 if (logger.isDebugEnabled()) {
                     logger.debug(String.format("Event received; Model name: %s Event:%s", modelName, event));
                 }
@@ -346,9 +344,13 @@ public class BayesianRegressionUpdaterStreamProcessorExtension extends StreamPro
                 complexEventPopulater.populateComplexEvent(event, data);
             }
         }
-        nextProcessor.process(streamEventChunk);
+        nextProcessor.process(complexEventChunk);
     }
 
+    @Override
+    public List<Attribute> getReturnAttributes() {
+        return attributes;
+    }
 
     /**
      * This will be called only once and this can be used to acquire
@@ -371,32 +373,39 @@ public class BayesianRegressionUpdaterStreamProcessorExtension extends StreamPro
         LinearRegressionModelHolder.getInstance().deleteLinearRegressionModel(modelName);
     }
 
-    /**
-     * Used to collect the serializable state of the processing element, that need to be.
-     * persisted for reconstructing the element to the same state on a different point of time
-     *
-     * @return stateful objects of the processing element as an map
-     */
     @Override
-    public Map<String, Object> currentState() {
-        Map<String, Object> currentState = new HashMap<>();
-        currentState.put("BayesianRegressionModel", LinearRegressionModelHolder.getInstance()
-                .getClonedLinearRegressionModel(modelName));
-        return currentState;
+    public ProcessingMode getProcessingMode() {
+        return ProcessingMode.BATCH;
     }
 
-    /**
-     * Used to restore serialized state of the processing element, for reconstructing.
-     * the element to the same state as if was on a previous point of time.
-     *
-     * @param state the stateful objects of the processing element as a map.
-     *              This is the same map that is created upon calling currentState() method.
-     */
-    @Override
-    public void restoreState(Map<String, Object> state) {
-        LinearRegression model = (LinearRegression) state.get("BayesianRegressionModel");
-        model.initiateModel();
-        LinearRegressionModelHolder.getInstance().addLinearRegressionModel(modelName, model);
-    }
+    static class ExtensionState extends State {
 
+        private static final String KEY_BAYSEIAN_REGRESSION_MODEL = "BayesianRegressionModel";
+        private final Map<String, Object> state;
+        private final String modelName;
+
+        private ExtensionState(String modelName) {
+            state = new HashMap<>();
+            this.modelName = modelName;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return false;
+        }
+
+        @Override
+        public Map<String, Object> snapshot() {
+            state.put(KEY_BAYSEIAN_REGRESSION_MODEL,
+                    LinearRegressionModelHolder.getInstance().getClonedLinearRegressionModel(modelName));
+            return state;
+        }
+
+        @Override
+        public void restore(Map<String, Object> map) {
+            LinearRegression model = (LinearRegression) state.get(KEY_BAYSEIAN_REGRESSION_MODEL);
+            model.initiateModel();
+            LinearRegressionModelHolder.getInstance().addLinearRegressionModel(modelName, model);
+        }
+    }
 }

@@ -17,13 +17,13 @@
  */
 package org.wso2.extension.siddhi.execution.streamingml.bayesian.util;
 
+import io.siddhi.core.exception.SiddhiAppCreationException;
 import org.apache.log4j.Logger;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.wso2.extension.siddhi.execution.streamingml.bayesian.model.CategoricalDistribution;
 import org.wso2.extension.siddhi.execution.streamingml.bayesian.model.NormalDistribution;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
 import java.util.ArrayList;
 import java.util.List;

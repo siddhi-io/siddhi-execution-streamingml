@@ -18,31 +18,37 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans;
 
+import io.siddhi.annotation.Example;
+import io.siddhi.annotation.Extension;
+import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ReturnAttribute;
+import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiQueryContext;
+import io.siddhi.core.event.ComplexEventChunk;
+import io.siddhi.core.event.stream.MetaStreamEvent;
+import io.siddhi.core.event.stream.StreamEvent;
+import io.siddhi.core.event.stream.StreamEventCloner;
+import io.siddhi.core.event.stream.holder.StreamEventClonerHolder;
+import io.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.exception.SiddhiAppRuntimeException;
+import io.siddhi.core.executor.ConstantExpressionExecutor;
+import io.siddhi.core.executor.ExpressionExecutor;
+import io.siddhi.core.executor.VariableExpressionExecutor;
+import io.siddhi.core.query.processor.ProcessingMode;
+import io.siddhi.core.query.processor.Processor;
+import io.siddhi.core.query.processor.stream.StreamProcessor;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.query.api.definition.AbstractDefinition;
+import io.siddhi.query.api.definition.Attribute;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.DataPoint;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.KMeansClusterer;
 import org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util.KMeansModel;
 import org.wso2.extension.siddhi.execution.streamingml.util.CoreUtils;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -139,30 +145,90 @@ import java.util.concurrent.ExecutorService;
                 )
         }
 )
-public class KMeansMiniBatchSPExtension extends StreamProcessor {
+public class KMeansMiniBatchSPExtension extends StreamProcessor<KMeansMiniBatchSPExtension.ExtensionState> {
     private double decayRate = 0.01;
     private int numberOfEventsToRetrain = 20;
-    private int numberOfEventsReceived;
-    private LinkedList<DataPoint> dataPointsArray;
     private double[] coordinateValuesOfCurrentDataPoint;
     private int maximumIterations = 50;
     private int numberOfClusters;
-    private KMeansModel kMeansModel;
     private int dimensionality;
     private ExecutorService executorService;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new LinkedList<>();
     private static final Logger logger = Logger.getLogger(KMeansMiniBatchSPExtension.class.getName());
 
+    private List<Attribute> attributes;
+
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition,
-                                   ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                   SiddhiAppContext siddhiAppContext) {
+    public void start() {
+    }
+
+    @Override
+    public void stop() {
+    }
+
+    @Override
+    protected void process(ComplexEventChunk<StreamEvent> complexEventChunk,
+                           Processor processor,
+                           StreamEventCloner streamEventCloner,
+                           ComplexEventPopulater complexEventPopulater,
+                           ExtensionState extensionState) {
+        synchronized (this) {
+            while (complexEventChunk.hasNext()) {
+                StreamEvent streamEvent = complexEventChunk.next();
+                extensionState.incKeyNumberOfEventsReceived();
+
+                //validating and getting coordinate values
+                for (int i = 0; i < dimensionality; i++) {
+                    try {
+                        Number content = (Number) featureVariableExpressionExecutors.get(i).execute(streamEvent);
+                        coordinateValuesOfCurrentDataPoint[i] = content.doubleValue();
+                    } catch (ClassCastException e) {
+                        throw new SiddhiAppRuntimeException("coordinate values should be int/float/double/long " +
+                                "but found " +
+                                attributeExpressionExecutors[i].execute(streamEvent).getClass());
+                    }
+                }
+
+                //creating a dataPoint with the received coordinate values
+                DataPoint currentDataPoint = new DataPoint();
+                currentDataPoint.setCoordinates(coordinateValuesOfCurrentDataPoint);
+                extensionState.dataPoints.add(currentDataPoint);
+
+                if (extensionState.kMeansModel.isTrained()) {
+                    logger.debug("Populating output");
+                    complexEventPopulater.populateComplexEvent(streamEvent,
+                            KMeansClusterer.getAssociatedCentroidInfo(currentDataPoint, extensionState.kMeansModel));
+                }
+
+                //handling the training
+                if (extensionState.getNumberOfEventsReceived() % numberOfEventsToRetrain == 0) {
+                    KMeansClusterer.train(
+                            new LinkedList<>(extensionState.dataPoints), numberOfEventsToRetrain, decayRate,
+                            executorService, extensionState.kMeansModel, numberOfClusters, maximumIterations,
+                            dimensionality);
+                    extensionState.dataPoints.clear();
+                }
+
+            }
+        }
+        nextProcessor.process(complexEventChunk);
+    }
+
+    @Override
+    protected StateFactory<ExtensionState> init(MetaStreamEvent metaStreamEvent,
+                                                AbstractDefinition abstractDefinition,
+                                                ExpressionExecutor[] attributeExpressionExecutors,
+                                                ConfigReader configReader,
+                                                StreamEventClonerHolder streamEventClonerHolder,
+                                                boolean b,
+                                                boolean b1,
+                                                SiddhiQueryContext siddhiQueryContext) {
         final int minConstantParams = 1;
         final int maxConstantParams = 4;
         final int minNumberOfFeatures = 1;
         int coordinateStartIndex;
         int maxNoOfFeatures = inputDefinition.getAttributeList().size();
-        dataPointsArray = new LinkedList<>();
+        LinkedList<DataPoint> dataPoints = new LinkedList<>();
 
         if (attributeExpressionLength < minConstantParams + minNumberOfFeatures ||
                 attributeExpressionLength > maxConstantParams + maxNoOfFeatures) {
@@ -245,87 +311,72 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor {
         featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
                 attributeExpressionExecutors, coordinateStartIndex, dimensionality);
 
-        kMeansModel = new KMeansModel();
+        KMeansModel kMeansModel = new KMeansModel();
 
-        executorService = siddhiAppContext.getExecutorService();
+        executorService = siddhiQueryContext.getSiddhiAppContext().getExecutorService();
 
-        List<Attribute> attributeList = new ArrayList<>(1 + dimensionality);
-        attributeList.add(new Attribute("euclideanDistanceToClosestCentroid", Attribute.Type.DOUBLE));
+        attributes = new ArrayList<>(1 + dimensionality);
+        attributes.add(new Attribute("euclideanDistanceToClosestCentroid", Attribute.Type.DOUBLE));
         for (int i = 1; i <= dimensionality; i++) {
-            attributeList.add(new Attribute("closestCentroidCoordinate" + i, Attribute.Type.DOUBLE));
+            attributes.add(new Attribute("closestCentroidCoordinate" + i, Attribute.Type.DOUBLE));
         }
-        return attributeList;
+        return () -> new ExtensionState(kMeansModel, dataPoints);
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor processor,
-                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
-        synchronized (this) {
-            while (streamEventChunk.hasNext()) {
-                StreamEvent streamEvent = streamEventChunk.next();
-                numberOfEventsReceived++;
+    public List<Attribute> getReturnAttributes() {
+        return attributes;
 
-                //validating and getting coordinate values
-                for (int i = 0; i < dimensionality; i++) {
-                    try {
-                        Number content = (Number) featureVariableExpressionExecutors.get(i).execute(streamEvent);
-                        coordinateValuesOfCurrentDataPoint[i] = content.doubleValue();
-                    } catch (ClassCastException e) {
-                        throw new SiddhiAppRuntimeException("coordinate values should be int/float/double/long " +
-                                "but found " +
-                                attributeExpressionExecutors[i].execute(streamEvent).getClass());
-                    }
-                }
+    }
 
-                //creating a dataPoint with the received coordinate values
-                DataPoint currentDataPoint = new DataPoint();
-                currentDataPoint.setCoordinates(coordinateValuesOfCurrentDataPoint);
-                dataPointsArray.add(currentDataPoint);
+    @Override
+    public ProcessingMode getProcessingMode() {
+        return ProcessingMode.BATCH;
+    }
 
-                if (kMeansModel.isTrained()) {
-                    logger.debug("Populating output");
-                    complexEventPopulater.populateComplexEvent(streamEvent,
-                            KMeansClusterer.getAssociatedCentroidInfo(currentDataPoint, kMeansModel));
-                }
+    static class ExtensionState extends State {
 
-                //handling the training
-                if (numberOfEventsReceived % numberOfEventsToRetrain == 0) {
-                    KMeansClusterer.train(new LinkedList<>(dataPointsArray), numberOfEventsToRetrain, decayRate,
-                            executorService, kMeansModel, numberOfClusters, maximumIterations, dimensionality);
-                    dataPointsArray.clear();
-                }
+        private static final String KEY_UNTRAINED_DATA = "untrainedData";
+        private static final String KEY_K_MEANS_MODEL = "kMeansModel";
+        private static final String KEY_NUMBER_OF_EVENTS_RECEIVED = "numberOfEventsReceived";
+        private final Map<String, Object> state;
+        private KMeansModel kMeansModel;
+        private LinkedList<DataPoint> dataPoints;
+        private int numberOfEventsReceived;
 
-            }
+        private ExtensionState(KMeansModel kMeansModel, LinkedList<DataPoint> dataPoints) {
+            state = new HashMap<>();
+            this.dataPoints = dataPoints;
+            this.kMeansModel = kMeansModel;
+            numberOfEventsReceived = 0;
         }
-        nextProcessor.process(streamEventChunk);
-    }
 
-    @Override
-    public void start() {
-    }
-
-    @Override
-    public void stop() {
-    }
-
-    @Override
-    public Map<String, Object> currentState() {
-        synchronized (this) {
-            Map<String, Object> map = new HashMap();
-            map.put("untrainedData", dataPointsArray);
-            map.put("numberOfEventsReceived", numberOfEventsReceived);
-            map.put("kMeansModel", kMeansModel);
-            logger.debug("storing kmeans model " + map.get("kMeansModel"));
-            return map;
+        private synchronized int getNumberOfEventsReceived() {
+            return numberOfEventsReceived;
         }
-    }
 
-    @Override
-    public void restoreState(Map<String, Object> map) {
-        synchronized (this) {
-            dataPointsArray = (LinkedList<DataPoint>) map.get("untrainedData");
-            numberOfEventsReceived = (Integer) map.get("numberOfEventsReceived");
-            kMeansModel = (KMeansModel) map.get("kMeansModel");
+        private synchronized void incKeyNumberOfEventsReceived() {
+            numberOfEventsReceived++;
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return false;
+        }
+
+        @Override
+        public synchronized Map<String, Object> snapshot() {
+            state.put(KEY_UNTRAINED_DATA, dataPoints);
+            state.put(KEY_K_MEANS_MODEL, kMeansModel);
+            state.put(KEY_NUMBER_OF_EVENTS_RECEIVED, numberOfEventsReceived);
+            return state;
+        }
+
+        @Override
+        public synchronized void restore(Map<String, Object> map) {
+            dataPoints = (LinkedList<DataPoint>) map.get(KEY_UNTRAINED_DATA);
+            kMeansModel = (KMeansModel) map.get(KEY_K_MEANS_MODEL);
+            numberOfEventsReceived = (Integer) map.get(KEY_NUMBER_OF_EVENTS_RECEIVED);
         }
     }
 }

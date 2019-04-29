@@ -17,19 +17,19 @@
  */
 package org.wso2.extension.siddhi.execution.streamingml.bayesian.classification;
 
+import io.siddhi.core.SiddhiAppRuntime;
+import io.siddhi.core.SiddhiManager;
+import io.siddhi.core.event.Event;
+import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.query.output.callback.QueryCallback;
+import io.siddhi.core.stream.input.InputHandler;
+import io.siddhi.core.util.EventPrinter;
+import io.siddhi.core.util.SiddhiTestHelper;
+import io.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.apache.log4j.Logger;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.core.util.SiddhiTestHelper;
-import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -207,7 +207,7 @@ public class BayesianClassificationUpdaterStreamProcessorExtensionTestCase {
             logger.error(e.getCause().getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter no.of.classes must be a constant. " +
-                    "But found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
+                    "But found io.siddhi.core.executor.VariableExpressionExecutor"));
         } finally {
             siddhiManager.shutdown();
         }
@@ -397,7 +397,7 @@ public class BayesianClassificationUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter 4 must either be a constant " +
                     "(hyperparameter) or an attribute of the stream (model.features), " +
-                    "but found a org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
+                    "but found a io.siddhi.core.executor.VariableExpressionExecutor"));
         } finally {
             siddhiManager.shutdown();
         }
@@ -489,7 +489,7 @@ public class BayesianClassificationUpdaterStreamProcessorExtensionTestCase {
             logger.error(e.getCause().getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter no.of.classes must be a constant. " +
-                    "But found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
+                    "But found io.siddhi.core.executor.VariableExpressionExecutor"));
         } finally {
             siddhiManager.shutdown();
         }
@@ -573,7 +573,7 @@ public class BayesianClassificationUpdaterStreamProcessorExtensionTestCase {
             logger.error(e.getCause().getMessage());
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter model.name must be a constant. " +
-                    "But found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
+                    "But found io.siddhi.core.executor.VariableExpressionExecutor"));
         } finally {
             siddhiManager.shutdown();
         }
@@ -621,7 +621,7 @@ public class BayesianClassificationUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("8th parameter is not an attribute "
                     + "(VariableExpressionExecutor) present in the stream definition. Found a "
-                    + "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+                    + "io.siddhi.core.executor.ConstantExpressionExecutor"));
         } finally {
             siddhiManager.shutdown();
         }
@@ -671,7 +671,7 @@ public class BayesianClassificationUpdaterStreamProcessorExtensionTestCase {
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("model.target attribute in "
                     + "updateBayesianClassification should be a variable, but found a "
-                    + "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+                    + "io.siddhi.core.executor.ConstantExpressionExecutor"));
         } finally {
             siddhiManager.shutdown();
         }

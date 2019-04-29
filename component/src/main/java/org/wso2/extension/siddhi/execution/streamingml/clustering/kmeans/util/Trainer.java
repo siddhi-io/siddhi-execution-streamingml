@@ -20,6 +20,7 @@ package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
 import java.util.List;
 
 /**

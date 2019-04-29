@@ -18,7 +18,8 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.util;
 
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import io.siddhi.query.api.exception.SiddhiAppValidationException;
+
 import java.io.Serializable;
 import java.util.Arrays;
 

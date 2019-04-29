@@ -18,18 +18,19 @@
 
 package org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans;
 
+import io.siddhi.core.SiddhiAppRuntime;
+import io.siddhi.core.SiddhiManager;
+import io.siddhi.core.event.Event;
+import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.query.output.callback.QueryCallback;
+import io.siddhi.core.stream.input.InputHandler;
+import io.siddhi.core.util.EventPrinter;
+import io.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.apache.log4j.Logger;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.SiddhiAppRuntime;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -300,7 +301,7 @@ public class KMeansIncrementalSPExtensionTest {
             logger.info("Error caught");
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("1st query parameter is numberOfClusters " +
-                    "which has to be constantbut found org.wso2.siddhi.core.executor.VariableExpressionExecutor"));
+                    "which has to be constantbut found io.siddhi.core.executor.VariableExpressionExecutor"));
         }
     }
 
@@ -323,7 +324,7 @@ public class KMeansIncrementalSPExtensionTest {
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("3th parameter is not an attribute " +
                     "(VariableExpressionExecutor) present in the stream definition. Found a " +
-                    "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+                    "io.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
 
@@ -347,7 +348,7 @@ public class KMeansIncrementalSPExtensionTest {
             AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
             AssertJUnit.assertTrue(e.getCause().getMessage().contains("4th parameter is not an attribute " +
                     "(VariableExpressionExecutor) present in the stream definition. Found a " +
-                    "org.wso2.siddhi.core.executor.ConstantExpressionExecutor"));
+                    "io.siddhi.core.executor.ConstantExpressionExecutor"));
         }
     }
 

@@ -18,6 +18,7 @@
 package org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util;
 
 import org.wso2.extension.siddhi.execution.streamingml.util.MathUtil;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
