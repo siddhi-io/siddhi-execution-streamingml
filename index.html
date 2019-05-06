@@ -353,6 +353,18 @@
 
 
   <li class="md-nav__item">
+    <a href="api/2.0.1/" title="2.0.1" class="md-nav__link">
+      2.0.1
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="api/2.0.0/" title="2.0.0" class="md-nav__link">
       2.0.0
     </a>
@@ -693,7 +705,7 @@
 </em> <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml/releases">Releases</a>
 * <a target="_blank" href="https://github.com/wso2-extensions/siddhi-execution-streamingml/issues">Issue tracker</a></p>
 <h2 id="latest-api-docs">Latest API Docs<a class="headerlink" href="#latest-api-docs" title="Permanent link">&para;</a></h2>
-<p>Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.0">2.0.0</a>.</p>
+<p>Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.1">2.0.1</a>.</p>
 <h2 id="how-to-use">How to use<a class="headerlink" href="#how-to-use" title="Permanent link">&para;</a></h2>
 <p><strong>Using the extension in <a target="_blank" href="https://github.com/wso2/product-sp">WSO2 Stream Processor</a></strong></p>
 <ul>
@@ -709,7 +721,7 @@
 <li>This extension can be added as a maven dependency along with other Siddhi dependencies to your project.</li>
 </ul>
 <div class="codehilite"><pre><span></span>     &lt;dependency&gt;
-        &lt;groupId&gt;org.wso2.extension.siddhi.execution.streamingml&lt;/groupId&gt;
+        &lt;groupId&gt;io.siddhi.extension.execution.streamingml&lt;/groupId&gt;
         &lt;artifactId&gt;siddhi-execution-streamingml&lt;/artifactId&gt;
         &lt;version&gt;x.x.x&lt;/version&gt;
      &lt;/dependency&gt;
@@ -718,14 +730,14 @@
 
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.0/#bayesianclassification-stream-processor">bayesianClassification</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension predicts using a Bayesian multivariate logistic regression model. This Bayesian model allows determining the uncertainty of each prediction by estimating the full-predictive distribution</p></div></li>
-<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.0/#bayesianregression-stream-processor">bayesianRegression</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension predicts using a Bayesian linear regression model.Bayesian linear regression allows determining the uncertainty of each prediction by estimating the full-predictive distribution</p></div></li>
-<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.0/#kmeansincremental-stream-processor">kMeansIncremental</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed by a query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles Sequential K-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm </p></div></li>
-<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.0/#kmeansminibatch-stream-processor">kMeansMiniBatch</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed in a single query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). </p></div></li>
-<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.0/#perceptronclassifier-stream-processor">perceptronClassifier</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension predicts using a linear binary classification Perceptron model.</p></div></li>
-<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.0/#updatebayesianclassification-stream-processor">updateBayesianClassification</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension train a Bayesian multivariate logistic regression model. We can use this model for multi-class classification. This extension uses an improved version of stochastic variational inference.</p></div></li>
-<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.0/#updatebayesianregression-stream-processor">updateBayesianRegression</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension builds/updates a linear Bayesian regression model. This extension uses an improved version of stochastic variational inference.</p></div></li>
-<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.0/#updateperceptronclassifier-stream-processor">updatePerceptronClassifier</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension builds/updates a linear binary classification Perceptron model.</p></div></li>
+<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.1/#bayesianclassification-stream-processor">bayesianClassification</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension predicts using a Bayesian multivariate logistic regression model. This Bayesian model allows determining the uncertainty of each prediction by estimating the full-predictive distribution</p></div></li>
+<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.1/#bayesianregression-stream-processor">bayesianRegression</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension predicts using a Bayesian linear regression model.Bayesian linear regression allows determining the uncertainty of each prediction by estimating the full-predictive distribution</p></div></li>
+<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.1/#kmeansincremental-stream-processor">kMeansIncremental</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed by a query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles Sequential K-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm </p></div></li>
+<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.1/#kmeansminibatch-stream-processor">kMeansMiniBatch</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed in a single query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). </p></div></li>
+<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.1/#perceptronclassifier-stream-processor">perceptronClassifier</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension predicts using a linear binary classification Perceptron model.</p></div></li>
+<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.1/#updatebayesianclassification-stream-processor">updateBayesianClassification</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension train a Bayesian multivariate logistic regression model. We can use this model for multi-class classification. This extension uses an improved version of stochastic variational inference.</p></div></li>
+<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.1/#updatebayesianregression-stream-processor">updateBayesianRegression</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension builds/updates a linear Bayesian regression model. This extension uses an improved version of stochastic variational inference.</p></div></li>
+<li><a target="_blank" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/2.0.1/#updateperceptronclassifier-stream-processor">updatePerceptronClassifier</a> <em><a target="_blank" href="http://siddhi.io/documentation/siddhi-5.x/query-guide-5.x/#stream-processor">(Stream Processor)</a></em><br><div style="padding-left: 1em;"><p>This extension builds/updates a linear binary classification Perceptron model.</p></div></li>
 </ul>
 <h2 id="how-to-contribute">How to Contribute<a class="headerlink" href="#how-to-contribute" title="Permanent link">&para;</a></h2>
 <ul>
@@ -777,13 +789,13 @@
       <nav class="md-footer-nav__inner md-grid">
         
         
-          <a href="api/2.0.0/" title="2.0.0" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="api/2.0.1/" title="2.0.1" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                2.0.0
+                2.0.1
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
