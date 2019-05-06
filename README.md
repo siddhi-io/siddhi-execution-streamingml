@@ -25,7 +25,7 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
 
 ```
      <dependency>
-        <groupId>org.wso2.extension.siddhi.execution.streamingml</groupId>
+        <groupId>io.siddhi.extension.execution.streamingml</groupId>
         <artifactId>siddhi-execution-streamingml</artifactId>
         <version>x.x.x</version>
      </dependency>

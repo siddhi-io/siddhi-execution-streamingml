@@ -22,15 +22,15 @@
 <suite name="Execution-ML-Test-Suite">
     <test name="execution-ml-tests" enabled="true" preserve-order="true">
         <classes>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.util.PerceptronModelTest"/>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.PerceptronClassifierUpdaterStreamProcessorExtensionTestCase"/>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.classification.perceptron.PerceptronClassifierStreamProcessorExtensionTestCase"/>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.KMeansMiniBatchSPExtensionTest"/>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.KMeansIncrementalSPExtensionTest"/>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.bayesian.classification.BayesianClassificationStreamProcessorExtensionTestCase"/>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.bayesian.classification.BayesianClassificationUpdaterStreamProcessorExtensionTestCase"/>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.bayesian.regression.BayesianRegressionStreamProcessorExtensionTestCase"/>
-            <class name="org.wso2.extension.siddhi.execution.streamingml.bayesian.regression.BayesianRegressionUpdaterStreamProcessorExtensionTestCase"/>
+            <class name="io.siddhi.extension.execution.streamingml.classification.perceptron.util.PerceptronModelTest"/>
+            <class name="io.siddhi.extension.execution.streamingml.classification.perceptron.PerceptronClassifierUpdaterStreamProcessorExtensionTestCase"/>
+            <class name="io.siddhi.extension.execution.streamingml.classification.perceptron.PerceptronClassifierStreamProcessorExtensionTestCase"/>
+            <class name="io.siddhi.extension.execution.streamingml.clustering.kmeans.KMeansMiniBatchSPExtensionTest"/>
+            <class name="io.siddhi.extension.execution.streamingml.clustering.kmeans.KMeansIncrementalSPExtensionTest"/>
+            <class name="io.siddhi.extension.execution.streamingml.bayesian.classification.BayesianClassificationStreamProcessorExtensionTestCase"/>
+            <class name="io.siddhi.extension.execution.streamingml.bayesian.classification.BayesianClassificationUpdaterStreamProcessorExtensionTestCase"/>
+            <class name="io.siddhi.extension.execution.streamingml.bayesian.regression.BayesianRegressionStreamProcessorExtensionTestCase"/>
+            <class name="io.siddhi.extension.execution.streamingml.bayesian.regression.BayesianRegressionUpdaterStreamProcessorExtensionTestCase"/>
 
         </classes>
     </test>

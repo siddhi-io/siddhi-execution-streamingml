@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.wso2.extension.siddhi.execution.streamingml</groupId>
+        <groupId>io.siddhi.extension.execution.streamingml</groupId>
         <artifactId>siddhi-execution-streamingml-parent</artifactId>
         <version>2.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -121,10 +121,10 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.extension.siddhi.execution.streamingml.bayesian.*,
-                            org.wso2.extension.siddhi.execution.streamingml.classification.*,
-                            org.wso2.extension.siddhi.execution.streamingml.clustering.kmeans.*,
-                            org.wso2.extension.siddhi.execution.streamingml.util.*
+                            io.siddhi.extension.execution.streamingml.bayesian.*,
+                            io.siddhi.extension.execution.streamingml.classification.*,
+                            io.siddhi.extension.execution.streamingml.clustering.kmeans.*,
+                            io.siddhi.extension.execution.streamingml.util.*
                         </Export-Package>
                         <Import-Package>
                             io.siddhi.core.*;version="${siddhi.version.range}",
