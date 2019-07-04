@@ -20,6 +20,7 @@ package io.siddhi.extension.execution.streamingml.bayesian.classification;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -73,12 +74,13 @@ import java.util.Map;
                 @Parameter(
                         name = "no.of.classes",
                         description = "Number of classes to be classified by the model.",
-                        type = {DataType.DOUBLE, DataType.INT}
+                        type = {DataType.INT}
                 ),
                 @Parameter(
                         name = "model.target",
                         description = "The target attribute (dependant variable) of the input stream.",
-                        type = {DataType.DOUBLE, DataType.INT}
+                        type = {DataType.STRING, DataType.BOOL},
+                        dynamic = true
                 ),
                 @Parameter(
                         name = "model.samples",
@@ -96,10 +98,29 @@ import java.util.Map;
                         type = {DataType.DOUBLE}, optional = true, defaultValue = "0.05"
                 ),
                 @Parameter(
-                        name = "model.features",
+                        name = "model.feature",
                         description = "Features of the model that need to be attributes of the stream.",
-                        type = {DataType.DOUBLE}
+                        type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG},
+                        dynamic = true
                 )
+        },
+        parameterOverloads = {
+                @ParameterOverload(parameterNames = {"model.name", "no.of.classes", "model.target",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "no.of.classes", "model.target", "model.samples",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "no.of.classes", "model.target", "model.optimizer",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "no.of.classes", "model.target", "learning.rate",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "no.of.classes", "model.target", "model.samples",
+                        "model.optimizer", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "no.of.classes", "model.target", "model.samples",
+                        "learning.rate", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "no.of.classes", "model.target", "model.optimizer",
+                        "learning.rate", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "no.of.classes", "model.target", "model.samples",
+                        "model.optimizer", "learning.rate", "model.feature", "..."})
         },
         returnAttributes = {
                 @ReturnAttribute(name = "loss", description = "Weight of the <feature" +

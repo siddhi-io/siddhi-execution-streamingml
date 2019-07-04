@@ -21,6 +21,7 @@ package io.siddhi.extension.execution.streamingml.classification.perceptron;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -64,14 +65,22 @@ import java.util.List;
                         type = {DataType.STRING}),
                 @Parameter(name = "model.bias",
                         description = "The bias of the Perceptron algorithm.",
-                        type = {DataType.DOUBLE}, defaultValue = "0.0"),
+                        type = {DataType.DOUBLE}, optional = true, defaultValue = "0.0"),
                 @Parameter(name = "model.threshold",
                         description = "The threshold that separates the two classes. The value specified must be " +
                                 "between zero and one.",
-                        type = {DataType.DOUBLE}, defaultValue = " The output is a probability."),
-                @Parameter(name = "model.features",
+                        type = {DataType.DOUBLE}, optional = true, defaultValue = "0.5"),
+                @Parameter(name = "model.feature",
                         description = "The features of the model that need to be attributes of the stream.",
-                        type = {DataType.DOUBLE})
+                        type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG},
+                        dynamic = true)
+        },
+        parameterOverloads = {
+                @ParameterOverload(parameterNames = {"model.name", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.bias", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.threshold", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.bias", "model.threshold",
+                        "model.feature", "..."})
         },
         returnAttributes = {
                 @ReturnAttribute(name = "prediction",

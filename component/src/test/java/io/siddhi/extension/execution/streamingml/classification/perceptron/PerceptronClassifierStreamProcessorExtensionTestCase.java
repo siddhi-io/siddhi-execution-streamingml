@@ -123,7 +123,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         }
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClassificationStreamProcessorExtension2() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - Features are not of type double");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -132,18 +132,11 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 bool, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0,0.5," +
                 " attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("model.features in 7th parameter is not "
-                    + "a numerical type attribute. Found BOOL. Check the input stream definition"));
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClassificationStreamProcessorExtension3() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - bias is not double");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -152,18 +145,11 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 bool, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "2,0.5, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
-                    "model.bias argument. Expected: DOUBLE but found: INT"));
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClassificationStreamProcessorExtension4() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - threshold is not double");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -172,15 +158,8 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 bool, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('model1', " + "0.0,2, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for " +
-                    "the model.threshold argument. Expected: DOUBLE but found: INT"));
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
     @Test
@@ -203,7 +182,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         }
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClassificationStreamProcessorExtension6() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - invalid model name");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -212,18 +191,11 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier(attribute_4, " + "0.0," +
                 "1.1, attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter model.name must be a constant but "
-                    + "found io.siddhi.core.executor.VariableExpressionExecutor"));
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClassificationStreamProcessorExtension7() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - incorrect initialization");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -232,15 +204,8 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double, attribute_4 string );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier() \n" + "insert all " +
                 "events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid number of parameters [0] for " +
-                    "streamingml:perceptronClassifier"));
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
     @Test
@@ -316,7 +281,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
         }
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClassificationStreamProcessorExtension10() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - invalid model name type");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -325,17 +290,10 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier(0.2, " + "0.0, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
-                    "model.name argument, required STRING but found DOUBLE"));
-        }
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClassificationStreamProcessorExtension11() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - incorrect order of parameters");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -344,19 +302,11 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('m1', " + "0.0, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3, 2) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("7th parameter is not an attribute "
-                    + "(VariableExpressionExecutor) present in the stream definition. Found a "
-                    + "io.siddhi.core.executor.ConstantExpressionExecutor"
-            ));
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClassificationStreamProcessorExtension12() {
         logger.info("PerceptronClassifierStreamProcessorExtension TestCase - more parameters than needed");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -365,15 +315,7 @@ public class PerceptronClassifierStreamProcessorExtensionTestCase {
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:perceptronClassifier('m1', " + "0.0, 0.5, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3, 2) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid number of parameters for " +
-                    "streamingml:perceptronClassifier. This Stream Processor requires at most 7 parameters, " +
-                    "namely, model.name, model.bias, model.threshold, model.features but found 8 parameters"));
-        }
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
     @Test

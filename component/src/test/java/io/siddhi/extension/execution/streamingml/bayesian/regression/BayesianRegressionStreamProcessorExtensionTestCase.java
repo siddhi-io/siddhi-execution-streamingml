@@ -171,7 +171,7 @@ public class BayesianRegressionStreamProcessorExtensionTestCase {
 
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testBayesianRegressionStreamProcessorExtension2() {
         logger.info("BayesianRegressionStreamProcessorExtension TestCase - Features are not of type double");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -180,20 +180,11 @@ public class BayesianRegressionStreamProcessorExtensionTestCase {
                 "double, attribute_3 bool);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianRegression('model1', " + "10," +
                 " attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("model.features in 6th parameter is not "
-                    + "a numerical type attribute. Found BOOL. Check the input stream definition"));
-        } finally {
-            siddhiManager.shutdown();
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testBayesianRegressionStreamProcessorExtension3() {
         logger.info("BayesianRegressionStreamProcessorExtension TestCase - Number of prediction samples is not int ");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -202,17 +193,8 @@ public class BayesianRegressionStreamProcessorExtensionTestCase {
                 "double, attribute_3 bool);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianRegression('model1', " + "0.5, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
-                    "prediction.samples argument. Expected: INT but found: DOUBLE"));
-        } finally {
-            siddhiManager.shutdown();
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
     @Test
@@ -237,7 +219,7 @@ public class BayesianRegressionStreamProcessorExtensionTestCase {
         }
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testBayesianRegressionStreamProcessorExtension5() {
         logger.info("BayesianRegressionStreamProcessorExtension TestCase - invalid model name");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -246,20 +228,10 @@ public class BayesianRegressionStreamProcessorExtensionTestCase {
                 "double, attribute_3 double, attribute_4 double );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianRegression(attribute_4, " + "1000," +
                 "attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Parameter model.name must be a constant but "
-                    + "found io.siddhi.core.executor.VariableExpressionExecutor"));
-        } finally {
-            siddhiManager.shutdown();
-        }
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testBayesianRegressionStreamProcessorExtension6() {
         logger.info("BayesianRegressionStreamProcessorExtension TestCase - incorrect initialization");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -268,17 +240,8 @@ public class BayesianRegressionStreamProcessorExtensionTestCase {
                 "double, attribute_3 double );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianRegression() \n" + "insert all " +
                 "events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid number of parameters [0] for " +
-                    "streamingml:bayesianRegression"));
-        } finally {
-            siddhiManager.shutdown();
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
     @Test
@@ -304,7 +267,7 @@ public class BayesianRegressionStreamProcessorExtensionTestCase {
         }
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testBayesianRegressionStreamProcessorExtension8() {
         logger.info("BayesianRegressionStreamProcessorExtension TestCase - invalid model name type");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -313,17 +276,8 @@ public class BayesianRegressionStreamProcessorExtensionTestCase {
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianRegression(1000, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter type found for the " +
-                    "model.name argument, required STRING but found INT"));
-        } finally {
-            siddhiManager.shutdown();
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
     }
 
     @Test

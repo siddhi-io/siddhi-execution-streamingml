@@ -21,6 +21,7 @@ package io.siddhi.extension.execution.streamingml.clustering.kmeans;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -99,12 +100,27 @@ import java.util.concurrent.ExecutorService;
                         defaultValue = "20"
                 ),
                 @Parameter(
-                        name = "model.features",
+                        name = "model.feature",
                         description = "This is a variable length argument. Depending on the dimensionality of " +
                                 "data points we will receive coordinates as features along each axis.",
-                        type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG}
+                        type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG},
+                        dynamic = true
                 )
-
+        },
+        parameterOverloads = {
+                @ParameterOverload(parameterNames = {"no.of.clusters", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"no.of.clusters", "decay.rate", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"no.of.clusters", "maximum.iterations", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"no.of.clusters", "no.of.events.to.retrain",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"no.of.clusters", "decay.rate", "maximum.iterations",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"no.of.clusters", "decay.rate", "no.of.events.to.retrain",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"no.of.clusters", "maximum.iterations", "no.of.events.to.retrain",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"no.of.clusters", "decay.rate", "maximum.iterations",
+                        "no.of.events.to.retrain", "model.feature", "..."})
         },
         returnAttributes = {
                 @ReturnAttribute(

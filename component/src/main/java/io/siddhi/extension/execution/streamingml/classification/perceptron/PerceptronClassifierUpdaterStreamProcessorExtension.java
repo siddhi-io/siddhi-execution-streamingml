@@ -21,6 +21,7 @@ package io.siddhi.extension.execution.streamingml.classification.perceptron;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -67,13 +68,22 @@ import java.util.Map;
                         type = {DataType.STRING}),
                 @Parameter(name = "model.label",
                         description = "The attribute of the label or the class of the dataset.",
-                        type = {DataType.BOOL, DataType.STRING}),
+                        type = {DataType.BOOL, DataType.STRING},
+                        dynamic = true),
                 @Parameter(name = "learning.rate",
                         description = "The learning rate of the Perceptron algorithm.",
                         type = {DataType.DOUBLE}, optional = true, defaultValue = "0.1"),
-                @Parameter(name = "model.features",
+                @Parameter(name = "model.feature",
                         description = "Features of the model that need to be attributes of the stream.",
-                        type = {DataType.DOUBLE, DataType.INT})},
+                        type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG},
+                        dynamic = true
+                )
+        },
+        parameterOverloads = {
+                @ParameterOverload(parameterNames = {"model.name", "model.label", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.label", "learning.rate",
+                        "model.feature", "..."})
+        },
         returnAttributes = {
                 @ReturnAttribute(name = "featureWeight", description = "Weight of the <feature" +
                         ".name> of the " + "model.", type = {DataType.DOUBLE})},
@@ -293,11 +303,9 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension
     static class ExtensionState extends State {
 
         private static final String KEY_PERCEPTRON_MODEL = "PerceptronModel";
-        private final Map<String, Object> state;
         private final String modelName;
 
         private ExtensionState(String modelName) {
-            state = new HashMap<>();
             this.modelName = modelName;
         }
 
@@ -308,6 +316,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension
 
         @Override
         public Map<String, Object> snapshot() {
+            Map<String, Object> state = new HashMap<>();
             state.put(KEY_PERCEPTRON_MODEL,
                     PerceptronModelsHolder.getInstance().getClonedPerceptronModel(modelName));
             return state;
@@ -316,7 +325,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension
         @Override
         public void restore(Map<String, Object> map) {
             PerceptronModelsHolder.getInstance().addPerceptronModel(modelName, (PerceptronModel)
-                    state.get(KEY_PERCEPTRON_MODEL));
+                    map.get(KEY_PERCEPTRON_MODEL));
         }
     }
 }
