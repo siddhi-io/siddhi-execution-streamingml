@@ -326,7 +326,7 @@ public class KMeansMiniBatchSPExtensionTest {
         }
     }
 
-    @Test
+    @Test(expectedExceptions = {SiddhiAppCreationException.class})
     public void testClusteringLengthWindow2D_5() throws Exception {
         logger.info("KMeansMiniBatchSPExtension Test - Test case to validate numberOfClusters to be constant");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -339,15 +339,8 @@ public class KMeansMiniBatchSPExtensionTest {
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        } catch (Exception e) {
-            logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("1st query parameter is numberOfClusters " +
-                    "which has to be constantbut found io.siddhi.core.executor.VariableExpressionExecutor"));
-        }
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
     }
 
     @Test
@@ -446,7 +439,7 @@ public class KMeansMiniBatchSPExtensionTest {
         }
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClusteringLengthWindow2D_11() throws Exception {
         logger.info("KMeansMiniBatchSPExtension Test - Test case to validate decayRate to be double");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -458,14 +451,8 @@ public class KMeansMiniBatchSPExtensionTest {
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
-        } catch (Exception e) {
-            logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Decay rate should be of type int but " +
-                    "found STRING"));
-        }
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
     }
 
     @Test
@@ -516,7 +503,7 @@ public class KMeansMiniBatchSPExtensionTest {
         }
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClusteringLengthWindow2D_14() throws Exception {
         logger.info("KMeansMiniBatchSPExtension Test - Test case to validate numberOfClusters is int");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -528,18 +515,11 @@ public class KMeansMiniBatchSPExtensionTest {
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        } catch (Exception e) {
-            logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("The first query parameter should " +
-                    "numberOfClusters which should be of type int but found DOUBLE"));
-        }
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClusteringLengthWindow2D_15() throws Exception {
         logger.info("KMeansMiniBatchSPExtension Test - Test case to validate maximumIterations is int");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -551,18 +531,11 @@ public class KMeansMiniBatchSPExtensionTest {
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        } catch (Exception e) {
-            logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Maximum iterations should be of type int " +
-                    "but found STRING"));
-        }
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
     }
 
-    @Test
+    @Test (expectedExceptions = {SiddhiAppCreationException.class})
     public void testClusteringLengthWindow2D_16() throws Exception {
         logger.info("KMeansMiniBatchSPExtension Test - Test case to validate numberOfEventsToRetrain is int");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -574,15 +547,8 @@ public class KMeansMiniBatchSPExtensionTest {
                         "select euclideanDistanceToClosestCentroid, closestCentroidCoordinate1, " +
                         "closestCentroidCoordinate2, x, y " +
                         "insert into OutputStream;");
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
 
-        } catch (Exception e) {
-            logger.info("Error caught");
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("numberOfEventsToRetrain should be of type " +
-                    "int but found LONG"));
-        }
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inputStream + query);
     }
 
     @Test

@@ -20,6 +20,7 @@ package io.siddhi.extension.execution.streamingml.bayesian.regression;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -72,7 +73,8 @@ import java.util.Map;
                 @Parameter(
                         name = "model.target",
                         description = "The target attribute (dependant variable) of the input stream.",
-                        type = {DataType.DOUBLE, DataType.INT}
+                        type = {DataType.INT, DataType.DOUBLE, DataType.LONG, DataType.FLOAT},
+                        dynamic = true
                 ),
                 @Parameter(
                         name = "model.samples",
@@ -90,15 +92,33 @@ import java.util.Map;
                         type = {DataType.DOUBLE}, optional = true, defaultValue = "0.05"
                 ),
                 @Parameter(
-                        name = "model.features",
+                        name = "model.feature",
                         description = "Features of the model that need to be attributes of the stream.",
-                        type = {DataType.DOUBLE}
+                        type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG},
+                        dynamic = true
                 )
+        },
+        parameterOverloads = {
+                @ParameterOverload(parameterNames = {"model.name", "model.target",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.target", "model.samples",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.target", "model.optimizer",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.target", "learning.rate",
+                        "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.target", "model.samples",
+                        "model.optimizer", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.target", "model.samples",
+                        "learning.rate", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.target", "model.optimizer",
+                        "learning.rate", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "model.target", "model.samples",
+                        "model.optimizer", "learning.rate", "model.feature", "..."})
         },
         returnAttributes = {
                 @ReturnAttribute(name = "loss", description = " loss of the model.",
-                        type = {DataType.DOUBLE}),
-//
+                        type = {DataType.DOUBLE})
         },
         examples = {
                 @Example(syntax = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double," +

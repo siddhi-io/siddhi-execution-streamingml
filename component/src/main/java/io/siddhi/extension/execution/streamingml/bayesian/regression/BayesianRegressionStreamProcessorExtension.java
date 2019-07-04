@@ -20,6 +20,7 @@ package io.siddhi.extension.execution.streamingml.bayesian.regression;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -68,9 +69,14 @@ import java.util.List;
                 @Parameter(name = "prediction.samples",
                         description = "The number of samples to be drawn to estimate the prediction",
                         type = {DataType.INT}, optional = true, defaultValue = "1000"),
-                @Parameter(name = "model.features",
+                @Parameter(name = "model.feature",
                         description = "The features of the model that need to be attributes of the stream",
-                        type = {DataType.DOUBLE})
+                        type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG},
+                        dynamic = true)
+        },
+        parameterOverloads = {
+                @ParameterOverload(parameterNames = {"model.name", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "prediction.samples", "model.feature", "..."})
         },
         returnAttributes = {
                 @ReturnAttribute(name = "prediction",

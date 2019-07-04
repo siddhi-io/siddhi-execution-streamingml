@@ -20,6 +20,7 @@ package io.siddhi.extension.execution.streamingml.bayesian.classification;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -69,9 +70,15 @@ import java.util.List;
                         description = "The number of samples to be drawn from the predictive distribution. " +
                                 "Drawing more samples will improve the accuracy of the predictions",
                         type = {DataType.INT}, optional = true, defaultValue = "1000"),
-                @Parameter(name = "model.features",
+                @Parameter(name = "model.feature",
                         description = "The features of the model that need to be attributes of the stream.",
-                        type = {DataType.DOUBLE})
+                        type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG},
+                        dynamic = true
+                )
+        },
+        parameterOverloads = {
+                @ParameterOverload(parameterNames = {"model.name", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"model.name", "prediction.samples", "model.feature", "..."})
         },
         returnAttributes = {
                 @ReturnAttribute(name = "prediction",

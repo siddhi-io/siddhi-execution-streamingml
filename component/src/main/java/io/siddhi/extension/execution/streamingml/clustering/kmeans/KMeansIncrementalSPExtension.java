@@ -21,6 +21,7 @@ package io.siddhi.extension.execution.streamingml.clustering.kmeans;
 import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
 import io.siddhi.annotation.util.DataType;
 import io.siddhi.core.config.SiddhiQueryContext;
@@ -82,12 +83,17 @@ import java.util.Map;
                         defaultValue = "0.01"
                 ),
                 @Parameter(
-                        name = "model.features",
+                        name = "model.feature",
                         description = "This is a variable length argument. Depending on the dimensionality of data " +
                                 "points we will receive coordinates as features along each axis.",
-                        type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG}
+                        type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG},
+                        dynamic = true
                 )
 
+        },
+        parameterOverloads = {
+                @ParameterOverload(parameterNames = {"no.of.clusters", "model.feature", "..."}),
+                @ParameterOverload(parameterNames = {"no.of.clusters", "decay.rate", "model.feature", "..."})
         },
         returnAttributes = {
                 @ReturnAttribute(
@@ -274,12 +280,10 @@ public class KMeansIncrementalSPExtension extends StreamProcessor<KMeansIncremen
 
         private static final String KEY_UNTRAINED_DATA = "untrainedData";
         private static final String KEY_K_MEANS_MODEL = "kMeansModel";
-        private final Map<String, Object> state;
         private KMeansModel kMeansModel;
         private LinkedList<DataPoint> dataPoints;
 
         private ExtensionState(KMeansModel kMeansModel, LinkedList<DataPoint> dataPoints) {
-            state = new HashMap<>();
             this.dataPoints = dataPoints;
             this.kMeansModel = kMeansModel;
         }
@@ -291,6 +295,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor<KMeansIncremen
 
         @Override
         public synchronized Map<String, Object> snapshot() {
+            Map<String, Object> state =  new HashMap<>();
             state.put(KEY_UNTRAINED_DATA, dataPoints);
             state.put(KEY_K_MEANS_MODEL, kMeansModel);
             logger.debug("storing kmeans model " + state.get(KEY_K_MEANS_MODEL));
