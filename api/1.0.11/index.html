@@ -2,7 +2,7 @@
 
 
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="no-js">
   <head>
     
@@ -10,13 +10,9 @@
       <meta name="viewport" content="width=device-width,initial-scale=1">
       <meta http-equiv="x-ua-compatible" content="ie=edge">
       
-        <meta name="description" content="Siddhi Execution StreamingML Extension">
+        <meta name="description" content="Siddhi Execution Streaming Machine Learning Extension">
       
       
-        <link rel="canonical" href="https://wso2-extensions.github.io/siddhi-execution-streamingml/api/1.0.11/">
-      
-      
-        <meta name="author" content="WSO2">
       
       
         <meta name="lang:clipboard.copy" content="Copy to clipboard">
@@ -38,17 +34,17 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../images/favicon.ico">
-      <meta name="generator" content="mkdocs-0.17.4, mkdocs-material-2.9.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.0">
     
     
       
-        <title>1.0.11 - Siddhi Execution StreamingML</title>
+        <title>1.0.11 - Siddhi Execution Streaming ML</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/application.ba0fd1a6.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/application.0284f74d.css">
       
-        <link rel="stylesheet" href="../../assets/stylesheets/application-palette.6079476c.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/application-palette.01803549.css">
       
       
         
@@ -57,18 +53,47 @@
       
     
     
-      <script src="../../assets/javascripts/modernizr.1aa3b519.js"></script>
+      <script src="../../assets/javascripts/modernizr.74668098.js"></script>
     
     
-      <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
       
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
     <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/extra.css">
+    
+    
+      
+        
+<script>
+  window.ga = window.ga || function() {
+    (ga.q = ga.q || []).push(arguments)
+  }
+  ga.l = +new Date
+  /* Setup integration and send page view */
+  ga("create", "UA-103065-28", "auto")
+  ga("set", "anonymizeIp", true)
+  ga("send", "pageview")
+  /* Register handler to log search on blur */
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.forms.search) {
+      var query = document.forms.search.query
+      query.addEventListener("blur", function() {
+        if (this.value) {
+          var path = document.location.pathname;
+          ga("send", "pageview", path + "?q=" + this.value)
+        }
+      })
+    }
+  })
+</script>
+<script async src="https://www.google-analytics.com/analytics.js"></script>
+      
     
     
   </head>
@@ -81,24 +106,7 @@
       <defs>
         
         
-          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
-    viewBox="0 0 416 448" id="__github">
-  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
-        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
-        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
-        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
-        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
-        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
-        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
-        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
-        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
-        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
-        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
-        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
-        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
-        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
-        99.5z" />
-</svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
         
       </defs>
     </svg>
@@ -115,9 +123,9 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="https://wso2-extensions.github.io/siddhi-execution-streamingml/" title="Siddhi Execution StreamingML" class="md-header-nav__button md-logo">
+        <a href="../.." title="Siddhi Execution Streaming ML" class="md-header-nav__button md-logo">
           
-            <img src="../../images/siddhi-logo-w.svg" width="24" height="24">
+            <img src="../../images/siddhi-logo.svg" width="24" height="24">
           
         </a>
       </div>
@@ -127,22 +135,21 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
-            
-              <span class="md-header-nav__topic">
-                Siddhi Execution StreamingML
-              </span>
-              <span class="md-header-nav__topic">
+            <span class="md-header-nav__topic">
+              Siddhi Execution Streaming ML
+            </span>
+            <span class="md-header-nav__topic">
+              
                 1.0.11
-              </span>
-            
+              
+            </span>
           
         </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
         
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
           
-            <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
-            
 <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
@@ -165,7 +172,6 @@
     </div>
   </div>
 </div>
-          
         
       </div>
       
@@ -176,20 +182,18 @@
 
   
 
-
-  <a href="https://github.com/wso2-extensions/siddhi-execution-streamingml/" title="Go to repository" class="md-source" data-md-source="github">
-    
-      <div class="md-source__icon">
-        <svg viewBox="0 0 24 24" width="24" height="24">
-          <use xlink:href="#__github" width="24" height="24"></use>
-        </svg>
-      </div>
-    
-    <div class="md-source__repository">
-      Siddhi-Execution-StreamingML
+<a href="https://github.com/siddhi-io/siddhi-execution-streamingml/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
     </div>
-  </a>
-
+  
+  <div class="md-source__repository">
+    Siddhi Execution Streaming ML
+  </div>
+</a>
           </div>
         </div>
       
@@ -211,12 +215,12 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <span class="md-nav__button md-logo">
+    <a href="../.." title="Siddhi Execution Streaming ML" class="md-nav__button md-logo">
       
-        <img src="../../images/siddhi-logo-w.svg" width="48" height="48">
+        <img src="../../images/siddhi-logo.svg" width="48" height="48">
       
-    </span>
-    Siddhi Execution StreamingML
+    </a>
+    Siddhi Execution Streaming ML
   </label>
   
     <div class="md-nav__source">
@@ -225,20 +229,18 @@
 
   
 
-
-  <a href="https://github.com/wso2-extensions/siddhi-execution-streamingml/" title="Go to repository" class="md-source" data-md-source="github">
-    
-      <div class="md-source__icon">
-        <svg viewBox="0 0 24 24" width="24" height="24">
-          <use xlink:href="#__github" width="24" height="24"></use>
-        </svg>
-      </div>
-    
-    <div class="md-source__repository">
-      Siddhi-Execution-StreamingML
+<a href="https://github.com/siddhi-io/siddhi-execution-streamingml/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
     </div>
-  </a>
-
+  
+  <div class="md-source__repository">
+    Siddhi Execution Streaming ML
+  </div>
+</a>
     </div>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -249,8 +251,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../.." title="Welcome" class="md-nav__link">
-      Welcome
+    <a href="../.." title="Information" class="md-nav__link">
+      Information
     </a>
   </li>
 
@@ -275,6 +277,18 @@
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
         
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../latest/" title="latest" class="md-nav__link">
+      latest
+    </a>
+  </li>
+
         
           
           
@@ -588,18 +602,6 @@
   </li>
 
         
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../latest/" title="latest" class="md-nav__link">
-      latest
-    </a>
-  </li>
-
-        
       </ul>
     </nav>
   </li>
@@ -611,7 +613,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../LICENSE/" title="License" class="md-nav__link">
+    <a href="../../license/" title="License" class="md-nav__link">
       License
     </a>
   </li>
@@ -694,18 +696,17 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/wso2-extensions/siddhi-execution-streamingml/edit/master/docs/api/1.0.11.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/siddhi-io/siddhi-execution-streamingml/blob/master/api/1.0.11.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                <h1 id="api-docs-v1011">API Docs - v1.0.11<a class="headerlink" href="#api-docs-v1011" title="Permanent link">&para;</a></h1>
-<h2 id="streamingml">Streamingml<a class="headerlink" href="#streamingml" title="Permanent link">&para;</a></h2>
-<h3 id="kmeansincremental-stream-processor">kMeansIncremental <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em><a class="headerlink" href="#kmeansincremental-stream-processor" title="Permanent link">&para;</a></h3>
+                <h1 id="api-docs-v1011">API Docs - v1.0.11</h1>
+<h2 id="streamingml">Streamingml</h2>
+<h3 id="kmeansincremental-stream-processor">kMeansIncremental <em><a target="_blank" href="https://siddhi.io/en/v4.x/docs/query-guide/#stream-processor">(Stream Processor)</a></em></h3>
 <p style="word-wrap: break-word">Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed by a query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles Sequential K-Means Clustering at https://www.cs.princeton.edu/courses/archive/fall08/cos436/Duda/C/sk_means.htm </p>
 
 <p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
-<div class="codehilite"><pre><span></span>streamingml:kMeansIncremental(&lt;INT&gt; no.of.clusters, &lt;DOUBLE&gt; decay.rate, &lt;DOUBLE|FLOAT|INT|LONG&gt; model.features)
-</pre></div>
-
+<pre><code>streamingml:kMeansIncremental(&lt;INT&gt; no.of.clusters, &lt;DOUBLE&gt; decay.rate, &lt;DOUBLE|FLOAT|INT|LONG&gt; model.features)
+</code></pre>
 
 <p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
 <table>
@@ -762,34 +763,31 @@
 </table></p>
 <p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
-<div class="codehilite"><pre><span></span>define stream InputStream (x double, y double);
-@info(name = &#39;query1&#39;)
+<pre><code>define stream InputStream (x double, y double);
+@info(name = 'query1')
 from InputStream#streamingml:kMeansIncremental(2, 0.2, x, y)
 select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
 insert into OutputStream;
-</pre></div>
-
+</code></pre>
 
 <p style="word-wrap: break-word">This is an example where user provides the decay rate. First two events will be used to initiate the model since the required number of clusters is specified as 2. After the first event itself prediction would start.</p>
 
 <p><span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span></p>
-<div class="codehilite"><pre><span></span>define stream InputStream (x double, y double);
-@info(name = &#39;query1&#39;)
+<pre><code>define stream InputStream (x double, y double);
+@info(name = 'query1')
 from InputStream#streamingml:kMeansIncremental(2, x, y)
 select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
 insert into OutputStream;
-</pre></div>
-
+</code></pre>
 
 <p style="word-wrap: break-word">This is an example where user doesnt give the decay rate so the default value will be used</p>
 
-<h3 id="kmeansminibatch-stream-processor">kMeansMiniBatch <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em><a class="headerlink" href="#kmeansminibatch-stream-processor" title="Permanent link">&para;</a></h3>
+<h3 id="kmeansminibatch-stream-processor">kMeansMiniBatch <em><a target="_blank" href="https://siddhi.io/en/v4.x/docs/query-guide/#stream-processor">(Stream Processor)</a></em></h3>
 <p style="word-wrap: break-word">Performs K-Means clustering on a streaming data set. Data points can be of any dimension and the dimensionality is calculated from number of parameters. All data points to be processed in a single query should be of the same dimensionality. The Euclidean distance is taken as the distance metric. The algorithm resembles mini-batch K-Means. (refer Web-Scale K-Means Clustering by D.Sculley, Google, Inc.). </p>
 
 <p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
-<div class="codehilite"><pre><span></span>streamingml:kMeansMiniBatch(&lt;INT&gt; no.of.clusters, &lt;DOUBLE&gt; decay.rate, &lt;INT&gt; maximum.iterations, &lt;INT&gt; no.of.events.to.retrain, &lt;DOUBLE|FLOAT|INT|LONG&gt; model.features)
-</pre></div>
-
+<pre><code>streamingml:kMeansMiniBatch(&lt;INT&gt; no.of.clusters, &lt;DOUBLE&gt; decay.rate, &lt;INT&gt; maximum.iterations, &lt;INT&gt; no.of.events.to.retrain, &lt;DOUBLE|FLOAT|INT|LONG&gt; model.features)
+</code></pre>
 
 <p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
 <table>
@@ -862,34 +860,31 @@ insert into OutputStream;
 </table></p>
 <p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
-<div class="codehilite"><pre><span></span>define stream InputStream (x double, y double);
-@info(name = &#39;query1&#39;)
+<pre><code>define stream InputStream (x double, y double);
+@info(name = 'query1')
 from InputStream#streamingml:kMeansMiniBatch(2, 0.2, 10, 20, x, y)
 select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
 insert into OutputStream;
-</pre></div>
-
+</code></pre>
 
 <p style="word-wrap: break-word">This is an example where user gives all three hyper parameters. first 20 events will be consumed to build the model and from the 21st event prediction would start</p>
 
 <p><span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span></p>
-<div class="codehilite"><pre><span></span>define stream InputStream (x double, y double);
-@info(name = &#39;query1&#39;)
+<pre><code>define stream InputStream (x double, y double);
+@info(name = 'query1')
 from InputStream#streamingml:kMeansMiniBatch(2, x, y)
 select closestCentroidCoordinate1, closestCentroidCoordinate2, x, y
 insert into OutputStream;
-</pre></div>
-
+</code></pre>
 
 <p style="word-wrap: break-word">This is an example where user has not specified hyper params. So default values will be used.</p>
 
-<h3 id="perceptronclassifier-stream-processor">perceptronClassifier <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em><a class="headerlink" href="#perceptronclassifier-stream-processor" title="Permanent link">&para;</a></h3>
+<h3 id="perceptronclassifier-stream-processor">perceptronClassifier <em><a target="_blank" href="https://siddhi.io/en/v4.x/docs/query-guide/#stream-processor">(Stream Processor)</a></em></h3>
 <p style="word-wrap: break-word">This extension predicts using a linear binary classification Perceptron model.</p>
 
 <p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
-<div class="codehilite"><pre><span></span>streamingml:perceptronClassifier(&lt;STRING&gt; model.name, &lt;DOUBLE&gt; model.bias, &lt;DOUBLE&gt; model.threshold, &lt;DOUBLE&gt; model.features)
-</pre></div>
-
+<pre><code>streamingml:perceptronClassifier(&lt;STRING&gt; model.name, &lt;DOUBLE&gt; model.bias, &lt;DOUBLE&gt; model.threshold, &lt;DOUBLE&gt; model.features)
+</code></pre>
 
 <p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
 <table>
@@ -954,42 +949,38 @@ insert into OutputStream;
 </table></p>
 <p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
-<div class="codehilite"><pre><span></span>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double);
+<pre><code>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double);
 
-from StreamA#streamingml:perceptronClassifier(&#39;model1&#39;,0.0,0.5, attribute_0, attribute_1, attribute_2, attribute_3) 
+from StreamA#streamingml:perceptronClassifier('model1',0.0,0.5, attribute_0, attribute_1, attribute_2, attribute_3) 
 insert all events into OutputStream;
-</pre></div>
-
+</code></pre>
 
 <p style="word-wrap: break-word">This query uses a Perceptron model named <code>model1</code> with a <code>0.0</code> bias and a <code>0.5</code> threshold learning rate to predict the label of the feature vector represented by <code>attribute_0</code>, <code>attribute_1</code>, <code>attribute_2</code>, and <code>attribute_3</code>. The predicted label (<code>true/false</code>) is emitted to the <code>OutputStream</code> streamalong with the prediction confidence level(probability) and the feature vector. As a result, the OutputStream stream is defined as follows: (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, prediction bool, confidenceLevel double).</p>
 
 <p><span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span></p>
-<div class="codehilite"><pre><span></span>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double);
+<pre><code>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double);
 
-from StreamA#streamingml:perceptronClassifier(&#39;model1&#39;,0.0, attribute_0, attribute_1, attribute_2, attribute_3) 
+from StreamA#streamingml:perceptronClassifier('model1',0.0, attribute_0, attribute_1, attribute_2, attribute_3) 
 insert all events into OutputStream;
-</pre></div>
-
+</code></pre>
 
 <p style="word-wrap: break-word">This query uses a Perceptron model named <code>model1</code> with a <code>0.0</code> bias to predict the label of the feature vector represented by <code>attribute_0</code>, <code>attribute_1</code>, <code>attribute_2</code>, and <code>attribute_3</code>. The prediction(<code>true/false</code>) is emitted to the <code>OutputStream</code>stream along with the prediction confidence level(probability) and the feature. As a result, the OutputStream stream is defined as follows: (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, prediction bool, confidenceLevel double).</p>
 
 <p><span id="example-3" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 3</span></p>
-<div class="codehilite"><pre><span></span>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double);
+<pre><code>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double);
 
 from StreamA#streamingml:perceptronClassifier(`model1`, attribute_0, attribute_1, attribute_2) 
 insert all events into OutputStream;
-</pre></div>
-
+</code></pre>
 
 <p style="word-wrap: break-word">This query uses a Perceptron model named <code>model1</code> with a default 0.0 bias to predict the label of the feature vector represented by <code>attribute_0</code>, <code>attribute_1</code>, and <code>attribute_2</code>. The predicted probability is emitted to the OutputStream stream along with the feature vector. As a result, the OutputStream is defined as follows: (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, prediction bool, confidenceLevel double).</p>
 
-<h3 id="updateperceptronclassifier-stream-processor">updatePerceptronClassifier <em><a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processor">(Stream Processor)</a></em><a class="headerlink" href="#updateperceptronclassifier-stream-processor" title="Permanent link">&para;</a></h3>
+<h3 id="updateperceptronclassifier-stream-processor">updatePerceptronClassifier <em><a target="_blank" href="https://siddhi.io/en/v4.x/docs/query-guide/#stream-processor">(Stream Processor)</a></em></h3>
 <p style="word-wrap: break-word">This extension builds/updates a linear binary classification Perceptron model.</p>
 
 <p><span id="syntax" class="md-typeset" style="display: block; font-weight: bold;">Syntax</span></p>
-<div class="codehilite"><pre><span></span>streamingml:updatePerceptronClassifier(&lt;STRING&gt; model.name, &lt;BOOL|STRING&gt; model.label, &lt;DOUBLE&gt; learning.rate, &lt;DOUBLE|INT&gt; model.features)
-</pre></div>
-
+<pre><code>streamingml:updatePerceptronClassifier(&lt;STRING&gt; model.name, &lt;BOOL|STRING&gt; model.label, &lt;DOUBLE&gt; learning.rate, &lt;DOUBLE|INT&gt; model.features)
+</code></pre>
 
 <p><span id="query-parameters" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">QUERY PARAMETERS</span>
 <table>
@@ -1049,22 +1040,20 @@ insert all events into OutputStream;
 </table></p>
 <p><span id="examples" class="md-typeset" style="display: block; font-weight: bold;">Examples</span>
 <span id="example-1" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 1</span></p>
-<div class="codehilite"><pre><span></span>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, attribute_4 string );
+<pre><code>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double, attribute_3 double, attribute_4 string );
 
-from StreamA#streamingml:updatePerceptronClassifier(&#39;model1&#39;, attribute_4, 0.01, attribute_0, attribute_1, attribute_2, attribute_3) 
+from StreamA#streamingml:updatePerceptronClassifier('model1', attribute_4, 0.01, attribute_0, attribute_1, attribute_2, attribute_3) 
 insert all events into outputStream;
-</pre></div>
-
+</code></pre>
 
 <p style="word-wrap: break-word">This query builds/updates a Perceptron model named <code>model1</code> with a <code>0.01</code> learning rate using <code>attribute_0</code>, <code>attribute_1</code>, <code>attribute_2</code>, and <code>attribute_3</code> as features, and <code>attribute_4</code> as the label. Updated weights of the model are emitted to the OutputStream stream.</p>
 
 <p><span id="example-2" class="md-typeset" style="display: block; color: rgba(0, 0, 0, 0.54); font-size: 12.8px; font-weight: bold;">EXAMPLE 2</span></p>
-<div class="codehilite"><pre><span></span>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double,attribute_3 double, attribute_4 string );
+<pre><code>define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 double,attribute_3 double, attribute_4 string );
 
- from StreamA#streamingml:updatePerceptronClassifier(&#39;model1&#39;, attribute_4, attribute_0, attribute_1, attribute_2, attribute_3) 
+ from StreamA#streamingml:updatePerceptronClassifier('model1', attribute_4, attribute_0, attribute_1, attribute_2, attribute_3) 
 insert all events into outputStream;
-</pre></div>
-
+</code></pre>
 
 <p style="word-wrap: break-word">This query builds/updates a Perceptron model named <code>model1</code> with a default <code>0.1</code> learning rate using <code>attribute_0</code>, <code>attribute_1</code>, <code>attribute_2</code>, and <code>attribute_3</code> as features, and <code>attribute_4</code> as the label. The updated weights of the model are appended to the outputStream.</p>
                 
@@ -1124,7 +1113,7 @@ insert all events into outputStream;
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2011 - 2018 WSO2
+            Siddhi - Documentation
           </div>
         
         powered by
@@ -1134,33 +1123,30 @@ insert all events into outputStream;
           Material for MkDocs</a>
       </div>
       
-        
   <div class="md-footer-social">
     <link rel="stylesheet" href="../../assets/fonts/font-awesome.css">
     
-      <a href="https://github.com/wso2/siddhi" class="md-footer-social__link fa fa-github"></a>
+      <a href="https://github.com/siddhi-io/siddhi" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://medium.com/siddhi-io" class="md-footer-social__link fa fa-medium"></a>
+    
+      <a href="https://twitter.com/siddhi_io" class="md-footer-social__link fa fa-twitter"></a>
     
       <a href="https://www.linkedin.com/groups/13553064" class="md-footer-social__link fa fa-linkedin"></a>
     
   </div>
 
-      
     </div>
   </div>
 </footer>
       
     </div>
     
-      <script src="../../assets/javascripts/application.a59e2a89.js"></script>
+      <script src="../../assets/javascripts/application.245445c6.js"></script>
       
-      <script>app.initialize({version:"0.17.4",url:{base:"../.."}})</script>
+      <script>app.initialize({version:"1.0.4",url:{base:"../.."}})</script>
       
-        <script src="../../javascripts/extra.js"></script>
-      
-    
-    
-      
-        <script>!function(e,a,t,n,o,c,i){e.GoogleAnalyticsObject=o,e.ga=e.ga||function(){(e.ga.q=e.ga.q||[]).push(arguments)},e.ga.l=1*new Date,c=a.createElement(t),i=a.getElementsByTagName(t)[0],c.async=1,c.src="https://www.google-analytics.com/analytics.js",i.parentNode.insertBefore(c,i)}(window,document,"script",0,"ga"),ga("create","UA-103065-28","auto"),ga("set","anonymizeIp",!0),ga("send","pageview");var links=document.getElementsByTagName("a");if(Array.prototype.map.call(links,function(e){e.host!=document.location.host&&e.addEventListener("click",function(){var a=e.getAttribute("data-md-action")||"follow";ga("send","event","outbound",a,e.href)})}),document.forms.search){var query=document.forms.search.query;query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})}</script>
+        <script src="../../assets/javascripts/extra.js"></script>
       
     
   </body>
