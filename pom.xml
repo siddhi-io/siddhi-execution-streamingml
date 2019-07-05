@@ -27,7 +27,7 @@
 
     <groupId>io.siddhi.extension.execution.streamingml</groupId>
     <artifactId>siddhi-execution-streamingml-parent</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.0.2</version>
     <packaging>pom</packaging>
     <name>Siddhi Execution Streaming ML Extension Parent</name>
     <url>http://wso2.org</url>
@@ -63,7 +63,7 @@
         <url>https://github.com/siddhi-io/siddhi-execution-streamingml.git</url>
         <developerConnection>scm:git:https://github.com/siddhi-io/siddhi-execution-streamingml.git
         </developerConnection>
-        <tag>HEAD</tag>
+        <tag>v2.0.2</tag>
     </scm>
 
     <dependencyManagement>
