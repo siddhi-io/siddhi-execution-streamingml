@@ -1,5 +1,8 @@
 # API Docs - v2.0.1
 
+!!! Info "Tested Siddhi Core version: *<a target="_blank" href="http://siddhi.io/en/v5.0/docs/query-guide/">5.0.0</a>*"
+    It could also support other Siddhi Core minor versions.
+
 ## Streamingml
 
 ### bayesianClassification *<a target="_blank" href="https://siddhi.io/en/v5.0/docs/query-guide/#stream-processor">(Stream Processor)</a>*
