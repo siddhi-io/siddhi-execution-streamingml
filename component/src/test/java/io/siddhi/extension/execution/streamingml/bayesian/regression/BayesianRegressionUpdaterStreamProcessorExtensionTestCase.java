@@ -33,13 +33,10 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 public class BayesianRegressionUpdaterStreamProcessorExtensionTestCase {
     private static final Logger logger = Logger.getLogger(
             BayesianRegressionUpdaterStreamProcessorExtensionTestCase.class);
-
     private AtomicInteger count;
-
 
     @BeforeMethod
     public void init() {
@@ -47,128 +44,73 @@ public class BayesianRegressionUpdaterStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testBayesianRegressionStreamProcessorExtension1() {
+    public void testBayesianRegressionStreamProcessorExtension1() throws InterruptedException {
         logger.info("BayesianRegressionUpdaterStreamProcessorExtension TestCase - All params in");
-
         SiddhiManager siddhiManager = new SiddhiManager();
-
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 "
                 + "double, attribute_3 double, attribute_4 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:updateBayesianRegression('model1', "
                 + "attribute_4, 1, 'adam', 0.01, attribute_0, attribute_1, attribute_2, attribute_3) \n"
                 + "insert all events into outputStream;");
-
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            try {
-
-                InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
-                siddhiAppRuntime.start();
-                inputHandler.send(new Object[]{0.1, 0.8, 0.3, 0.2, 1.0});
-                inputHandler.send(new Object[]{0.2, 0.95, 0.42, 0.22, 2.8});
-                inputHandler.send(new Object[]{0.8, 0.10, 0.8, 0.65, 3.1});
-                inputHandler.send(new Object[]{0.75, 0.1, 0.43, 0.58, 1.1});
-
-                SiddhiTestHelper.waitForEvents(200, 4, count, 1000);
-
-            } catch (Exception e) {
-                logger.error(e.getCause().getMessage());
-                AssertJUnit.fail("Model fails to train with all the params");
-            } finally {
-                siddhiAppRuntime.shutdown();
-            }
-
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.fail("Model fails initialize with all the params");
-        } finally {
-            siddhiManager.shutdown();
-        }
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
+        siddhiAppRuntime.start();
+        inputHandler.send(new Object[]{0.1, 0.8, 0.3, 0.2, 1.0});
+        inputHandler.send(new Object[]{0.2, 0.95, 0.42, 0.22, 2.8});
+        inputHandler.send(new Object[]{0.8, 0.10, 0.8, 0.65, 3.1});
+        inputHandler.send(new Object[]{0.75, 0.1, 0.43, 0.58, 1.1});
+        SiddhiTestHelper.waitForEvents(200, 4, count, 1000);
+        siddhiAppRuntime.shutdown();
+        siddhiManager.shutdown();
     }
 
     @Test
-    public void testBayesianRegressionStreamProcessorExtension2() {
+    public void testBayesianRegressionStreamProcessorExtension2() throws InterruptedException {
         logger.info("BayesianRegressionUpdaterStreamProcessorExtension TestCase - Only learning rate in");
-
         SiddhiManager siddhiManager = new SiddhiManager();
-
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 "
                 + "double, attribute_3 double, attribute_4 double );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:updateBayesianRegression('model1', "
                 + "attribute_4, 'nadam', 0.01, attribute_0, attribute_1, attribute_2, attribute_3) \n"
                 + "insert all events into outputStream;");
-
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-
-            try {
-                InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
-                siddhiAppRuntime.start();
-                inputHandler.send(new Object[]{0.1, 0.8, 0.1, 0.2, 0.03});
-                inputHandler.send(new Object[]{0.2, 0.95, 0.42, 0.22, 0.1});
-                inputHandler.send(new Object[]{0.8, 0.1, 0.8, 0.65, 0.92});
-                inputHandler.send(new Object[]{0.75, 0.1, 0.4, 0.58, 0.71});
-
-                SiddhiTestHelper.waitForEvents(200, 4, count, 5000);
-            } catch (Exception e) {
-                logger.error(e.getCause().getMessage());
-                AssertJUnit.fail("Model fails to train with all the params");
-            } finally {
-                siddhiAppRuntime.shutdown();
-            }
-
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.fail("Model fails initialize with all the params");
-        } finally {
-            siddhiManager.shutdown();
-        }
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
+        siddhiAppRuntime.start();
+        inputHandler.send(new Object[]{0.1, 0.8, 0.1, 0.2, 0.03});
+        inputHandler.send(new Object[]{0.2, 0.95, 0.42, 0.22, 0.1});
+        inputHandler.send(new Object[]{0.8, 0.1, 0.8, 0.65, 0.92});
+        inputHandler.send(new Object[]{0.75, 0.1, 0.4, 0.58, 0.71});
+        SiddhiTestHelper.waitForEvents(200, 4, count, 5000);
+        siddhiAppRuntime.shutdown();
+        siddhiManager.shutdown();
     }
 
     @Test
-    public void testBayesianRegressionStreamProcessorExtension3() {
+    public void testBayesianRegressionStreamProcessorExtension3() throws InterruptedException {
         logger.info("BayesianRegressionUpdaterStreamProcessorExtension TestCase - all parameters default");
-
         SiddhiManager siddhiManager = new SiddhiManager();
-
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 "
                 + "double, attribute_3 double, attribute_4 double );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:updateBayesianRegression('model1', "
                 + "attribute_4, attribute_0, attribute_1, attribute_2, attribute_3) \n"
                 + "insert all events into outputStream;");
 
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-
-            try {
-                InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
-                siddhiAppRuntime.start();
-                inputHandler.send(new Object[]{0.1, 0.8, 0.1, 0.2, 0.53});
-                inputHandler.send(new Object[]{0.2, 0.95, 0.42, 0.22, 0.1});
-                inputHandler.send(new Object[]{0.8, 0.1, 0.8, 0.65, 0.92});
-                inputHandler.send(new Object[]{0.75, 0.1, 0.4, 0.58, 0.21});
-
-                SiddhiTestHelper.waitForEvents(200, 4, count, 5000);
-            } catch (Exception e) {
-                logger.error(e.getCause().getMessage());
-                AssertJUnit.fail("Model fails to train with all the params");
-            } finally {
-                siddhiAppRuntime.shutdown();
-            }
-
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.fail("Model fails initialize with all the params");
-        } finally {
-            siddhiManager.shutdown();
-        }
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamA");
+        siddhiAppRuntime.start();
+        inputHandler.send(new Object[]{0.1, 0.8, 0.1, 0.2, 0.53});
+        inputHandler.send(new Object[]{0.2, 0.95, 0.42, 0.22, 0.1});
+        inputHandler.send(new Object[]{0.8, 0.1, 0.8, 0.65, 0.92});
+        inputHandler.send(new Object[]{0.75, 0.1, 0.4, 0.58, 0.21});
+        SiddhiTestHelper.waitForEvents(200, 4, count, 5000);
+        siddhiAppRuntime.shutdown();
+        siddhiManager.shutdown();
     }
 
     @Test
     public void testBayesianRegressionStreamProcessorExtension4() {
         logger.info("BayesianRegressionUpdaterStreamProcessorExtension TestCase - Not implemented optimizer given");
         SiddhiManager siddhiManager = new SiddhiManager();
-
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double, attribute_3 int, attribute_4 double );";
         String query = ("@info(name = 'query1') from StreamA#streamingml:updateBayesianRegression('model1'," +
