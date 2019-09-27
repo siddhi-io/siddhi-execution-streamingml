@@ -162,7 +162,7 @@
                         </Private-Package>
                         <Include-Resource>
                             META-INF=target/classes/META-INF,
-                            ${project.build.directory}/dependencies/nd4j-native/META-INF/services
+                            META-INF/services=${project.build.directory}/dependencies/nd4j-native/META-INF/services
                         </Include-Resource>
                     </instructions>
                 </configuration>
