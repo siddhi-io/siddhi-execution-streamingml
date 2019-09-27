@@ -157,7 +157,13 @@ public class BayesianClassificationUpdaterStreamProcessorExtension
 
     private static Logger logger = Logger.getLogger(BayesianClassificationUpdaterStreamProcessorExtension.class);
     private String modelName;
+    private int numberOfClasses;
+    private String modelPrefix;
     private int numberOfFeatures;
+    private SoftmaxRegression model;
+    double learningRate;
+    int nSamples;
+    private BayesianModel.OptimizerType opimizerName;
     private VariableExpressionExecutor targetVariableExpressionExecutor;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
 
@@ -173,13 +179,11 @@ public class BayesianClassificationUpdaterStreamProcessorExtension
                                                 boolean b1,
                                                 SiddhiQueryContext siddhiQueryContext) {
         String siddhiAppName = siddhiQueryContext.getSiddhiAppContext().getName();
-        SoftmaxRegression model;
-        String modelPrefix;
-
-        double learningRate = -1;
-        int nSamples = -1;
-        int numberOfClasses = -1;
-        BayesianModel.OptimizerType opimizerName = null;
+        model = null;
+        learningRate = -1;
+        nSamples = -1;
+        numberOfClasses = -1;
+        opimizerName = null;
 
         // maxNumberOfFeatures = number of attributes - label attribute
         int maxNumberOfFeatures = inputDefinition.getAttributeList().size() - 1;
@@ -200,12 +204,6 @@ public class BayesianClassificationUpdaterStreamProcessorExtension
                     modelPrefix = (String) ((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue();
                     // model name = user given name + siddhi app name
                     modelName = modelPrefix + "." + siddhiAppName;
-
-                    if (SoftmaxRegressionModelHolder.getInstance().getSoftmaxRegressionMap().containsKey(modelName)) {
-                        throw new SiddhiAppCreationException("A model already exists with name the " + modelPrefix +
-                                ". Use a different value for model.name argument.");
-                    }
-
                 } else {
                     throw new SiddhiAppCreationException("Invalid parameter type found for the model.name argument," +
                             " required " + Attribute.Type.STRING + " But found " + attributeExpressionExecutors[0].
@@ -331,36 +329,6 @@ public class BayesianClassificationUpdaterStreamProcessorExtension
                     attributeExpressionLength, minNumberOfAttributes));
         }
 
-        // if no model exists, then create a new model
-        model = new SoftmaxRegression(numberOfClasses);
-        SoftmaxRegressionModelHolder.getInstance().addSoftmaxRegressionModel(modelName, model);
-
-
-        if (learningRate != -1) {
-            logger.debug("set learning rate to : " + learningRate);
-            model.setLearningRate(learningRate);
-        }
-        if (nSamples != -1) {
-            logger.debug("set number of samples to : " + nSamples);
-            model.setNumSamples(nSamples);
-        }
-        if (opimizerName != null) {
-            logger.debug("set optimizer to : " + opimizerName);
-            model.setOptimizerType(opimizerName);
-        }
-
-        if (model.getNumFeatures() != -1) {
-            // validate the model
-            if (numberOfFeatures != model.getNumFeatures()) {
-                throw new SiddhiAppCreationException(String.format("Model [%s] expects %s features, but the " +
-                        "streamingml:updateBayesianClassification specifies %s features", modelPrefix, model
-                        .getNumFeatures(), numberOfFeatures));
-            }
-        } else {
-            model.setNumFeatures(numberOfFeatures);
-            model.initiateModel();
-        }
-
         attributes = new ArrayList<>();
         attributes.add(new Attribute("loss", Attribute.Type.DOUBLE));
 
@@ -410,6 +378,38 @@ public class BayesianClassificationUpdaterStreamProcessorExtension
      */
     @Override
     public void start() {
+        // if no model exists, then create a new model
+        if (SoftmaxRegressionModelHolder.getInstance().getSoftmaxRegressionMap().containsKey(modelName)) {
+            throw new SiddhiAppCreationException("A model already exists with name the " + modelPrefix +
+                    ". Use a different value for model.name argument.");
+        } else {
+            model = new SoftmaxRegression(numberOfClasses);
+            SoftmaxRegressionModelHolder.getInstance().addSoftmaxRegressionModel(modelName, model);
+            if (learningRate != -1) {
+                logger.debug("set learning rate to : " + learningRate);
+                model.setLearningRate(learningRate);
+            }
+            if (nSamples != -1) {
+                logger.debug("set number of samples to : " + nSamples);
+                model.setNumSamples(nSamples);
+            }
+            if (opimizerName != null) {
+                logger.debug("set optimizer to : " + opimizerName);
+                model.setOptimizerType(opimizerName);
+            }
+
+            if (model.getNumFeatures() != -1) {
+                // validate the model
+                if (numberOfFeatures != model.getNumFeatures()) {
+                    throw new SiddhiAppCreationException(String.format("Model [%s] expects %s features, but the " +
+                            "streamingml:updateBayesianClassification specifies %s features", modelPrefix, model
+                            .getNumFeatures(), numberOfFeatures));
+                }
+            } else {
+                model.setNumFeatures(numberOfFeatures);
+                model.initiateModel();
+            }
+        }
     }
 
     /**

@@ -60,7 +60,7 @@
         </dependency>
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>${nd4j.backend}</artifactId>
+            <artifactId>nd4j-native</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.log4j.wso2</groupId>
@@ -92,7 +92,29 @@
     </profiles>
 
     <build>
-        <plugins>
+        <plugins>  <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>unpack-dependencies</id>
+                    <phase>compile</phase>
+                    <goals>
+                        <goal>unpack</goal>
+                    </goals>
+                    <configuration>
+                        <markersDirectory>${project.build.directory}/dependencies/dependency-maven-plugin-markers</markersDirectory>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.nd4j</groupId>
+                                <artifactId>nd4j-native</artifactId>
+                                <outputDirectory>${project.build.directory}/dependencies/nd4j-native</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -134,10 +156,13 @@
                             org.nd4j.*,
                             com.rits.cloning.*,
                             org.bytedeco.*,
-                            org.objenesis.*
+                            org.objenesis.*,
+                            org.apache.commons.*
+                            com.github.os72.protobuf351.*
                         </Private-Package>
                         <Include-Resource>
-                            META-INF=target/classes/META-INF
+                            META-INF=target/classes/META-INF,
+                            META-INF/services=${project.build.directory}/dependencies/nd4j-native/META-INF/services
                         </Include-Resource>
                     </instructions>
                 </configuration>

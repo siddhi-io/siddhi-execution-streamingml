@@ -54,8 +54,8 @@
         <jacoco.version>0.7.9</jacoco.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <nd4j.backend>nd4j-native</nd4j.backend>
         <nd4j.version>1.0.0-beta3</nd4j.version>
+        <flatbuffer.version>1.11.0</flatbuffer.version>
     </properties>
 
     <scm>
@@ -124,8 +124,13 @@
             </dependency>
             <dependency>
                 <groupId>org.nd4j</groupId>
-                <artifactId>${nd4j.backend}</artifactId>
+                <artifactId>nd4j-native</artifactId>
                 <version>${nd4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.flatbuffers</groupId>
+                <artifactId>flatbuffers-java</artifactId>
+                <version>${flatbuffer.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
