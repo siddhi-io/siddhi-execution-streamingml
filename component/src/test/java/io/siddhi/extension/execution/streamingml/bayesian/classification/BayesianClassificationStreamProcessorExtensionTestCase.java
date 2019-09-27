@@ -25,6 +25,7 @@ import io.siddhi.core.query.output.callback.QueryCallback;
 import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.SiddhiTestHelper;
+import io.siddhi.extension.execution.streamingml.UnitTestAppender;
 import org.apache.log4j.Logger;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -101,7 +102,8 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
 
         predictedTargets = new Double[nSamples - trainSamples];
         predictiveConfidence = new Double[nSamples - trainSamples];
-
+        UnitTestAppender testAppender = new UnitTestAppender();
+        Logger logger = Logger.getLogger(SiddhiAppRuntime.class);
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
                     trainingStream + inStreamDefinition + trainingQuery + query);
@@ -154,21 +156,19 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
                     }
                 }
                 accuracy = nCorrect / testData.length;
-
-                AssertJUnit.assertEquals(accuracy, 0.95, 0.05);
+-                AssertJUnit.assertEquals(accuracy, 0.95, 0.05);
                 logger.info("Model successfully trained with accuracy: " + accuracy);
-
-
-            } catch (Exception e) {
-                logger.error(e.getCause().getMessage());
-                AssertJUnit.fail("Model fails build");
-
+                if (testAppender.getMessages() != null) {
+                    AssertJUnit.assertTrue(testAppender.getMessages().contains("Model fails build"));
+                }
             } finally {
+                logger.removeAppender(testAppender);
                 siddhiAppRuntime.shutdown();
             }
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.fail("Model fails build");
+            if (testAppender.getMessages() != null) {
+                AssertJUnit.assertTrue(testAppender.getMessages().contains("Model fails build"));
+            }
         } finally {
             siddhiManager.shutdown();
         }
@@ -206,20 +206,21 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
     public void testBayesianClassificationStreamProcessorExtension4() {
         logger.info("BayesianClassificationStreamProcessorExtension TestCase - Number of samples less than 1");
         SiddhiManager siddhiManager = new SiddhiManager();
-
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, attribute_2 " +
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianClassification('ml', " + "0," +
                 " attribute_0, attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
+        UnitTestAppender testAppender = new UnitTestAppender();
+        Logger logger = Logger.getLogger(SiddhiAppRuntime.class);
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid parameter value found for the " +
-                    "prediction.samples argument. Expected a value greater than zero, but found: 0"));
+            siddhiAppRuntime.start();
+            if (testAppender.getMessages() != null) {
+                AssertJUnit.assertTrue(testAppender.getMessages().contains("Invalid parameter value found for the " +
+                        "prediction.samples argument. Expected a value greater than zero, but found: 0"));
+            }
         } finally {
+            logger.removeAppender(testAppender);
             siddhiManager.shutdown();
         }
     }
@@ -270,16 +271,19 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianClassification('ml', " + "100, " +
                 "attribute_0, attribute_1, attribute_2) \n" + "insert all events into outputStream;");
+        UnitTestAppender testAppender = new UnitTestAppender();
+        Logger logger = Logger.getLogger(SiddhiAppRuntime.class);
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(trainingStream +
                     inStreamDefinition + trainingQuery + query);
-            AssertJUnit.fail();
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Model [ml] expects 4 features, but the " +
-                    "streamingml:bayesianClassification specifies 3 features"));
+            logger.addAppender(testAppender);
+            siddhiAppRuntime.start();
+            if (testAppender.getMessages() != null) {
+                AssertJUnit.assertTrue(testAppender.getMessages().contains("Model [ml] expects 4 features, but the " +
+                        "streamingml:bayesianClassification specifies 3 features"));
+            }
         } finally {
+            logger.removeAppender(testAppender);
             siddhiManager.shutdown();
         }
     }
@@ -308,6 +312,7 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
                 "insert all events into outputStream;");
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            siddhiAppRuntime.start();
             AssertJUnit.fail("Model fails build");
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
@@ -332,6 +337,7 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
                 "attribute_0, attribute_1, attribute_2, attribute_3, 2) \n" + "insert all events into outputStream;");
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            siddhiAppRuntime.start();
             AssertJUnit.fail("Model fails build");
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
@@ -357,6 +363,7 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(trainingStream
                     + inStreamDefinition + query + trainingQuery);
+            siddhiAppRuntime.start();
             AssertJUnit.fail("Model fails build");
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
@@ -386,6 +393,8 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
             // should be successful even though both the apps are using the same model name with different feature
             // values
             SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            siddhiAppRuntime1.start();
+            siddhiAppRuntime2.start();
             AssertJUnit.fail("Model fails build");
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
@@ -397,6 +406,5 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
             siddhiManager.shutdown();
         }
     }
-
 
 }

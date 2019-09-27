@@ -135,6 +135,8 @@ public class BayesianClassificationStreamProcessorExtension extends StreamProces
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new ArrayList<>();
     private SoftmaxRegression model;
     private List<Attribute> attributes;
+    private int predictionSamples;
+    private String modelPrefix;
 
     @Override
     protected StateFactory<State> init(MetaStreamEvent metaStreamEvent,
@@ -146,8 +148,8 @@ public class BayesianClassificationStreamProcessorExtension extends StreamProces
                                        boolean b1,
                                        SiddhiQueryContext siddhiQueryContext) {
         String siddhiAppName = siddhiQueryContext.getSiddhiAppContext().getName();
-        String modelPrefix;
-        int predictionSamples = -1;
+        predictionSamples = -1;
+        model = null;
         int maxNumberOfFeatures = inputDefinition.getAttributeList().size();
         int minNumberOfAttributes = 2;
         int maxNumberOfHyperParameters = 2;
@@ -221,8 +223,16 @@ public class BayesianClassificationStreamProcessorExtension extends StreamProces
                     attributeExpressionLength, minNumberOfAttributes));
         }
 
-        model = SoftmaxRegressionModelHolder.getInstance().getSoftmaxRegressionModel(modelName);
+        attributes = new ArrayList<>();
+        attributes.add(new Attribute("prediction", Attribute.Type.DOUBLE));
+        attributes.add(new Attribute("confidence", Attribute.Type.DOUBLE));
 
+        return null;
+    }
+
+    @Override
+    public void start() {
+        model = SoftmaxRegressionModelHolder.getInstance().getSoftmaxRegressionModel(modelName);
         if (model != null) {
             if (predictionSamples != -1) {
                 model.setPredictionSamples(predictionSamples);
@@ -241,16 +251,6 @@ public class BayesianClassificationStreamProcessorExtension extends StreamProces
                     + "Perform streamingml:updateBayesianClassification process first.", modelName));
 
         }
-
-        attributes = new ArrayList<>();
-        attributes.add(new Attribute("prediction", Attribute.Type.DOUBLE));
-        attributes.add(new Attribute("confidence", Attribute.Type.DOUBLE));
-
-        return null;
-    }
-
-    @Override
-    public void start() {
     }
 
     @Override
