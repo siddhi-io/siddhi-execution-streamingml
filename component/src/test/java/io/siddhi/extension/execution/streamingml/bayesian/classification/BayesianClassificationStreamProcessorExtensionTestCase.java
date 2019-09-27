@@ -156,7 +156,7 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
                     }
                 }
                 accuracy = nCorrect / testData.length;
--                AssertJUnit.assertEquals(accuracy, 0.95, 0.05);
+                AssertJUnit.assertEquals(accuracy, 0.95, 0.05);
                 logger.info("Model successfully trained with accuracy: " + accuracy);
                 if (testAppender.getMessages() != null) {
                     AssertJUnit.assertTrue(testAppender.getMessages().contains("Model fails build"));
@@ -214,7 +214,9 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
         Logger logger = Logger.getLogger(SiddhiAppRuntime.class);
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            logger.addAppender(testAppender);
             siddhiAppRuntime.start();
+        } catch (Exception e) {
             if (testAppender.getMessages() != null) {
                 AssertJUnit.assertTrue(testAppender.getMessages().contains("Invalid parameter value found for the " +
                         "prediction.samples argument. Expected a value greater than zero, but found: 0"));
@@ -310,17 +312,18 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianClassification('m1', " +
                 "attribute_0, attribute_1, attribute_2, attribute_3, 2000) \n" +
                 "insert all events into outputStream;");
+        UnitTestAppender testAppender = new UnitTestAppender();
+        Logger logger = Logger.getLogger(SiddhiAppRuntime.class);
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            logger.addAppender(testAppender);
             siddhiAppRuntime.start();
-            AssertJUnit.fail("Model fails build");
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("6th parameter is not an attribute "
-                    + "(VariableExpressionExecutor) present in the stream definition. Found a "
-                    + "io.siddhi.core.executor.ConstantExpressionExecutor"
-            ));
+            if (testAppender.getMessages() != null) {
+                AssertJUnit.assertTrue(testAppender.getMessages().contains("6th parameter is not an attribute "
+                        + "(VariableExpressionExecutor) present in the stream definition. Found a "
+                        + "io.siddhi.core.executor.ConstantExpressionExecutor"));
+            }
         } finally {
             siddhiManager.shutdown();
         }
@@ -335,16 +338,18 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
                 "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianClassification('m1', " + "10000, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3, 2) \n" + "insert all events into outputStream;");
+        UnitTestAppender testAppender = new UnitTestAppender();
+        Logger logger = Logger.getLogger(SiddhiAppRuntime.class);
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            logger.addAppender(testAppender);
             siddhiAppRuntime.start();
-            AssertJUnit.fail("Model fails build");
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Invalid number of parameters for " +
-                    "streamingml:bayesianClassification. This Stream Processor requires at most 6 parameters, " +
-                    "namely, model.name, prediction.samples[optional], model.features but found 7 parameters"));
+            if (testAppender.getMessages() != null) {
+                AssertJUnit.assertTrue(testAppender.getMessages().contains("Invalid number of parameters for " +
+                        "streamingml:bayesianClassification. This Stream Processor requires at most 6 parameters, " +
+                        "namely, model.name, prediction.samples[optional], model.features but found 7 parameters"));
+            }
         } finally {
             siddhiManager.shutdown();
         }
@@ -360,17 +365,19 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
                 + "double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianClassification('ml', attribute_0, "
                 + "attribute_1, attribute_2, attribute_3) \n" + "insert all events into outputStream;");
+        UnitTestAppender testAppender = new UnitTestAppender();
+        Logger logger = Logger.getLogger(SiddhiAppRuntime.class);
         try {
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(trainingStream
                     + inStreamDefinition + query + trainingQuery);
+            logger.addAppender(testAppender);
             siddhiAppRuntime.start();
-            AssertJUnit.fail("Model fails build");
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e instanceof SiddhiAppCreationException);
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains("Model [ml.BayesianClassificationTestApp] "
-                    + "needs to initialized prior to be used with streamingml:bayesianClassification. Perform "
-                    + "streamingml:updateBayesianClassification process first"));
+            if (testAppender.getMessages() != null) {
+                AssertJUnit.assertTrue(testAppender.getMessages().contains("Model [ml.BayesianClassificationTestApp] "
+                        + "needs to initialized prior to be used with streamingml:bayesianClassification. Perform "
+                        + "streamingml:updateBayesianClassification process first"));
+            }
         } finally {
             siddhiManager.shutdown();
         }
@@ -388,20 +395,23 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianClassification('ml', " +
                 "1000, attribute_0, attribute_1, attribute_2, attribute_3) \n" +
                 "insert all events into " + "outputStream;");
+        UnitTestAppender testAppender = new UnitTestAppender();
+        Logger logger = Logger.getLogger(SiddhiAppRuntime.class);
         try {
             SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager.createSiddhiAppRuntime(trainingStream + trainingQuery);
             // should be successful even though both the apps are using the same model name with different feature
             // values
             SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            logger.addAppender(testAppender);
             siddhiAppRuntime1.start();
             siddhiAppRuntime2.start();
-            AssertJUnit.fail("Model fails build");
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            AssertJUnit.assertTrue(e.getCause().getMessage().contains(
-                    "Model [ml.BayesianClassificationTestApp2] needs to initialized prior to be " +
-                            "used with streamingml:bayesianClassification. " +
-                            "Perform streamingml:updateBayesianClassification process first."));
+            if (testAppender.getMessages() != null) {
+                AssertJUnit.assertTrue(testAppender.getMessages().contains(
+                        "Model [ml.BayesianClassificationTestApp2] needs to initialized prior to be " +
+                                "used with streamingml:bayesianClassification. " +
+                                "Perform streamingml:updateBayesianClassification process first."));
+            }
         } finally {
             siddhiManager.shutdown();
         }
