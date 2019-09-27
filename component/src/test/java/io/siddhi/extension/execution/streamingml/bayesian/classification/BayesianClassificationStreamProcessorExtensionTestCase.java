@@ -38,7 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.nd4j.linalg.ops.transforms.Transforms.sigmoid;
 
 public class BayesianClassificationStreamProcessorExtensionTestCase {
-
     private static final Logger logger = Logger.getLogger(BayesianClassificationStreamProcessorExtensionTestCase.class);
     private AtomicInteger count;
     private String trainingStream = "@App:name('BayesianClassificationTestApp') " +
@@ -57,24 +56,20 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
     }
 
     @Test
-    public void testBayesianClassificationStreamProcessorExtension1() {
+    public void testBayesianClassificationStreamProcessorExtension1() throws InterruptedException {
         logger.info("BayesianClassificationStreamProcessorExtension TestCase " +
                 "- Assert predictions and evolution");
         SiddhiManager siddhiManager = new SiddhiManager();
-
         String trainingQuery = ("@info(name = 'query-train') from " +
                 "StreamTrain#streamingml:updateBayesianClassification" + "('ml', 2, attribute_4, 'nadam', 0.01, " +
                 "attribute_0, attribute_1, attribute_2, attribute_3) \n" +
                 "insert all events into trainOutputStream;\n");
-
         String inStreamDefinition = "define stream StreamA (attribute_0 double, attribute_1 double, " +
                 "attribute_2 double, attribute_3 double);";
         String query = ("@info(name = 'query1') from StreamA#streamingml:bayesianClassification('ml', " +
                 " attribute_0, attribute_1, attribute_2, attribute_3) " +
                 "select attribute_0, attribute_1, attribute_2, attribute_3, prediction, confidence " +
                 "insert into outputStream;");
-
-
         int nSamples, nDimensions, trainSamples;
         INDArray data, targets, w;
         nSamples = 1000;
@@ -88,7 +83,6 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
                 Nd4j.getRandomFactory().getNewRandomInstance());
         w = Nd4j.create(new double[]{0.8, -1.2, 2.5, -0.8, 3.3}, new int[]{nDimensions, 1});
         targets = sigmoid(data.mmul(w)).gt(0.5);
-
 
         double[][] trainData, testData;
         double[] trainTargets, testTargets;
@@ -104,75 +98,59 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
         predictiveConfidence = new Double[nSamples - trainSamples];
         UnitTestAppender testAppender = new UnitTestAppender();
         Logger logger = Logger.getLogger(SiddhiAppRuntime.class);
-        try {
-            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
-                    trainingStream + inStreamDefinition + trainingQuery + query);
-
-            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
-                @Override
-                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                    EventPrinter.print(inEvents);
-                    if (count.get() < (testData.length)) {
-                        predictedTargets[count.get()] =
-                                Double.parseDouble((String) inEvents[0].getData()[nDimensions]);
-                        predictiveConfidence[count.get()] =
-                                (Double) inEvents[0].getData()[nDimensions + 1];
-                    }
-                    count.incrementAndGet();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
+                trainingStream + inStreamDefinition + trainingQuery + query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(inEvents);
+                if (count.get() < (testData.length)) {
+                    predictedTargets[count.get()] =
+                            Double.parseDouble((String) inEvents[0].getData()[nDimensions]);
+                    predictiveConfidence[count.get()] =
+                            (Double) inEvents[0].getData()[nDimensions + 1];
                 }
-            });
-
-            try {
-                InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamTrain");
-                siddhiAppRuntime.start();
-
-                Object[] event = new Object[nDimensions + 1];
-                for (int i = 0; i < trainSamples; i++) {
-                    for (int j = 0; j < nDimensions; j++) {
-                        event[j] = trainData[i][j];
-                    }
-                    event[nDimensions] = trainTargets[i];
-                    inputHandler.send(event);
-                }
-
-                Thread.sleep(2000);
-
-                InputHandler inputHandler1 = siddhiAppRuntime.getInputHandler("StreamA");
-                // send some unseen data for prediction
-                event = new Object[nDimensions];
-                for (int i = 0; i < (testData.length); i++) {
-                    for (int j = 0; j < nDimensions; j++) {
-                        event[j] = testData[i][j];
-                    }
-                    inputHandler1.send(event);
-                }
-                SiddhiTestHelper.waitForEvents(200, nDimensions - trainSamples, count, 60000);
-
-                double nCorrect = 0.0;
-                double accuracy;
-                for (int i = 0; i < testData.length; i++) {
-                    if (testTargets[i] == predictedTargets[i]) {
-                        nCorrect += 1;
-                    }
-                }
-                accuracy = nCorrect / testData.length;
-                AssertJUnit.assertEquals(accuracy, 0.95, 0.05);
-                logger.info("Model successfully trained with accuracy: " + accuracy);
-                if (testAppender.getMessages() != null) {
-                    AssertJUnit.assertTrue(testAppender.getMessages().contains("Model fails build"));
-                }
-            } finally {
-                logger.removeAppender(testAppender);
-                siddhiAppRuntime.shutdown();
+                count.incrementAndGet();
             }
-        } catch (Exception e) {
-            if (testAppender.getMessages() != null) {
-                AssertJUnit.assertTrue(testAppender.getMessages().contains("Model fails build"));
+        });
+
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StreamTrain");
+        siddhiAppRuntime.start();
+        Object[] event = new Object[nDimensions + 1];
+        for (int i = 0; i < trainSamples; i++) {
+            for (int j = 0; j < nDimensions; j++) {
+                event[j] = trainData[i][j];
             }
-        } finally {
-            siddhiManager.shutdown();
+            event[nDimensions] = trainTargets[i];
+            inputHandler.send(event);
         }
-
+        Thread.sleep(2000);
+        InputHandler inputHandler1 = siddhiAppRuntime.getInputHandler("StreamA");
+        // send some unseen data for prediction
+        event = new Object[nDimensions];
+        for (int i = 0; i < (testData.length); i++) {
+            for (int j = 0; j < nDimensions; j++) {
+                event[j] = testData[i][j];
+            }
+            inputHandler1.send(event);
+        }
+        SiddhiTestHelper.waitForEvents(200, nDimensions - trainSamples, count, 60000);
+        double nCorrect = 0.0;
+        double accuracy;
+        for (int i = 0; i < testData.length; i++) {
+            if (testTargets[i] == predictedTargets[i]) {
+                nCorrect += 1;
+            }
+        }
+        accuracy = nCorrect / testData.length;
+        AssertJUnit.assertEquals(accuracy, 0.95, 0.05);
+        logger.info("Model successfully trained with accuracy: " + accuracy);
+        if (testAppender.getMessages() != null) {
+            AssertJUnit.assertTrue(testAppender.getMessages().contains("Model fails build"));
+        }
+        logger.removeAppender(testAppender);
+        siddhiAppRuntime.shutdown();
+        siddhiManager.shutdown();
     }
 
     @Test (expectedExceptions = {SiddhiAppCreationException.class})
