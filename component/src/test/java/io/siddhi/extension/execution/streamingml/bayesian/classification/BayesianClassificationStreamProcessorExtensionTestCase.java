@@ -143,7 +143,7 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
             }
         }
         accuracy = nCorrect / testData.length;
-        AssertJUnit.assertEquals(accuracy, 0.95, 0.05);
+        AssertJUnit.assertEquals(0.95, accuracy, 0.05);
         logger.info("Model successfully trained with accuracy: " + accuracy);
         if (testAppender.getMessages() != null) {
             AssertJUnit.assertTrue(testAppender.getMessages().contains("Model fails build"));
