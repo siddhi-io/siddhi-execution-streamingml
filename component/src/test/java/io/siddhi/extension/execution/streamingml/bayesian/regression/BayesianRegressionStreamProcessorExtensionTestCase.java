@@ -138,7 +138,7 @@ public class BayesianRegressionStreamProcessorExtensionTestCase {
 
         mse = mse / testData.length;
 
-        AssertJUnit.assertEquals(0.0, mse, 0.1);
+        AssertJUnit.assertEquals(0.0, mse, 0.2);
         logger.info("Model successfully trained with mean squared error: " + mse);
         siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
