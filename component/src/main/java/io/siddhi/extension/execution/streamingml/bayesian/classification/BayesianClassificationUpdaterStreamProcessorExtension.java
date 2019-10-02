@@ -17,12 +17,12 @@
  */
 package io.siddhi.extension.execution.streamingml.bayesian.classification;
 
-import io.siddhi.annotation.Example;
+/** import io.siddhi.annotation.Example;
 import io.siddhi.annotation.Extension;
 import io.siddhi.annotation.Parameter;
 import io.siddhi.annotation.ParameterOverload;
 import io.siddhi.annotation.ReturnAttribute;
-import io.siddhi.annotation.util.DataType;
+import io.siddhi.annotation.util.DataType;*/
 import io.siddhi.core.config.SiddhiQueryContext;
 import io.siddhi.core.event.ComplexEventChunk;
 import io.siddhi.core.event.stream.MetaStreamEvent;
@@ -59,7 +59,11 @@ import java.util.Map;
  * Bayesian classification using multivariate logistic regression.
  */
 
-@Extension(
+/**
+ * This feature has been removed due to the isuue at https://github.com/siddhi-io/siddhi-execution-streamingml/issues/75
+ */
+
+/** @Extension(
         name = "updateBayesianClassification",
         namespace = "streamingml",
         description = "This extension train a Bayesian multivariate logistic regression model. We can use this model " +
@@ -151,7 +155,7 @@ import java.util.Map;
 
         }
 
-)
+)*/
 public class BayesianClassificationUpdaterStreamProcessorExtension
         extends StreamProcessor<BayesianClassificationUpdaterStreamProcessorExtension.ExtensionState> {
 

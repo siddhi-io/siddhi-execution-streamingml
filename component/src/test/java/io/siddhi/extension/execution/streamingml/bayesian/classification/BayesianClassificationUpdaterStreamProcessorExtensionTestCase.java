@@ -17,7 +17,8 @@
  */
 package io.siddhi.extension.execution.streamingml.bayesian.classification;
 
-import io.siddhi.core.SiddhiAppRuntime;
+
+/**import io.siddhi.core.SiddhiAppRuntime;
 import io.siddhi.core.SiddhiManager;
 import io.siddhi.core.event.Event;
 import io.siddhi.core.exception.SiddhiAppCreationException;
@@ -27,10 +28,12 @@ import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.SiddhiTestHelper;
 import io.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import io.siddhi.extension.execution.streamingml.UnitTestAppender;
+ import org.testng.AssertJUnit;
+ */
+
 import org.apache.log4j.Logger;
-import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -46,7 +49,7 @@ public class BayesianClassificationUpdaterStreamProcessorExtensionTestCase {
     public void init() {
         count = new AtomicInteger(0);
     }
-
+    /**
     @Test
     public void testBayesianClassificationStreamProcessorExtension1() throws InterruptedException {
         logger.info("BayesianClassificationUpdaterStreamProcessorExtension TestCase - Assert Model Build with " +
@@ -571,4 +574,5 @@ public class BayesianClassificationUpdaterStreamProcessorExtensionTestCase {
         siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
+    */
 }

@@ -17,6 +17,7 @@
  */
 package io.siddhi.extension.execution.streamingml.bayesian.classification;
 
+/**
 import io.siddhi.core.SiddhiAppRuntime;
 import io.siddhi.core.SiddhiManager;
 import io.siddhi.core.event.Event;
@@ -26,16 +27,18 @@ import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.SiddhiTestHelper;
 import io.siddhi.extension.execution.streamingml.UnitTestAppender;
-import org.apache.log4j.Logger;
+import static org.nd4j.linalg.ops.transforms.Transforms.sigmoid;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+*/
 
+import org.apache.log4j.Logger;
+import org.testng.annotations.BeforeMethod;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.nd4j.linalg.ops.transforms.Transforms.sigmoid;
+
 
 public class BayesianClassificationStreamProcessorExtensionTestCase {
     private static final Logger logger = Logger.getLogger(BayesianClassificationStreamProcessorExtensionTestCase.class);
@@ -54,7 +57,7 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
     public void init() {
         count = new AtomicInteger(0);
     }
-
+    /**
     @Test
     public void testBayesianClassificationStreamProcessorExtension1() throws InterruptedException {
         logger.info("BayesianClassificationStreamProcessorExtension TestCase " +
@@ -394,5 +397,8 @@ public class BayesianClassificationStreamProcessorExtensionTestCase {
             siddhiManager.shutdown();
         }
     }
+     */
 
 }
+
+
