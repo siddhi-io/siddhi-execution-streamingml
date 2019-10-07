@@ -17,12 +17,6 @@
  */
 package io.siddhi.extension.execution.streamingml.bayesian.classification;
 
-/*import io.siddhi.annotation.Example;
-import io.siddhi.annotation.Extension;
-import io.siddhi.annotation.Parameter;
-import io.siddhi.annotation.ParameterOverload;
-import io.siddhi.annotation.ReturnAttribute;
-import io.siddhi.annotation.util.DataType;*/
 import io.siddhi.core.config.SiddhiQueryContext;
 import io.siddhi.core.event.ComplexEventChunk;
 import io.siddhi.core.event.stream.MetaStreamEvent;
