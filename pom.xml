@@ -127,11 +127,6 @@
                 <artifactId>nd4j-native</artifactId>
                 <version>${nd4j.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.google.flatbuffers</groupId>
-                <artifactId>flatbuffers-java</artifactId>
-                <version>${flatbuffer.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

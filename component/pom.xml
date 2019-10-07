@@ -153,16 +153,11 @@
                             *;resolution:=optional
                         </Import-Package>
                         <Private-Package>
-                            org.nd4j.*,
-                            com.rits.cloning.*,
-                            org.bytedeco.*,
                             org.objenesis.*,
-                            org.apache.commons.*
-                            com.github.os72.protobuf351.*
+                            org.apache.commons.*,
                         </Private-Package>
                         <Include-Resource>
                             META-INF=target/classes/META-INF,
-                            META-INF/services=${project.build.directory}/dependencies/nd4j-native/META-INF/services
                         </Include-Resource>
                     </instructions>
                 </configuration>
