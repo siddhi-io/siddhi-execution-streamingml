@@ -154,7 +154,7 @@ public class KMeansClusterer {
                 buildModel(dataPointsArray, model, numberOfClusters);
             }
             if (model.size() == numberOfClusters) {
-                ArrayList<Cluster> oldClusterList = new ArrayList<>(numberOfClusters);
+                List<Cluster> oldClusterList = new ArrayList<>(numberOfClusters);
                 for (int i = 0; i < numberOfClusters; i++) {
                     DataPoint d = new DataPoint();
                     DataPoint d1 = new DataPoint();
