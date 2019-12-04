@@ -171,7 +171,6 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor<KMeansMiniBatchS
     private ExecutorService executorService;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new LinkedList<>();
     private static final Logger logger = Logger.getLogger(KMeansMiniBatchSPExtension.class.getName());
-
     private List<Attribute> attributes;
 
     @Override
@@ -224,7 +223,6 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor<KMeansMiniBatchS
                             dimensionality);
                     extensionState.dataPoints.clear();
                 }
-
             }
         }
         nextProcessor.process(complexEventChunk);
@@ -319,18 +317,13 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor<KMeansMiniBatchS
                         attributeExpressionExecutors[3].getReturnType());
             }
         }
-
         dimensionality = attributeExpressionLength - coordinateStartIndex;
         coordinateValuesOfCurrentDataPoint = new double[dimensionality];
-
         //validating all the features
         featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
                 attributeExpressionExecutors, coordinateStartIndex, dimensionality);
-
         KMeansModel kMeansModel = new KMeansModel();
-
         executorService = siddhiQueryContext.getSiddhiAppContext().getExecutorService();
-
         attributes = new ArrayList<>(1 + dimensionality);
         attributes.add(new Attribute("euclideanDistanceToClosestCentroid", Attribute.Type.DOUBLE));
         for (int i = 1; i <= dimensionality; i++) {
@@ -342,7 +335,6 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor<KMeansMiniBatchS
     @Override
     public List<Attribute> getReturnAttributes() {
         return attributes;
-
     }
 
     @Override
@@ -351,7 +343,6 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor<KMeansMiniBatchS
     }
 
     static class ExtensionState extends State {
-
         private static final String KEY_UNTRAINED_DATA = "untrainedData";
         private static final String KEY_K_MEANS_MODEL = "kMeansModel";
         private static final String KEY_NUMBER_OF_EVENTS_RECEIVED = "numberOfEventsReceived";

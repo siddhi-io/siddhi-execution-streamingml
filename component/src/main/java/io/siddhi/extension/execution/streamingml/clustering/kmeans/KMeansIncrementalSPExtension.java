@@ -32,6 +32,7 @@ import io.siddhi.core.event.stream.StreamEventCloner;
 import io.siddhi.core.event.stream.holder.StreamEventClonerHolder;
 import io.siddhi.core.event.stream.populater.ComplexEventPopulater;
 import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.exception.SiddhiAppRuntimeException;
 import io.siddhi.core.executor.ConstantExpressionExecutor;
 import io.siddhi.core.executor.ExpressionExecutor;
 import io.siddhi.core.executor.VariableExpressionExecutor;
@@ -89,7 +90,6 @@ import java.util.Map;
                         type = {DataType.DOUBLE, DataType.FLOAT, DataType.INT, DataType.LONG},
                         dynamic = true
                 )
-
         },
         parameterOverloads = {
                 @ParameterOverload(parameterNames = {"no.of.clusters", "model.feature", "..."}),
@@ -204,15 +204,12 @@ public class KMeansIncrementalSPExtension extends StreamProcessor<KMeansIncremen
         //validating all the features
         featureVariableExpressionExecutors = CoreUtils.extractAndValidateFeatures(inputDefinition,
                 attributeExpressionExecutors, coordinateStartIndex, dimensionality);
-
         KMeansModel kMeansModel = new KMeansModel();
-
         attributes = new ArrayList<>(1 + dimensionality);
         attributes.add(new Attribute("euclideanDistanceToClosestCentroid", Attribute.Type.DOUBLE));
         for (int i = 1; i <= dimensionality; i++) {
             attributes.add(new Attribute("closestCentroidCoordinate" + i, Attribute.Type.DOUBLE));
         }
-
         return () -> new ExtensionState(kMeansModel, dataPoints);
     }
 
@@ -225,14 +222,13 @@ public class KMeansIncrementalSPExtension extends StreamProcessor<KMeansIncremen
         synchronized (this) {
             while (complexEventChunk.hasNext()) {
                 StreamEvent streamEvent = complexEventChunk.next();
-
                 //validating and getting coordinate values
                 for (int i = 0; i < dimensionality; i++) {
                     try {
                         Number content = (Number) featureVariableExpressionExecutors.get(i).execute(streamEvent);
                         coordinateValuesOfCurrentDataPoint[i] = content.doubleValue();
                     } catch (ClassCastException e) {
-                        throw new SiddhiAppCreationException("coordinate values should be int/float/double/long " +
+                        throw new SiddhiAppRuntimeException("coordinate values should be int/float/double/long " +
                                 "but found " +
                                 attributeExpressionExecutors[i].execute(streamEvent).getClass());
                     }
@@ -277,7 +273,6 @@ public class KMeansIncrementalSPExtension extends StreamProcessor<KMeansIncremen
     }
 
     static class ExtensionState extends State {
-
         private static final String KEY_UNTRAINED_DATA = "untrainedData";
         private static final String KEY_K_MEANS_MODEL = "kMeansModel";
         private KMeansModel kMeansModel;

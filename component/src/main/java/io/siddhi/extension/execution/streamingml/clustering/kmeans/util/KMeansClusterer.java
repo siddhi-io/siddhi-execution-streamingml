@@ -109,11 +109,11 @@ public class KMeansClusterer {
     }
 
     private static String printClusterList(List<Cluster> clusterList) {
-        StringBuilder s = new StringBuilder();
-        for (Cluster c: clusterList) {
-            s.append(Arrays.toString(c.getCentroid().getCoordinates()));
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Cluster clusterIterator: clusterList) {
+            stringBuilder.append(Arrays.toString(clusterIterator.getCentroid().getCoordinates()));
         }
-        return s.toString();
+        return stringBuilder.toString();
     }
 
     private static void buildModel(List<DataPoint> dataPointsArray, KMeansModel model, int numberOfClusters) {
@@ -144,7 +144,7 @@ public class KMeansClusterer {
             logger.debug("model at the start of this update : ");
             logger.debug(model.getModelInfo());
         }
-        StringBuilder s;
+        StringBuilder stringBuilder;
         List<Cluster> intermediateClusterList = new LinkedList<>();
 
         int iter = 0;
@@ -154,40 +154,40 @@ public class KMeansClusterer {
                 buildModel(dataPointsArray, model, numberOfClusters);
             }
             if (model.size() == numberOfClusters) {
-                ArrayList<Cluster> oldClusterList = new ArrayList<>(numberOfClusters);
+                List<Cluster> oldClusterList = new ArrayList<>(numberOfClusters);
                 for (int i = 0; i < numberOfClusters; i++) {
-                    DataPoint d = new DataPoint();
-                    DataPoint d1 = new DataPoint();
-                    d.setCoordinates(model.getCoordinatesOfCentroidOfCluster(i));
-                    d1.setCoordinates(model.getCoordinatesOfCentroidOfCluster(i));
-                    Cluster c = new Cluster(d);;
-                    Cluster c1 = new Cluster(d1);
-                    oldClusterList.add(c);
-                    intermediateClusterList.add(c1);
+                    DataPoint newDataPoint1 = new DataPoint();
+                    DataPoint newDataPoint2 = new DataPoint();
+                    newDataPoint1.setCoordinates(model.getCoordinatesOfCentroidOfCluster(i));
+                    newDataPoint2.setCoordinates(model.getCoordinatesOfCentroidOfCluster(i));
+                    Cluster newCluster1 = new Cluster(newDataPoint1);;
+                    Cluster newCluster2 = new Cluster(newDataPoint2);
+                    oldClusterList.add(newCluster1);
+                    intermediateClusterList.add(newCluster2);
                 }
                 boolean centroidShifted = false;
                 while (iter < maximumIterations) {
-
                     assignToCluster(dataPointsArray, model);
                     List<Cluster> newClusterList = calculateNewClusters(model, dimensionality);
                     centroidShifted = !intermediateClusterList.equals(newClusterList);
                     if (logger.isDebugEnabled()) {
-                        s = new StringBuilder();
+                        stringBuilder = new StringBuilder();
                         for (DataPoint c : dataPointsArray) {
-                            s.append(Arrays.toString(c.getCoordinates()));
+                            stringBuilder.append(Arrays.toString(c.getCoordinates()));
                         }
-                        logger.debug("current iteration : " + iter + "\ndata points array\n" + s.toString() +
-                                "\nCluster list : \n" + printClusterList(intermediateClusterList) +
-                                "\nnew cluster list \n" + printClusterList(newClusterList) + "\nCentroid shifted? = "
-                                + centroidShifted + "\n");
+                        logger.debug("current iteration : " + iter + "\ndata points array\n"
+                                + stringBuilder.toString() + "\nCluster list : \n"
+                                + printClusterList(intermediateClusterList) + "\nnew cluster list \n"
+                                + printClusterList(newClusterList) + "\nCentroid shifted? = " + centroidShifted + "\n");
                     }
                     if (!centroidShifted) {
                         break;
                     }
                     model.setClusterList(newClusterList);
                     for (int i = 0; i < numberOfClusters; i++) {
-                        Cluster b = newClusterList.get(i);
-                        intermediateClusterList.get(i).getCentroid().setCoordinates(b.getCentroid().getCoordinates());
+                        Cluster currentCluster = newClusterList.get(i);
+                        intermediateClusterList.get(i).getCentroid().setCoordinates(currentCluster.getCentroid()
+                                .getCoordinates());
                     }
                     iter++;
                 }
@@ -263,11 +263,9 @@ public class KMeansClusterer {
                 associatedCluster.getCentroid().getCoordinates());
         List<Double> associatedCentroidInfoList = new ArrayList<Double>();
         associatedCentroidInfoList.add(minDistance);
-
-        for (double x : associatedCluster.getCentroid().getCoordinates()) {
-            associatedCentroidInfoList.add(x);
+        for (double coordinate : associatedCluster.getCentroid().getCoordinates()) {
+            associatedCentroidInfoList.add(coordinate);
         }
-
         Object[] associatedCentroidInfo = new Object[associatedCentroidInfoList.size()];
         associatedCentroidInfoList.toArray(associatedCentroidInfo);
         return associatedCentroidInfo;
@@ -282,24 +280,23 @@ public class KMeansClusterer {
     private static List<Cluster> calculateNewClusters(KMeansModel model, int dimensionality) {
         List<Cluster> newClusterList = new LinkedList<>();
 
-        for (Cluster c: model.getClusterList()) {
+        for (Cluster clusterIterator: model.getClusterList()) {
             double[] total;
             total = new double[dimensionality];
-            for (DataPoint d: c.getDataPointsInCluster()) {
-                double[] coordinatesOfd = d.getCoordinates();
+            for (DataPoint dataPointIterator: clusterIterator.getDataPointsInCluster()) {
+                double[] coordinatesOfd = dataPointIterator.getCoordinates();
                 for (int i = 0; i < dimensionality; i++) {
                     total[i] += coordinatesOfd[i];
                 }
             }
-            int numberOfMembers = c.getDataPointsInCluster().size();
+            int numberOfMembers = clusterIterator.getDataPointsInCluster().size();
             for (int i = 0; i < dimensionality; i++) {
                 total[i] = Math.round((total[i] / numberOfMembers) * 10000.0) / 10000.0;
             }
-
-            DataPoint d1 = new DataPoint();
-            d1.setCoordinates(total);
-            Cluster c1 = new Cluster(d1);
-            newClusterList.add(c1);
+            DataPoint newDataPoint = new DataPoint();
+            newDataPoint.setCoordinates(total);
+            Cluster newCluster = new Cluster(newDataPoint);
+            newClusterList.add(newCluster);
         }
         return newClusterList;
     }
