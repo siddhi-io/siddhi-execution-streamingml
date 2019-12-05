@@ -255,6 +255,8 @@ public class KMeansClusterer {
      * similar to findAssociatedCluster method but return an Object[] array with the distance
      * to closest centroid and the coordinates of the closest centroid
      *
+     * @param currentDatapoint the current data point that will be the next centroid
+     * @param model the KMeansModel
      * @return an Object[] array as mentioned above
      */
     public static Object[] getAssociatedCentroidInfo(DataPoint currentDatapoint, KMeansModel model) {
