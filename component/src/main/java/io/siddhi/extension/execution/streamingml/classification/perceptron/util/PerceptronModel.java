@@ -88,7 +88,7 @@ public class PerceptronModel implements Serializable {
 
     /**
      * Initialize model's weights
-     * @param size
+     * @param size size of the weights array
      */
     public void initWeights(int size) {
         this.weights = new double[size];
