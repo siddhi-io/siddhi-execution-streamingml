@@ -47,7 +47,8 @@ import io.siddhi.extension.execution.streamingml.classification.perceptron.util.
 import io.siddhi.extension.execution.streamingml.util.CoreUtils;
 import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,7 +112,7 @@ import java.util.Map;
 public class PerceptronClassifierUpdaterStreamProcessorExtension
         extends StreamProcessor<PerceptronClassifierUpdaterStreamProcessorExtension.ExtensionState> {
 
-    private static Logger logger = Logger.getLogger(PerceptronClassifierUpdaterStreamProcessorExtension.class);
+    private static Logger logger = LogManager.getLogger(PerceptronClassifierUpdaterStreamProcessorExtension.class);
     private String modelName;
     private int numberOfFeatures;
     private VariableExpressionExecutor labelVariableExpressionExecutor;

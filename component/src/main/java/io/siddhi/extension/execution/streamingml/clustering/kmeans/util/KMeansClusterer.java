@@ -19,7 +19,8 @@
 package io.siddhi.extension.execution.streamingml.clustering.kmeans.util;
 
 import io.siddhi.extension.execution.streamingml.util.MathUtil;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +33,7 @@ import java.util.concurrent.Future;
  * class containing all mathematical logic needed to perform kmeans
  */
 public class KMeansClusterer {
-    private static final Logger logger = Logger.getLogger(KMeansClusterer.class.getName());
+    private static final Logger logger = LogManager.getLogger(KMeansClusterer.class.getName());
 
     public static void train(LinkedList<DataPoint> dataPointsArray, int numberOfEventsToRetrain, double decayRate,
                       ExecutorService executorService, KMeansModel model, int numberOfClusters,

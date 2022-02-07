@@ -27,7 +27,8 @@ import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.SiddhiTestHelper;
 import io.siddhi.core.util.persistence.InMemoryPersistenceStore;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -48,8 +49,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class PerceptronClassifierUpdaterStreamProcessorExtensionTestCase {
 
-    private static final Logger logger = Logger.getLogger(PerceptronClassifierUpdaterStreamProcessorExtensionTestCase
-            .class);
+    private static final Logger logger = LogManager.
+            getLogger(PerceptronClassifierUpdaterStreamProcessorExtensionTestCase.class);
     private AtomicInteger count;
 
     @BeforeMethod

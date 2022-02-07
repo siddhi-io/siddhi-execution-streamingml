@@ -18,8 +18,8 @@
 
 package io.siddhi.extension.execution.streamingml.clustering.kmeans.util;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
  * trains the model using a separate thread when the batch size is larger than a specified value
  */
 public class Trainer implements Runnable {
-    private static final Logger logger = Logger.getLogger(Trainer.class.getName());
+    private static final Logger logger = LogManager.getLogger(Trainer.class.getName());
     private List<DataPoint> dataPointsArray;
     private double decayRate;
     private KMeansModel model;
@@ -47,7 +47,6 @@ public class Trainer implements Runnable {
 
     @Override
     public void run() {
-        logger.setLevel(Level.ALL);
         if (logger.isDebugEnabled()) {
             logger.debug("running trainer thread");
         }

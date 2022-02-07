@@ -20,7 +20,8 @@ package io.siddhi.extension.execution.streamingml.bayesian.util;
 import io.siddhi.core.exception.SiddhiAppCreationException;
 import io.siddhi.extension.execution.streamingml.bayesian.model.CategoricalDistribution;
 import io.siddhi.extension.execution.streamingml.bayesian.model.NormalDistribution;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -38,7 +39,7 @@ import static org.nd4j.linalg.ops.transforms.Transforms.softmax;
  */
 public class SoftmaxRegression extends BayesianModel {
 
-    private static final Logger logger = Logger.getLogger(SoftmaxRegression.class.getName());
+    private static final Logger logger = LogManager.getLogger(SoftmaxRegression.class.getName());
     private static final long serialVersionUID = 3330926145654494163L;
 
     private NormalDistribution weights;

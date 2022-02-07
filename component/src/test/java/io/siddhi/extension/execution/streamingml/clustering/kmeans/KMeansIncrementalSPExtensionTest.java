@@ -26,7 +26,8 @@ import io.siddhi.core.query.output.callback.QueryCallback;
 import io.siddhi.core.stream.input.InputHandler;
 import io.siddhi.core.util.EventPrinter;
 import io.siddhi.core.util.persistence.InMemoryPersistenceStore;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -38,7 +39,7 @@ import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class KMeansIncrementalSPExtensionTest {
-    private static final Logger logger = Logger.getLogger(KMeansIncrementalSPExtensionTest.class);
+    private static final Logger logger = LogManager.getLogger(KMeansIncrementalSPExtensionTest.class);
     private volatile AtomicInteger count;
     @BeforeMethod
     public void init() {

@@ -17,14 +17,13 @@
  */
 package io.siddhi.extension.execution.streamingml.bayesian.classification;
 
-import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeMethod;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 
 public class BayesianClassificationStreamProcessorExtensionTestCase {
-    private static final Logger logger = Logger.getLogger(BayesianClassificationStreamProcessorExtensionTestCase.class);
     private AtomicInteger count;
     private String trainingStream = "@App:name('BayesianClassificationTestApp') " +
             "\ndefine stream StreamTrain (attribute_0 double, " +
