@@ -48,7 +48,8 @@ import io.siddhi.extension.execution.streamingml.clustering.kmeans.util.KMeansMo
 import io.siddhi.extension.execution.streamingml.util.CoreUtils;
 import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -140,7 +141,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor<KMeansIncremen
     private int numberOfClusters;
     private int dimensionality;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new LinkedList<>();
-    private static final Logger logger = Logger.getLogger(KMeansIncrementalSPExtension.class.getName());
+    private static final Logger logger = LogManager.getLogger(KMeansIncrementalSPExtension.class.getName());
     private ArrayList<Attribute> attributes;
 
     @Override

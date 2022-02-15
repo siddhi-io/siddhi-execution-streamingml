@@ -17,16 +17,13 @@
  */
 package io.siddhi.extension.execution.streamingml.bayesian.classification;
 
-import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeMethod;
-
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class BayesianClassificationUpdaterStreamProcessorExtensionTestCase {
-    private static final Logger logger = Logger.getLogger(
-            BayesianClassificationUpdaterStreamProcessorExtensionTestCase.class);
+
 
     private AtomicInteger count;
 

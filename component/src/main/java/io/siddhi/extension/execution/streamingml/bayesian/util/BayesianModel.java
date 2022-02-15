@@ -18,7 +18,8 @@
 package io.siddhi.extension.execution.streamingml.bayesian.util;
 
 import io.siddhi.core.exception.SiddhiAppCreationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -37,7 +38,7 @@ import java.io.Serializable;
  */
 public abstract class BayesianModel implements Serializable {
 
-    private static final Logger logger = Logger.getLogger(BayesianModel.class.getName());
+    private static final Logger logger = LogManager.getLogger(BayesianModel.class.getName());
     private static final long serialVersionUID = -3217237991548906395L;
 
     SameDiff sd;

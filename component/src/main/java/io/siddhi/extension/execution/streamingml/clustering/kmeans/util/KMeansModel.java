@@ -18,7 +18,8 @@
 
 package io.siddhi.extension.execution.streamingml.clustering.kmeans.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -32,7 +33,7 @@ public class KMeansModel implements Serializable {
     private static final long serialVersionUID = 7997333339345312740L;
     private List<Cluster> clusterList;
     private boolean trained;
-    private static final Logger logger = Logger.getLogger(KMeansModel.class.getName());
+    private static final Logger logger = LogManager.getLogger(KMeansModel.class.getName());
 
     public KMeansModel() {
         clusterList = new LinkedList<>();

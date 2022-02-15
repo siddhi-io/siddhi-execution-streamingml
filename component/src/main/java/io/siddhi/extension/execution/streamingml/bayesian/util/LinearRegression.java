@@ -18,7 +18,8 @@
 package io.siddhi.extension.execution.streamingml.bayesian.util;
 
 import io.siddhi.extension.execution.streamingml.bayesian.model.NormalDistribution;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -32,7 +33,7 @@ import java.util.Arrays;
  * ELBO = E[log(P(yIn|xIn,weights)] - D_KL[weights,prior]
  */
 public class LinearRegression extends BayesianModel {
-    private static final Logger logger = Logger.getLogger(LinearRegression.class.getName());
+    private static final Logger logger = LogManager.getLogger(LinearRegression.class.getName());
     private static final long serialVersionUID = -5112177245729410690L;
 
     private NormalDistribution weights;

@@ -48,7 +48,8 @@ import io.siddhi.extension.execution.streamingml.clustering.kmeans.util.KMeansMo
 import io.siddhi.extension.execution.streamingml.util.CoreUtils;
 import io.siddhi.query.api.definition.AbstractDefinition;
 import io.siddhi.query.api.definition.Attribute;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -170,7 +171,7 @@ public class KMeansMiniBatchSPExtension extends StreamProcessor<KMeansMiniBatchS
     private int dimensionality;
     private ExecutorService executorService;
     private List<VariableExpressionExecutor> featureVariableExpressionExecutors = new LinkedList<>();
-    private static final Logger logger = Logger.getLogger(KMeansMiniBatchSPExtension.class.getName());
+    private static final Logger logger = LogManager.getLogger(KMeansMiniBatchSPExtension.class.getName());
     private List<Attribute> attributes;
 
     @Override
