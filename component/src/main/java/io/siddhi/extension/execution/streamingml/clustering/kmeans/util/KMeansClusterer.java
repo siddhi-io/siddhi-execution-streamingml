@@ -66,7 +66,7 @@ public class KMeansClusterer {
                     dimensionality);
             Future f = executorService.submit(trainer);
             if (logger.isDebugEnabled()) {
-                logger.debug("Pending future tasks done: " + f.isDone());
+                logger.debug("Pending future tasks done: {}", f.isDone());
             }
         }
     }
@@ -87,18 +87,19 @@ public class KMeansClusterer {
             boolean centroidShifted;
             while (iter < maximumIterations) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Current model : \n" + model.getModelInfo() + "\nclustering iteration : " + iter);
+                    logger.debug("Current model : \n{}\nclustering iteration : {}", model.getModelInfo(), iter);
                 }
                 assignToCluster(dataPointsArray, model);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Current model : \n" + model.getModelInfo());
+                    logger.debug("Current model : \n{}", model.getModelInfo());
                 }
                 List<Cluster> newClusterList = calculateNewClusters(model, dimensionality);
 
                 centroidShifted = !model.getClusterList().equals(newClusterList);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("previous model : " + printClusterList(model.getClusterList()) + "\nnew model : " +
-                            printClusterList(newClusterList) + "\ncentroid shifted?" + centroidShifted);
+                    logger.debug("previous model : {}\nnew model : {}\ncentroid shifted?{}",
+                            printClusterList(model.getClusterList()), printClusterList(newClusterList),
+                            centroidShifted);
                 }
                 if (!centroidShifted) {
                     break;
@@ -143,7 +144,7 @@ public class KMeansClusterer {
         if (logger.isDebugEnabled()) {
             logger.debug("Updating cluster");
             logger.debug("model at the start of this update : ");
-            logger.debug(model.getModelInfo());
+            logger.debug("{}", model.getModelInfo());
         }
         StringBuilder stringBuilder;
         List<Cluster> intermediateClusterList = new LinkedList<>();
@@ -176,10 +177,10 @@ public class KMeansClusterer {
                         for (DataPoint c : dataPointsArray) {
                             stringBuilder.append(Arrays.toString(c.getCoordinates()));
                         }
-                        logger.debug("current iteration : " + iter + "\ndata points array\n"
-                                + stringBuilder.toString() + "\nCluster list : \n"
-                                + printClusterList(intermediateClusterList) + "\nnew cluster list \n"
-                                + printClusterList(newClusterList) + "\nCentroid shifted? = " + centroidShifted + "\n");
+                        logger.debug("current iteration : {}\ndata points array\n{}\nCluster list : \n{}\nnew cluster" +
+                                        " list\n{}\nCentroid shifted? = {}\n", iter, stringBuilder.toString(),
+                                printClusterList(intermediateClusterList), printClusterList(newClusterList),
+                                centroidShifted);
                     }
                     if (!centroidShifted) {
                         break;
@@ -193,7 +194,7 @@ public class KMeansClusterer {
                     iter++;
                 }
                 if (logger.isDebugEnabled()) {
-                    logger.debug("old cluster list :\n" + printClusterList(oldClusterList));
+                    logger.debug("old cluster list :\n{}", printClusterList(oldClusterList));
                 }
                 for (int i = 0; i < numberOfClusters; i++) {
                     if (model.getClusterList().get(i).getDataPointsInCluster().size() != 0) {
@@ -212,7 +213,7 @@ public class KMeansClusterer {
                 }
                 model.setClusterList(intermediateClusterList);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("weighted centroid list\n" + printClusterList(model.getClusterList()));
+                    logger.debug("weighted centroid list\n{}", printClusterList(model.getClusterList()));
                 }
             }
         }
@@ -226,8 +227,8 @@ public class KMeansClusterer {
         model.clearClusterMembers();
         for (DataPoint currentDataPoint : dataPointsArray) {
             Cluster associatedCluster = findAssociatedCluster(currentDataPoint, model);
-            logger.debug("Associated cluster of " + Arrays.toString(currentDataPoint.getCoordinates()) + " is " +
-             Arrays.toString(associatedCluster.getCentroid().getCoordinates()));
+            logger.debug("Associated cluster of {} is {}", Arrays.toString(currentDataPoint.getCoordinates()),
+                    Arrays.toString(associatedCluster.getCentroid().getCoordinates()));
             associatedCluster.addToCluster(currentDataPoint);
         }
     }

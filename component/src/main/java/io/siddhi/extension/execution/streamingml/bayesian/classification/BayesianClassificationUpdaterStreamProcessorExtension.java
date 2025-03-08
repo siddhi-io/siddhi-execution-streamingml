@@ -251,7 +251,7 @@ public class BayesianClassificationUpdaterStreamProcessorExtension
             while (complexEventChunk.hasNext()) {
                 StreamEvent event = complexEventChunk.next();
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("Event received; Model name: %s Event:%s", modelName, event));
+                    logger.debug("Event received; Model name: {} Event:{}", modelName, event);
                 }
 
                 String target = targetVariableExpressionExecutor.execute(event).toString();
@@ -292,15 +292,15 @@ public class BayesianClassificationUpdaterStreamProcessorExtension
             model = new SoftmaxRegression(numberOfClasses);
             SoftmaxRegressionModelHolder.getInstance().addSoftmaxRegressionModel(modelName, model);
             if (learningRate != -1) {
-                logger.debug("set learning rate to : " + learningRate);
+                logger.debug("set learning rate to : {}", learningRate);
                 model.setLearningRate(learningRate);
             }
             if (nSamples != -1) {
-                logger.debug("set number of samples to : " + nSamples);
+                logger.debug("set number of samples to : {}", nSamples);
                 model.setNumSamples(nSamples);
             }
             if (opimizerName != null) {
-                logger.debug("set optimizer to : " + opimizerName);
+                logger.debug("set optimizer to : {}", opimizerName);
                 model.setOptimizerType(opimizerName);
             }
 
