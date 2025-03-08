@@ -265,7 +265,7 @@ public class BayesianRegressionStreamProcessorExtension extends StreamProcessor<
             while (complexEventChunk.hasNext()) {
                 StreamEvent event = complexEventChunk.next();
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("Event received; Model name: %s Event:%s", modelName, event));
+                    logger.debug("Event received; Model name: {} Event:{}", modelName, event);
                 }
 
                 double[] features = new double[numberOfFeatures];

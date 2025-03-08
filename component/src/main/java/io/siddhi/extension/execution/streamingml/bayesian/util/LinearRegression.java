@@ -104,7 +104,7 @@ public class LinearRegression extends BayesianModel {
 
     @Override
     protected double[][] getUpdatedWeights() {
-        logger.debug(Arrays.toString(weights.getLoc().getArr().toDoubleVector()));
+        logger.debug("{}", Arrays.toString(weights.getLoc().getArr().toDoubleVector()));
         return new double[][]{weights.getLoc().getArr().toDoubleVector(),
                 weights.getScale().getArr().toDoubleVector()};
     }

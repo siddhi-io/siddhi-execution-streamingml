@@ -168,7 +168,7 @@ public abstract class BayesianModel implements Serializable {
                 updaters[i] = optimizer.instantiate(viewArrays[i], true);
             }
         }
-        logger.debug("Successfully initiated gradient optimizer : " + optimizer.getClass().getSimpleName());
+        logger.debug("Successfully initiated gradient optimizer : {}", optimizer.getClass().getSimpleName());
     }
 
     /**
@@ -182,7 +182,7 @@ public abstract class BayesianModel implements Serializable {
 
             INDArray gradientArr = Nd4j.toFlattened(gradients);
             if (Double.isNaN(gradients.mean().toDoubleVector()[0])) {
-                logger.warn(String.format("invalid gradients. skipping variable update of %s", var.getVarName()));
+                logger.warn("invalid gradients. skipping variable update of {}", var.getVarName());
                 return;
             }
 
@@ -220,7 +220,7 @@ public abstract class BayesianModel implements Serializable {
         INDArray loss = sd.execAndEndResult();
         sd.execBackwards();
 
-        logger.info(this.getClass().getName() + " model loss : " + loss.toString());
+        logger.info("{} model loss : {}", this.getClass().getName(), loss.toString());
 
         updateVariables();
 
@@ -256,7 +256,7 @@ public abstract class BayesianModel implements Serializable {
      */
     public Double[] predictWithStd(double[] features) {
         INDArray featureArr = Nd4j.create(features);
-        logger.info(featureArr.toString());
+        logger.info("{}", featureArr.toString());
         if (addBias) {
             featureArr = Nd4j.append(featureArr, 1, 1, 1);
         }

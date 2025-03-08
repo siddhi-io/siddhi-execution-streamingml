@@ -294,7 +294,7 @@ public class KMeansIncrementalSPExtension extends StreamProcessor<KMeansIncremen
             Map<String, Object> state =  new HashMap<>();
             state.put(KEY_UNTRAINED_DATA, dataPoints);
             state.put(KEY_K_MEANS_MODEL, kMeansModel);
-            logger.debug("storing kmeans model " + state.get(KEY_K_MEANS_MODEL));
+            logger.debug("storing kmeans model {}", state.get(KEY_K_MEANS_MODEL));
             return state;
         }
 

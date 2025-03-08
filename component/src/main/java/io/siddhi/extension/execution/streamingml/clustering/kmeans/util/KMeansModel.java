@@ -78,7 +78,7 @@ public class KMeansModel implements Serializable {
 
     synchronized void add(DataPoint x) {
         if (logger.isDebugEnabled()) {
-            logger.debug("adding a new cluster with centroid " + Arrays.toString(x.getCoordinates()));
+            logger.debug("adding a new cluster with centroid {}", Arrays.toString(x.getCoordinates()));
         }
         Cluster c = new Cluster(x);
         clusterList.add(c);

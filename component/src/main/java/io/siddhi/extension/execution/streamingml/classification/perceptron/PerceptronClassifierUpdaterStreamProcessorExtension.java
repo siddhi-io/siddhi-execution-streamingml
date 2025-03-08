@@ -264,7 +264,7 @@ public class PerceptronClassifierUpdaterStreamProcessorExtension
             while (complexEventChunk.hasNext()) {
                 StreamEvent event = complexEventChunk.next();
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("Event received; Model name: %s Event:%s", modelName, event));
+                    logger.debug("Event received; Model name: {} Event:{}", modelName, event);
                 }
 
                 Object labelObj = labelVariableExpressionExecutor.execute(event);

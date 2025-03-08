@@ -22,7 +22,7 @@
     <parent>
         <artifactId>wso2</artifactId>
         <groupId>org.wso2</groupId>
-        <version>5</version>
+        <version>5.3</version>
     </parent>
 
     <groupId>io.siddhi.extension.execution.streamingml</groupId>
@@ -56,6 +56,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <nd4j.version>1.0.0-beta3</nd4j.version>
         <flatbuffer.version>1.11.0</flatbuffer.version>
+        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
     </properties>
 
     <scm>
@@ -155,6 +156,13 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <source>1.8</source>
                     <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <configuration>
+                    <excludeFilterFile>${maven.findbugsplugin.version.exclude}</excludeFilterFile>
                 </configuration>
             </plugin>
         </plugins>
