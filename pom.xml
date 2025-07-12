@@ -48,7 +48,7 @@
         <siddhi.version>5.1.21</siddhi.version>
         <siddhi.version.range>[5.0.0,6.0.0)</siddhi.version.range>
         <log4j.version>2.17.1</log4j.version>
-        <commons-lang3.version>3.3.2</commons-lang3.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
         <slf4j-version>1.7.5</slf4j-version>
         <testng.version>6.8</testng.version>
         <jacoco.version>0.7.9</jacoco.version>
